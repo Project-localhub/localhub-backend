@@ -17,9 +17,22 @@ public class UserEntity {
     @Column(name = "username")
     private String username;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "email")
+    private String email;
+
     @Column(name = "password")
     private String password;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    public void update(String email, String name) {
+        this.email = email;
+        this.name = name;
+
+
+    }
 }

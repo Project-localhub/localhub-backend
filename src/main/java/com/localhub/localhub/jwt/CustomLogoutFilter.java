@@ -1,5 +1,7 @@
 package com.localhub.localhub.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.localhub.localhub.exception.ErrorResponse;
 import com.localhub.localhub.repository.RefreshRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -74,8 +76,13 @@ public class CustomLogoutFilter extends GenericFilterBean {
             jwtUtil.isExpired(refresh);
         } catch (ExpiredJwtException e) {
 
-            //response status code
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            ErrorResponse error = new ErrorResponse
+                    (400, "토큰이 만료되었습니다. 정상 로그아웃 처리하세요.");
+            response.setStatus(400);
+            response.setContentType("application/json; charset=UTF-8");
+
+            ObjectMapper om = new ObjectMapper();
+            response.getWriter().write(om.writeValueAsString(error));
             return;
         }
 
@@ -111,3 +118,5 @@ public class CustomLogoutFilter extends GenericFilterBean {
     }
 
 }
+
+
