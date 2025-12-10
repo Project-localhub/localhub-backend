@@ -2,6 +2,7 @@ package com.localhub.localhub.controller;
 
 import com.localhub.localhub.dto.request.JoinDto;
 import com.localhub.localhub.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Operation(summary = "회원가입",description = "username, password를 받고 회원가입 진행")
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody JoinDto joinDto) {
         authService.Join(joinDto);

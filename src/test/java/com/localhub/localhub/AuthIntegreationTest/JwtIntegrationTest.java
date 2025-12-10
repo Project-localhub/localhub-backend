@@ -2,35 +2,57 @@ package com.localhub.localhub.AuthIntegreationTest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.localhub.localhub.LocalhubApplication;
+import com.localhub.localhub.OAuth2.CustomOAuth2UserService;
+import com.localhub.localhub.OAuth2.CustomSuccessHandler;
+import com.localhub.localhub.config.TestOAuthConfig;
 import com.localhub.localhub.dto.request.JoinDto;
 import com.localhub.localhub.dto.request.LoginRequest;
+import com.localhub.localhub.dto.response.ReissueTokens;
+import com.localhub.localhub.entity.RefreshEntity;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserRole;
 import com.localhub.localhub.jwt.JWTUtil;
+import com.localhub.localhub.repository.RefreshRepository;
 import com.localhub.localhub.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@SpringBootTest
+@SpringBootTest(classes = LocalhubApplication.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@Import(TestOAuthConfig.class)
 public class JwtIntegrationTest {
+
+    @Autowired
+    RefreshRepository refreshRepository;
+
+    @Autowired
+    CustomOAuth2UserService customOAuth2UserService;
+
+    @Autowired
+    CustomSuccessHandler customSuccessHandler;
 
     @Autowired
     MockMvc mockMvc;
@@ -182,5 +204,90 @@ public class JwtIntegrationTest {
                 .andExpect(jsonPath("$.message")
                         .value("이미 존재하는 유저입니다."));
     }
+
+
+
+    @Test
+    @DisplayName("AccessToken 없이 요청 시 401 또는 403 반환")
+    void get_access_no_token_401_or_403() throws Exception {
+
+        mockMvc.perform(get("/forTest"))
+                .andExpect(status().is4xxClientError());  // 401 또는 403
+    }
+
+    @Test
+    @DisplayName("만료된 AccessToken 사용 시 401 반환")
+    void get_access_expired_401() throws Exception {
+
+        // given
+        String expiredAccess = jwtUtil.createJwt("access", "testuser", "ROLE_USER", -1L);
+
+        // when & then
+        mockMvc.perform(get("/forTest")
+                        .header("Authorization", "Bearer " + expiredAccess))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    @DisplayName("정상 refresh 요청 시 새 access 반환(통합테스트)")
+    void post_refresh_정상refresh요청시_새access반환() throws Exception {
+
+        // given — 실제 refresh 토큰 생성
+        String refresh = jwtUtil.createJwt(
+                "refresh",
+                "testuser",
+                "ROLE_USER",
+                86400000L
+        );
+
+        // DB에 refresh 저장 (통합테스트 핵심)
+
+        RefreshEntity refreshEntity = RefreshEntity.builder()
+                .expiration("86400000L")
+                .refresh(refresh)
+                .username("testuser")
+                .build();
+
+        refreshRepository.save(refreshEntity);
+
+        // when & then — 실제 서비스 호출
+        mockMvc.perform(post("/reissue")
+                        .cookie(new Cookie("refresh", refresh)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").exists())
+                .andExpect(cookie().exists("refresh"));
+    }
+
+    @Test
+    @DisplayName("category 오류 refresh 요청 시 400 반환")
+    void post_refresh_category오류_refresh요청시_400반환() throws Exception {
+
+        // given — category가 'access' 인 잘못된 refresh 토큰 생성
+        String wrongRefresh = jwtUtil.createJwt(
+                "access",           // refresh가 아님
+                "testuser",
+                "ROLE_USER",
+                86400000L
+        );
+
+        // DB에는 정상 refresh 토큰을 저장 (서비스 로직에서 DB 조회까지는 정상적으로 진행됨)
+        RefreshEntity refreshEntity = RefreshEntity.builder()
+                .username("testuser")
+                .refresh(wrongRefresh)      // 일부러 같은 잘못된 토큰을 저장해도 상관 없음
+                .expiration("86400000")
+                .build();
+
+        refreshRepository.save(refreshEntity);
+
+        // when & then
+        mockMvc.perform(post("/reissue")
+                        .cookie(new Cookie("refresh", wrongRefresh)))
+                .andExpect(status().isBadRequest())  // 400
+                .andExpect(jsonPath("$.message").value("invalid refresh token"));
+    }
+
+
+
 }
 

@@ -5,6 +5,7 @@ import com.localhub.localhub.entity.RefreshEntity;
 import com.localhub.localhub.jwt.JWTUtil;
 import com.localhub.localhub.repository.RefreshRepository;
 import com.localhub.localhub.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,7 +26,7 @@ public class ReissueController {
     private final AuthService authService;
 
 
-
+    @Operation(summary = "토큰 재발급",description = "refresh토큰 유효성 확인후 access,refresh 토큰 재발급")
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
 

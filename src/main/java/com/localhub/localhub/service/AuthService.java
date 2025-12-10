@@ -47,7 +47,7 @@ public class AuthService {
         userRepository.save(user);
 
     }
-
+    //refresh 토큰 재발급
     public ReissueTokens reissue(String refresh) {
 
         //  만료 검사
