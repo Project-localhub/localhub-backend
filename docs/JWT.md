@@ -48,10 +48,10 @@ title: JWT & Refresh Token 테스트 시나리오
 
 ---
 
-### 🔶 JWT Utility 단위 테스트(선택)
-- [ ] jwtutil_createJwt_claim정상생성()
-- [ ] jwtutil_isExpired_만료예외발생()
-- [ ] jwtutil_getUsername_정상추출()
-- [ ] jwtutil_getRole_정상추출()
+### 🔶 JWT Utility 단위 테스트
+- [x] jwtutil_createJwt_claim정상생성()
+- [x] jwtutil_isExpired_만료예외발생()
+- [x] jwtutil_getUsername_정상추출()
+- [x] jwtutil_getRole_정상추출()
 
 ---
