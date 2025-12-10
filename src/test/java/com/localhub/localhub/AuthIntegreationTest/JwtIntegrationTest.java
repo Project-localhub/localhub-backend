@@ -12,6 +12,7 @@ import com.localhub.localhub.dto.response.ReissueTokens;
 import com.localhub.localhub.entity.RefreshEntity;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserRole;
+import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.jwt.JWTUtil;
 import com.localhub.localhub.repository.RefreshRepository;
 import com.localhub.localhub.repository.UserRepository;
@@ -77,6 +78,7 @@ public class JwtIntegrationTest {
                 .username("testUser")
                 .password(bCryptPasswordEncoder.encode("1234"))
                 .role(UserRole.USER)
+                .userType(UserType.CUSTOMER)
                 .build();
 
         userRepository.save(user);
@@ -175,6 +177,7 @@ public class JwtIntegrationTest {
 
         joinDto.setPassword(bCryptPasswordEncoder.encode("1243"));
         joinDto.setUsername("Join");
+        joinDto.setUserType(UserType.CUSTOMER);
 
         //when
 
@@ -194,6 +197,7 @@ public class JwtIntegrationTest {
         JoinDto joinDto = new JoinDto();
         joinDto.setUsername("testUser");
         joinDto.setPassword(bCryptPasswordEncoder.encode("1234"));
+        joinDto.setUserType(UserType.CUSTOMER);
 
         //when
 

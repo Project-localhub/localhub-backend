@@ -14,20 +14,29 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //이메일형식
     @Column(name = "username")
     private String username;
 
     @Column(name = "name")
     private String name;
-
+    //유저 id 개념인 username과는 별개의 email
     @Column(name = "email")
     private String email;
 
     @Column(name = "password")
     private String password;
 
+
+    @Column(name = "phone")
+    private String phone;
+
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserType userType;
 
     public void update(String email, String name) {
         this.email = email;
