@@ -18,7 +18,7 @@ title: JWT & Refresh Token 테스트 시나리오
 - [x] post_회원가입시_이미존재하는_아이디면_400_반환()
 
 
-### 🔶 로그인(Access + Refresh 발급) 테스트
+### 로그인(Access + Refresh 발급) 테스트
 - [x] post_로그인성공시_200반환()
 - [x] post_로그인성공시_access_header담김()
 - [x] post_로그인성공시_refresh_cookie담김()
@@ -27,7 +27,7 @@ title: JWT & Refresh Token 테스트 시나리오
 
 ---
 
-### 🔶 Access Token 인증 흐름 테스트
+### Access Token 인증 흐름 테스트
 - [x ] get_access_정상토큰으로_보호API요청_200반환()
 - [x ] get_access_없는토큰요청시_401또는403반환(SecurityConfig에따라)
 - [x ] get_access_만료토큰요청시_401반환()
@@ -35,7 +35,7 @@ title: JWT & Refresh Token 테스트 시나리오
 
 ---
 
-### 🔶 Refresh Token 재발급 테스트
+### Refresh Token 재발급 테스트
 - [x] post_refresh_정상refresh요청시_새access반환()
 - [x] post_refresh_없는refresh요청시_400반환()
 - [x] post_refresh_만료refresh요청시_400반환()
@@ -43,12 +43,12 @@ title: JWT & Refresh Token 테스트 시나리오
 
 ---
 
-### 🔶 전체 인증 프로세스 E2E 테스트
+### 전체 인증 프로세스 E2E 테스트
 - [ ] e2e_로그인→access만료→refresh재발급→새access로요청_성공()
 
 ---
 
-### 🔶 JWT Utility 단위 테스트
+### JWT Utility 단위 테스트
 - [x] jwtutil_createJwt_claim정상생성()
 - [x] jwtutil_isExpired_만료예외발생()
 - [x] jwtutil_getUsername_정상추출()
