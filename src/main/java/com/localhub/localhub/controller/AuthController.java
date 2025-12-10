@@ -17,7 +17,11 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "회원가입",description = "username, password를 받고 회원가입 진행")
+    @Operation(summary = "회원가입",description = """
+            username(email),phone,UserType(CUSTOMER, OWNER고정),name
+            값을 받고 회원가입 로직 진행
+            UserType은 필수값(없으면 에러 반환)
+            """)
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody JoinDto joinDto) {
         authService.Join(joinDto);

@@ -1,5 +1,5 @@
 ---
-title: JWT & Refresh Token 테스트 시나리오
+title: 회원가입 및 JWT & Refresh Token 테스트 시나리오
 ---
 
 # JWT & Refresh Token Test Scenarios
@@ -16,6 +16,11 @@ title: JWT & Refresh Token 테스트 시나리오
 ### 회원가입 테스트
 - [x] post_회원가입성공시_200반환()
 - [x] post_회원가입시_이미존재하는_아이디면_400_반환()
+
+
+### 회원가입 단위 테스트
+-[] post_회원가입_성공후_정상적으로_값들어가있는지조회()
+-[] post_UserType이_없으면_에러()
 
 
 ### 로그인(Access + Refresh 발급) 테스트

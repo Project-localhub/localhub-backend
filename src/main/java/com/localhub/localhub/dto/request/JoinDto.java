@@ -1,6 +1,8 @@
 package com.localhub.localhub.dto.request;
 
 
+import com.localhub.localhub.entity.UserRole;
+import com.localhub.localhub.entity.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,8 +12,12 @@ import lombok.Setter;
 
 public class JoinDto {
 
-    @Schema(description = "유저 아이디", example = "test")
+    @Schema(description = "유저 아이디(email)", example = "test")
     private String username;
     @Schema(description = "비밀번호", example = "123456")
     private String password;
+    @Schema(description = "휴대폰번호 - 없이", example = "01012435678")
+    private String phone;
+    @Schema(description = "사업자or고객 CUSTOMER OR OWNER", example = "CUSTOMER")
+    private UserType userType;
 }

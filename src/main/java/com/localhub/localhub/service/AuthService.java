@@ -5,6 +5,7 @@ import com.localhub.localhub.dto.response.ReissueTokens;
 import com.localhub.localhub.entity.RefreshEntity;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserRole;
+import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.jwt.JWTUtil;
 import com.localhub.localhub.repository.RefreshRepository;
 import com.localhub.localhub.repository.UserRepository;
@@ -30,6 +31,12 @@ public class AuthService {
 
         String username = joinDto.getUsername();
         String password = joinDto.getPassword();
+        UserType userType = joinDto.getUserType();
+        String phone = joinDto.getPhone();
+
+        if (userType == null) {
+            throw new IllegalArgumentException("userType은 필수값입니다.");
+        }
 
 
         boolean isExist = userRepository.existByUsername(username);
@@ -42,6 +49,8 @@ public class AuthService {
                 .username(username)
                 .password(bCryptPasswordEncoder.encode(password))
                 .role(UserRole.USER)
+                .userType(userType)
+                .phone(phone)
                 .build();
 
         userRepository.save(user);
