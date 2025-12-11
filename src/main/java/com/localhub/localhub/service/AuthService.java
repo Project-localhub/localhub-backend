@@ -39,9 +39,9 @@ public class AuthService {
         }
 
 
-        boolean isExist = userRepository.existByUsername(username);
+       Long isExist = userRepository.existByUsername(username);
 
-        if (isExist) {
+        if (isExist == 1L) {
             throw new IllegalStateException("이미 존재하는 유저입니다.");
         }
 
