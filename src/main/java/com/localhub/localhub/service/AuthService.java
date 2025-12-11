@@ -49,6 +49,7 @@ public class AuthService {
                 .username(username)
                 .password(bCryptPasswordEncoder.encode(password))
                 .role(UserRole.USER)
+                .name(joinDto.getName())
                 .userType(userType)
                 .phone(phone)
                 .build();

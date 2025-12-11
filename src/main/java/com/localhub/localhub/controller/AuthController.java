@@ -18,7 +18,7 @@ public class AuthController {
     private final AuthService authService;
 
     @Operation(summary = "회원가입",description = """
-            username(email),phone,UserType(CUSTOMER, OWNER고정),name
+            username(email),phone,UserType(CUSTOMER, OWNER고정),name(유저이름)
             값을 받고 회원가입 로직 진행
             UserType은 필수값(없으면 에러 반환)
             """)
