@@ -62,6 +62,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 
+
+
+
         http
                 .cors(Customizer.withDefaults());
 
@@ -137,6 +140,7 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(List.of("http://localhost:5173"));
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
 

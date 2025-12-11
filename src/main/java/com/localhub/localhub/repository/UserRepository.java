@@ -12,13 +12,13 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserEntity,Long> {
 
 
-    @Query(
-            value = """
-    SELECT CASE WHEN EXISTS(SELECT 1 FROM users WHERE username = :username)
-    THEN TRUE ELSE FALSE END
-    """,
-            nativeQuery = true
-    )
+    @Query(value = """
+    SELECT CASE 
+        WHEN EXISTS(SELECT 1 FROM users WHERE username = :username) 
+        THEN 1 
+        ELSE 0 
+    END
+""", nativeQuery = true)
     Long existByUsername(@Param("username") String username);
 
 
