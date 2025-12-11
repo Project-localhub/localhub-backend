@@ -20,4 +20,6 @@ public class JoinDto {
     private String phone;
     @Schema(description = "사업자or고객 CUSTOMER OR OWNER", example = "CUSTOMER")
     private UserType userType;
+    @Schema(description = "유저 이름", example = "홍길동")
+    private String name;
 }
