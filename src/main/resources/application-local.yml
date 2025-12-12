@@ -62,3 +62,4 @@ spring:
 
 jwt:
   secret: dgsaljklkdsagjldsajglajlk124asdf5125126tdsaaa
+  expiration: 3600000
