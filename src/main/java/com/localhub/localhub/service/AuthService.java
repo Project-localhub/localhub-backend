@@ -33,6 +33,7 @@ public class AuthService {
     private final RefreshRepository refreshRepository;
 
     //회원가입
+    @Transactional
     public void Join(JoinDto joinDto) {
 
 
@@ -68,6 +69,7 @@ public class AuthService {
 
     }
     //refresh 토큰 재발급
+    @Transactional
     public ReissueTokens reissue(String refresh) {
 
         //  만료 검사
@@ -108,6 +110,7 @@ public class AuthService {
 
     }
     //refresh토큰 저장
+    @Transactional
     private void addRefreshEntity(String username, String refresh, Long expiredMs) {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);

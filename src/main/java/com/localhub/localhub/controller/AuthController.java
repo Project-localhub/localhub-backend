@@ -7,6 +7,7 @@ import com.localhub.localhub.dto.response.TokenResponse;
 import com.localhub.localhub.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,9 +38,12 @@ public class AuthController {
                 로그인 진행후 access Token은 body , refresh Token은 쿠키로 반환
             """)
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest,
+                                               HttpServletResponse response) {
         TokenResponse tokenResponse = authService.login(loginRequest);
-        createCookie("refresh", tokenResponse.getRefresh(), 24 * 60 * 60);
+        Cookie refresh = createCookie("refresh", tokenResponse.getRefresh(), 24 * 60 * 60);
+        response.addCookie(refresh);
+
         return ResponseEntity.ok(new LoginResponse(tokenResponse.getAccess()));
     }
 
