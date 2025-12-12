@@ -1,6 +1,4 @@
 package com.localhub.localhub.AuthIntegreationTest;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.localhub.localhub.LocalhubApplication;
 import com.localhub.localhub.OAuth2.CustomOAuth2UserService;
@@ -8,7 +6,6 @@ import com.localhub.localhub.OAuth2.CustomSuccessHandler;
 import com.localhub.localhub.config.TestOAuthConfig;
 import com.localhub.localhub.dto.request.JoinDto;
 import com.localhub.localhub.dto.request.LoginRequest;
-import com.localhub.localhub.dto.response.ReissueTokens;
 import com.localhub.localhub.entity.RefreshEntity;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserRole;
@@ -28,13 +25,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 

@@ -13,7 +13,7 @@ title: 회원가입 및 JWT & Refresh Token 테스트 시나리오
 
 ## 2. 테스트 시나리오 (TDD Checklist)
 
-### 회원가입 테스트
+### 회원가입 통합 테스트
 - [x] post_회원가입성공시_200반환()
 - [x] post_회원가입시_이미존재하는_아이디면_400_반환()
 
@@ -46,10 +46,6 @@ title: 회원가입 및 JWT & Refresh Token 테스트 시나리오
 - [x] post_refresh_만료refresh요청시_400반환()
 - [x] post_refresh_category오류_refresh요청시_400반환()
 
----
-
-### 전체 인증 프로세스 E2E 테스트
-- [ ] e2e_로그인→access만료→refresh재발급→새access로요청_성공()
 
 ---
 
