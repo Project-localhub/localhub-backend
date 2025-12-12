@@ -1,8 +1,12 @@
 package com.localhub.localhub.controller;
 
 import com.localhub.localhub.dto.request.JoinDto;
+import com.localhub.localhub.dto.request.LoginRequest;
+import com.localhub.localhub.dto.response.LoginResponse;
+import com.localhub.localhub.dto.response.TokenResponse;
 import com.localhub.localhub.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +21,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "회원가입",description = """
+    @Operation(summary = "회원가입", description = """
             username(email),phone,UserType(CUSTOMER, OWNER고정),name(유저이름)
             값을 받고 회원가입 로직 진행
             UserType은 필수값(없으면 에러 반환)
@@ -27,4 +31,26 @@ public class AuthController {
         authService.Join(joinDto);
         return ResponseEntity.ok("회원가입이 성공했습니다.");
     }
+
+    @Operation(summary = "로그인", description = """
+                username(email), password 값으로 받아서 로그인진행,
+                로그인 진행후 access Token은 body , refresh Token은 쿠키로 반환
+            """)
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        TokenResponse tokenResponse = authService.login(loginRequest);
+        createCookie("refresh", tokenResponse.getRefresh(), 24 * 60 * 60);
+        return ResponseEntity.ok(new LoginResponse(tokenResponse.getAccess()));
+    }
+
+
+    private Cookie createCookie(String key, String value, int maxAge) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setHttpOnly(true);   // JS 접근 X
+        cookie.setSecure(true);     // HTTPS 환경이면 true
+        cookie.setPath("/");
+        cookie.setMaxAge(maxAge);
+        return cookie;
+    }
+
 }
