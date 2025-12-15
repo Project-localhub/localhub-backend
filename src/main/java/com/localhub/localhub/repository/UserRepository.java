@@ -50,7 +50,7 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
     SELECT new com.localhub.localhub.dto.response.GetUserInfo(
         u.id,
         u.username,
-        u.password,
+        u.name,
         u.email
     )
     FROM UserEntity u

@@ -93,7 +93,7 @@ public class SecurityConfig {
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/join").permitAll()
 //                        .requestMatchers("/stomp/**").permitAll()
                         .requestMatchers("/reissue").permitAll()
@@ -101,9 +101,9 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated());
 
-        http.exceptionHandling(ex -> ex
-                .authenticationEntryPoint((req, res, e) -> res.sendError(401))
-        );
+//        http.exceptionHandling(ex -> ex
+//                .authenticationEntryPoint((req, res, e) -> res.sendError(401))
+//        );
 
 
 
