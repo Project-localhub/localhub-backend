@@ -21,10 +21,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        log.info("[OAuth2] registrationId = {}",
+                userRequest.getClientRegistration().getRegistrationId());
 
+        log.info("[OAuth2] accessToken = {}",
+                userRequest.getAccessToken().getTokenValue());
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
         log.info(oAuth2User.toString());
+        log.info("[OAuth2] raw attributes = {}", oAuth2User.getAttributes());
+
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
@@ -42,6 +48,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } else if (registrationId.equals("kakao")) {
 
             oAuth2Response = new KaKaoResponse(oAuth2User.getAttributes());
+            log.info("[KAKAO] providerId = {}", oAuth2Response.getProviderId());
+            log.info("[KAKAO] email = {}", oAuth2Response.getEmail());
+            log.info("[KAKAO] name = {}", oAuth2Response.getName());
+
 
         } else {
             return null;
@@ -52,7 +62,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElse(null);
 
+        log.info("[OAuth2] generated username = {}", username);
+
         if (userEntity == null) {
+            log.info("[OAuth2] userEntity exists? = {}", userEntity != null);
             userEntity = UserEntity.builder()
                     .username(username)
                     .email(oAuth2Response.getEmail())
@@ -75,7 +88,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             userEntity.update
                     (oAuth2Response.getEmail(), oAuth2Response.getName());
-
+            log.info("[OAuth2] save user email = {}", oAuth2Response.getEmail());
+            log.info("[OAuth2] save user name = {}", oAuth2Response.getName());
             userRepository.save(userEntity);
 
             UserDTO userDTO = new UserDTO();
