@@ -1,24 +1,29 @@
 package com.localhub.localhub.service;
 
+import com.localhub.localhub.dto.request.ChangeTypeDto;
 import com.localhub.localhub.dto.request.JoinDto;
 import com.localhub.localhub.dto.request.LoginRequest;
+import com.localhub.localhub.dto.response.GetUserInfo;
 import com.localhub.localhub.dto.response.TokenResponse;
 import com.localhub.localhub.dto.response.ReissueTokens;
 import com.localhub.localhub.entity.RefreshEntity;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserRole;
 import com.localhub.localhub.entity.UserType;
+import com.localhub.localhub.jwt.CustomUserDetails;
 import com.localhub.localhub.jwt.JWTUtil;
 import com.localhub.localhub.repository.RefreshRepository;
 import com.localhub.localhub.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -156,6 +161,44 @@ public class AuthService {
 
 
         return new TokenResponse(access, refresh);
+
+    }
+
+    @Transactional
+    public void changeUserType(ChangeTypeDto changeTypeDto,String username) {
+
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+
+
+        if (username == userEntity.getUsername()) {
+            throw new IllegalArgumentException("유저타입은 본인만 변경할 수 있습니다.");
+        }
+
+
+        if (changeTypeDto.getChangeUserType().name() != "CUSTOMER"
+                && changeTypeDto.getChangeUserType().name() != "OWNER"
+        ) {
+            throw new IllegalArgumentException("UserType은 CUSTOMER이거나 OWNER여야 합니다. 잘못된 값: " +
+                    changeTypeDto.getChangeUserType().name());
+
+        }
+
+        userRepository.updateUserType(userEntity.getId(),
+                changeTypeDto.getChangeUserType().name());
+
+    }
+
+    public GetUserInfo getUserInfo(String username) {
+
+        UserEntity userEntity = userRepository.findByUsername(username).orElseThrow
+                (() -> new EntityNotFoundException("존재하지않는 유저입니다."));
+
+        GetUserInfo userInfo = userRepository.getUserInfo(userEntity.getId())
+                .orElseThrow(() -> new EntityNotFoundException("존재하지않는유저"));
+
+        return userInfo;
 
     }
 }

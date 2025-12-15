@@ -2,6 +2,7 @@ package com.localhub.localhub.jwt;
 
 
 import com.localhub.localhub.entity.UserEntity;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,6 +19,14 @@ public class CustomUserDetails implements UserDetails {
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
+
+    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+
+        this.id = null;
+        this.username = username;
+        this.password = password;
+        this.authorities = authorities;
+    }
 
     public CustomUserDetails(UserEntity userEntity) {
 

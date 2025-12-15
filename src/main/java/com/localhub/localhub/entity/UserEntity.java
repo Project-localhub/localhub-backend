@@ -15,7 +15,7 @@ public class UserEntity {
     private Long id;
 
     //이메일형식
-    @Column(name = "username")
+    @Column(name = "username" ,unique = true)
     private String username;
 
     @Column(name = "name")
