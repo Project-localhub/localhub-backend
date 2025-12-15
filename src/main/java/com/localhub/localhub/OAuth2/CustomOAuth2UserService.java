@@ -2,6 +2,7 @@ package com.localhub.localhub.OAuth2;
 
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserRole;
+import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
 
-        } else {
+        } else if (registrationId.equals("kakao")) {
 
             return null;
         }
@@ -53,6 +54,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .username(username)
                     .email(oAuth2Response.getEmail())
                     .name(oAuth2Response.getName())
+                    .userType(UserType.CUSTOMER)
                     .role(UserRole.USER)
                     .build();
 

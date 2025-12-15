@@ -60,14 +60,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-
-
-
-
         http
                 .cors(Customizer.withDefaults());
-
 
         http
                 .csrf(AbstractHttpConfigurer::disable);
@@ -98,7 +92,10 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/login").permitAll()
                         .requestMatchers("/join").permitAll()
+//                        .requestMatchers("/stomp/**").permitAll()
                         .requestMatchers("/reissue").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
 

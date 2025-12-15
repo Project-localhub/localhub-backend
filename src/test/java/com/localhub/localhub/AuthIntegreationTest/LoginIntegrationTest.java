@@ -129,4 +129,23 @@ public class LoginIntegrationTest {
                 .andExpect(status().is(404));
 
     }
+
+    @Test
+    void post_로그인_비밀번호불일치_400반환() throws Exception {
+
+        //given
+        LoginRequest request = new LoginRequest();
+
+        request.setPassword("12345");
+        request.setUsername("test");
+
+
+        //when&then
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().is(400));
+    }
+
 }

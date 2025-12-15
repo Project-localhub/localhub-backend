@@ -71,10 +71,10 @@ public class JWTFilter extends OncePerRequestFilter {
         String role = jwtUtil.getRole(accessToken);
 
         List<SimpleGrantedAuthority> authorities =
-                List.of(new SimpleGrantedAuthority(role));
+                List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
         UserDetails userDetails =
-                new User
+                new CustomUserDetails
                         (username,
                         "",
                         authorities);
@@ -89,7 +89,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
 // 2. SecurityContextHolder 에 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
+            filterChain.doFilter(request,response);
 
     }
 

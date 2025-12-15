@@ -1,5 +1,6 @@
 package com.localhub.localhub.authTest;
 
+import com.localhub.localhub.dto.request.ChangeTypeDto;
 import com.localhub.localhub.dto.request.JoinDto;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
@@ -76,6 +77,7 @@ public class AuthTest {
         assertThatThrownBy(() -> authService.Join(joinDto))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
 
 
 
