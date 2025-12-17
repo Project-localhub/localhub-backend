@@ -1,29 +1,23 @@
 package com.localhub.localhub.service;
 
-import com.localhub.localhub.dto.request.ChangeTypeDto;
-import com.localhub.localhub.dto.request.JoinDto;
-import com.localhub.localhub.dto.request.LoginRequest;
+import com.localhub.localhub.dto.request.*;
 import com.localhub.localhub.dto.response.GetUserInfo;
 import com.localhub.localhub.dto.response.TokenResponse;
 import com.localhub.localhub.dto.response.ReissueTokens;
-import com.localhub.localhub.entity.RefreshEntity;
-import com.localhub.localhub.entity.UserEntity;
-import com.localhub.localhub.entity.UserRole;
-import com.localhub.localhub.entity.UserType;
-import com.localhub.localhub.jwt.CustomUserDetails;
+import com.localhub.localhub.entity.*;
 import com.localhub.localhub.jwt.JWTUtil;
+import com.localhub.localhub.repository.EmailVerificationRepository;
 import com.localhub.localhub.repository.RefreshRepository;
 import com.localhub.localhub.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.util.Date;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +30,8 @@ public class AuthService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
-
+    private final MailService mailService;
+    private final EmailVerificationRepository emailVerificationRepository;
     //회원가입
     @Transactional
     public void Join(JoinDto joinDto) {
@@ -163,7 +158,7 @@ public class AuthService {
         return new TokenResponse(access, refresh);
 
     }
-
+    //유저타입 변경
     @Transactional
     public void changeUserType(ChangeTypeDto changeTypeDto,String username) {
 
@@ -189,7 +184,7 @@ public class AuthService {
                 changeTypeDto.getChangeUserType().name());
 
     }
-
+    //유저정보조회
     public GetUserInfo getUserInfo(String username) {
 
         UserEntity userEntity = userRepository.findByUsername(username).orElseThrow
@@ -201,4 +196,86 @@ public class AuthService {
         return userInfo;
 
     }
+    //이메일 전송코드 확인 verify
+    @Transactional
+    public void verifyEmail(String email, String code) {
+
+        EmailVerification emailVerification = emailVerificationRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("인증 요청이 없습니다."));
+
+
+        if (emailVerification.isExpired()) {
+            throw new IllegalStateException("인증 시간이 만료되었습니다");
+        }
+        if (!emailVerification.getCode().equals(code)) {
+            throw new IllegalStateException("인증 코드가 일치하지 않습니다.");
+        }
+
+        emailVerification.verify();
+
+    }
+
+
+    //유저 이름 찾기
+    @Transactional
+    public void findUsername(String email) {
+
+        EmailVerification emailVerification = emailVerificationRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("이메일 인증 필요"));
+
+        if (!emailVerification.isVerified()) {
+            throw new IllegalStateException("이메일 인증이 완료되지 않았습니다.");
+        }
+
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("가입된 계정이 없습니다."));
+
+        mailService.sendUsername(email, userEntity.getUsername());
+        emailVerificationRepository.delete(emailVerification);
+
+
+    }
+
+    //유저 비밀번호찾기
+    public void findPassword(String email) {
+
+        EmailVerification emailVerification = emailVerificationRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("이메일 인증 필요"));
+
+        if (!emailVerification.isVerified()) {
+            throw new IllegalStateException("이메일 인증이 완료되지 않았습니다.");
+        }
+
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("가입된 계정이 없습니다."));
+        String tempPassword = createTempPassword();
+        String encodePassword = bCryptPasswordEncoder.encode(tempPassword);
+        userEntity.changePassword(encodePassword);
+
+        mailService.sendPassword(email, tempPassword);
+        emailVerificationRepository.delete(emailVerification);
+
+    }
+
+    //임시 비밀번호 생성
+    private String createTempPassword() {
+        // 사용할 문자 조합
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        // 암호학적으로 안전한 난수 생성기
+        SecureRandom random = new SecureRandom();
+
+        // 결과 문자열 생성
+        StringBuilder sb = new StringBuilder();
+
+        // 10자리 비밀번호 생성
+        for (int i = 0; i < 10; i++) {
+            int index = random.nextInt(chars.length()); // 0~chars.length()-1 범위 랜덤
+            sb.append(chars.charAt(index)); // 해당 인덱스의 문자 추가
+        }
+
+        return sb.toString();
+
+    }
+
 }

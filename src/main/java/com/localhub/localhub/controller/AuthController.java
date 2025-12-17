@@ -1,5 +1,6 @@
 package com.localhub.localhub.controller;
 
+import com.localhub.localhub.dto.request.EmailRequest;
 import com.localhub.localhub.dto.request.JoinDto;
 import com.localhub.localhub.dto.request.LoginRequest;
 import com.localhub.localhub.dto.response.LoginResponse;
@@ -44,8 +45,28 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponse(tokenResponse.getAccess()));
     }
 
+    @Operation(summary = "아이디 찾기로직", description = """
+            이메일 코드 검증 선행후 검증이 완료됐으면 가입시 이메일로 아이디전송,
+            인증코드 단계에서 검증실패면 400 에러발생 
+            """)
+    @PostMapping("/findUsername")
+    public ResponseEntity<?> findUsername(@RequestBody EmailRequest request) {
 
 
+        authService.findUsername(request.getEmail());
+        return ResponseEntity.ok("아이디가 이메일로 전송되었습니다.");
+    }
+
+    @Operation(summary = "비밀번호 찾기로직", description = """
+            이메일 코드 검증 선행후 검증이 완료됐으면 가입시 이메일로 임시비밀번호전송.
+             인증코드 단계에서 검증실패면 400 에러발생 
+            """)
+    @PostMapping("/findPassword")
+    public ResponseEntity<?> findPassword(@RequestBody EmailRequest request) {
+        authService.findPassword(request.getEmail());
+        return ResponseEntity.ok("임시 비밀번호가 이메일로 전송되었습니다.");
+
+    }
 
     private Cookie createCookie(String key, String value, int maxAge) {
 
