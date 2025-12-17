@@ -72,11 +72,11 @@ spring:
             scope:
               - profile_nickname
               - account_email
-              - name
-              - gender
-              - birthday
-              - birthyear
-              - phone_number
+#              - name
+#              - gender
+#              - birthday
+#              - birthyear
+#              - phone_number
         provider:
           naver:
             authorization-uri: https://nid.naver.com/oauth2.0/authorize
