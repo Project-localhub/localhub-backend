@@ -28,7 +28,7 @@ public class UserController {
              Authentication authentication) {
 
         String name = authentication.getName();
-        authService.changeUserType(changeTypeDto,name);
+        authService.changeUserType(changeTypeDto, name);
         return ResponseEntity.ok("유저타입이 변경 되었습니다 : " + changeTypeDto.getChangeUserType());
 
     }
@@ -40,5 +40,12 @@ public class UserController {
     public ResponseEntity<GetUserInfo> getUserInfo(Authentication authentication) {
         GetUserInfo userInfo = authService.getUserInfo(authentication.getName());
         return ResponseEntity.ok(userInfo);
+    }
+
+    @PutMapping("/changePassword")
+    public ResponseEntity<?> changePassword() {
+
+        return null;
+
     }
 }

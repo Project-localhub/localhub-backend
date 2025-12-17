@@ -98,6 +98,7 @@ public class SecurityConfig {
 //                        .requestMatchers("/stomp/**").permitAll()
                         .requestMatchers("/reissue").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/mail/**").permitAll()
 
                         .anyRequest().authenticated());
 
