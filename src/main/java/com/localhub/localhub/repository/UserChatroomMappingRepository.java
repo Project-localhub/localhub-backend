@@ -32,4 +32,15 @@ public interface UserChatroomMappingRepository extends JpaRepository<UserChatroo
                     """)
     void deleteByUserIdAndChatroomId(@Param("userId") Long userId,
                                      @Param("chatroomId") Long chatroomId);
+
+
+
+    @Query ("""
+            SELECT ucm
+            FROM UserChatroomMapping ucm
+            WHERE ucm.userId = :userId
+            AND ucm.chatroomId =:chatroomId
+            """)
+    boolean findInquiryChatroomId(@Param("userId") Long id, @Param("chatroomId") Long id1);
+
 }

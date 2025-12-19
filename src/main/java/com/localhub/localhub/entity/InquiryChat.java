@@ -6,21 +6,21 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-@Table(name = "chatroom")
+
+@Table(name = "inquiry_chat")
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class Chatroom extends BaseEntity {
+public class InquiryChat extends BaseEntity {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String title;
-
-
+    private Long ownerId;
+    private Long userId;
 
 
 }
