@@ -1,12 +1,10 @@
 package com.localhub.localhub.service;
 
+import com.localhub.localhub.dto.response.ChatMessageDto;
 import com.localhub.localhub.dto.response.ChatroomDto;
-import com.localhub.localhub.entity.Chatroom;
-import com.localhub.localhub.entity.UserChatroomMapping;
-import com.localhub.localhub.entity.UserEntity;
-import com.localhub.localhub.repository.ChatRoomRepository;
-import com.localhub.localhub.repository.UserChatroomMappingRepository;
-import com.localhub.localhub.repository.UserRepository;
+import com.localhub.localhub.dto.response.InquiryChatDto;
+import com.localhub.localhub.entity.*;
+import com.localhub.localhub.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +21,35 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatroomMappingRepository userChatroomMappingRepository;
     private final UserRepository userRepository;
+    private final InquiryChatRepository inquiryChatRepository;
+    private final MessageRepository messageRepository;
+    //문의채팅 생성
+    @Transactional
+    public void openInquiryChat(String customerUsername, Long ownerId) {
+        UserEntity customer = userRepository.findByUsername(customerUsername)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+
+        UserEntity owner = userRepository.findById(ownerId)
+                .orElseThrow(() -> new EntityNotFoundException("점주를 찾을 수 없습니다."));
+
+        if (owner.getUserType() != UserType.OWNER) {
+            log.info("owner 값 : {} " + owner.getUserType().toString());
+            throw new IllegalStateException("점주 아님 .");
+        }
+
+        if (inquiryChatRepository.findByUserIdAndOwnerId(customer.getId(), ownerId)) {
+            throw new IllegalStateException("이미 존재하는 채팅방입니다.");
+        }
+
+        InquiryChat inquiryChat = InquiryChat.builder()
+                .ownerId(ownerId)
+                .userId(customer.getId())
+                .build();
+        inquiryChatRepository.save(inquiryChat);
+
+    }
+
+
     @Transactional
     public ChatroomDto createChatroom(String username, String title) {
 
@@ -54,13 +81,10 @@ public class ChatService {
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."));
 
 
-
         if (userChatroomMappingRepository.existsByUserIdAndChatroomId(userEntity.getId(), chatRoomId)) {
             log.info("이미 참여한 채팅방입니다.");
             throw new IllegalArgumentException("이미 참여한 채팅방입니다.");
         }
-
-
 
         Chatroom chatroom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 채팅방입니다."));
@@ -72,7 +96,7 @@ public class ChatService {
 
         userChatroomMappingRepository.save(userChatroomMapping);
     }
-
+    //채팅방 퇴장
     @Transactional
     public void leaveChatroom(String username, Long chatroomId) {
 
@@ -88,6 +112,30 @@ public class ChatService {
         userChatroomMappingRepository.deleteByUserIdAndChatroomId(userEntity.getId(),chatroomId);
     }
 
+    //문의채팅방 퇴장
+    @Transactional
+    public void leaveInquiryChat(String username, Long InquiryChatroomId) {
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저."));
+
+
+
+        if (!inquiryChatRepository.existsByUserIdAndInquiryChatroomId(userEntity.getId(), InquiryChatroomId)) {
+            log.info("참여하지 않은 방입니다.");
+            throw new IllegalArgumentException("유저가 이 방에 참여하고있지않습니다.");
+        }
+
+        inquiryChatRepository.deleteById(InquiryChatroomId);
+
+    }
+
+    //채팅 저장
+
+
+
+
+    //채팅방 조회
     public List<ChatroomDto> getChatroomList(String username) {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저."));
@@ -103,5 +151,48 @@ public class ChatService {
         return dto;
 
     }
+    //문의채팅목록 조회
+    public List<InquiryChatDto> getInquiryChat(String username) {
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저."));
 
+        List<InquiryChat> list = inquiryChatRepository.findByUserId(userEntity.getId());
+
+        List<InquiryChatDto> dto = list.stream().map(inquiryChat ->
+                InquiryChatDto.builder()
+                        .id(inquiryChat.getId())
+                        .createdAt(inquiryChat.getCreatedAt())
+                        .build()).toList();
+        return dto;
+
+    }
+
+    public List<ChatMessageDto> getMessageList(Long inquiryChatId) {
+
+
+        inquiryChatRepository.findById(inquiryChatId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지않는 채팅방"));
+
+        List<Message> messages = messageRepository.findAllByInquiryChatId(inquiryChatId);
+        return messages.stream().map(ms ->
+                ChatMessageDto.builder()
+                        .sender(ms.getSender())
+                        .message(ms.getContent())
+                        .build()
+        ).toList();
+    }
+
+    //메시지 저장
+    public Message saveMessage(String name, Long chatroomId, String message) {
+
+
+        Message build = Message.builder()
+                .sender(name)
+                .chatroomId(chatroomId)
+                .content(message)
+                .build();
+
+        return messageRepository.save(build);
+
+    }
 }

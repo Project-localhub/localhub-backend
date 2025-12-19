@@ -1,6 +1,13 @@
 package com.localhub.localhub.controller;
 
 import com.localhub.localhub.dto.response.ChatMessageDto;
+import com.localhub.localhub.entity.Message;
+import com.localhub.localhub.entity.UserEntity;
+import com.localhub.localhub.repository.MessageRepository;
+import com.localhub.localhub.repository.UserRepository;
+import com.localhub.localhub.service.ChatService;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -13,7 +20,12 @@ import java.util.Map;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class StompChatController {
+
+    private final ChatService chatService;
+    private final UserRepository userRepository;
+    private final MessageRepository messageRepository;
 
     @MessageMapping("/chats/{chatroomId}")
     @SendTo("/sub/chats/{chatroomId}")
@@ -23,6 +35,10 @@ public class StompChatController {
             @Payload Map<String, String> payload
     ) {
                log.info("{} sent {} in {}",authentication.getName(),payload, chatroomId);
+
+        Message message =
+                chatService.saveMessage(authentication.getName(), chatroomId, payload.get("message"));
+
         return new ChatMessageDto(authentication.getName(), payload.get("message"));
     }
 }
