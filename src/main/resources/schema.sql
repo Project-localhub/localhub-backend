@@ -5,6 +5,21 @@
 --    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 --);
 
+
+CREATE TABLE IF NOT EXISTS users (
+
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) UNIQUE,
+    email VARCHAR(255),
+    name VARCHAR(255),
+    password VARCHAR(255),
+    phone VARCHAR(255),
+    role ENUM ('ADMIN','USER'),
+    user_type ENUM ('CUSTOMER', 'OWNER')
+);
+
+
+
 CREATE TABLE IF NOT EXISTS email_verification (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(255),
@@ -54,19 +69,7 @@ CREATE TABLE IF NOT EXISTS refresh_entity(
 );
 
 
-CREATE TABLE IF NOT EXISTS users (
-
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) UNIQUE,
-    email VARCHAR(255),
-    name VARCHAR(255),
-    password VARCHAR(255),
-    phone VARCHAR(255),
-    role ENUM ('ADMIN','USER'),
-    user_type ENUM ('CUSTOMER', 'OWNER')
-);
-
-CREATE IF TABLE NOT EXISTS user_chatroom_mapping (
+CREATE TABLE IF  NOT EXISTS user_chatroom_mapping (
 
  id BIGINT AUTO_INCREMENT PRIMARY KEY,
  chatroom_id BIGINT,
@@ -109,7 +112,7 @@ CREATE TABLE IF NOT EXISTS restaurant_keyword(
     REFERENCES restaurant(id)
 );
 
-CREATE TABLE IF EXISTS restaurant_images(
+CREATE TABLE IF NOT EXISTS restaurant_images(
 
  id BIGINT AUTO_INCREMENT PRIMARY KEY,
  restaurant_id BIGINT NOT NULL,
