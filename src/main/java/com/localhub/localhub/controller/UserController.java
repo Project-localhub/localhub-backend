@@ -1,17 +1,19 @@
 package com.localhub.localhub.controller;
 
 import com.localhub.localhub.dto.request.ChangeTypeDto;
+import com.localhub.localhub.dto.response.ApiResponse;
 import com.localhub.localhub.dto.response.GetUserInfo;
 import com.localhub.localhub.jwt.CustomUserDetails;
 import com.localhub.localhub.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
+@Slf4j
 @Controller
 @ResponseBody
 @RequestMapping("/api/user")
@@ -37,9 +39,10 @@ public class UserController {
             name,username,email,password 확인
             """)
     @GetMapping("/getUserInfo")
-    public ResponseEntity<GetUserInfo> getUserInfo(Authentication authentication) {
+    public ResponseEntity<ApiResponse<GetUserInfo>> getUserInfo(Authentication authentication) {
+        log.info("getuerinfo 컨트롤러호출");
         GetUserInfo userInfo = authService.getUserInfo(authentication.getName());
-        return ResponseEntity.ok(userInfo);
+        return ResponseEntity.ok(new ApiResponse<>("이 호출은 성공했습니다.", userInfo));
     }
 
     @PutMapping("/changePassword")

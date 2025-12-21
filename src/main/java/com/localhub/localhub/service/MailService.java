@@ -1,11 +1,8 @@
 package com.localhub.localhub.service;
 
-import com.localhub.localhub.dto.request.EmailVerifyRequest;
 import com.localhub.localhub.entity.EmailVerification;
-import com.localhub.localhub.repository.EmailVerificationRepository;
-import jakarta.validation.constraints.Email;
+import com.localhub.localhub.repository.jpaReposi.EmailVerificationRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.message.SimpleMessage;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;

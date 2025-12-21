@@ -2,7 +2,7 @@ package com.localhub.localhub.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.localhub.localhub.exception.ErrorResponse;
-import com.localhub.localhub.repository.RefreshRepository;
+import com.localhub.localhub.repository.jpaReposi.RefreshRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

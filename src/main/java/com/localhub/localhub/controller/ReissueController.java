@@ -1,9 +1,7 @@
 package com.localhub.localhub.controller;
 
 import com.localhub.localhub.dto.response.ReissueTokens;
-import com.localhub.localhub.entity.RefreshEntity;
 import com.localhub.localhub.jwt.JWTUtil;
-import com.localhub.localhub.repository.RefreshRepository;
 import com.localhub.localhub.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
@@ -15,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
 import java.util.Map;
 
 @RestController

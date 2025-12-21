@@ -1,4 +1,4 @@
-package com.localhub.localhub.repository;
+package com.localhub.localhub.repository.jpaReposi;
 
 import com.localhub.localhub.entity.Chatroom;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -3,10 +3,10 @@ package com.localhub.localhub.chattest;
 import com.localhub.localhub.dto.response.ChatroomDto;
 import com.localhub.localhub.dto.response.InquiryChatDto;
 import com.localhub.localhub.entity.*;
-import com.localhub.localhub.repository.ChatRoomRepository;
-import com.localhub.localhub.repository.InquiryChatRepository;
-import com.localhub.localhub.repository.UserChatroomMappingRepository;
-import com.localhub.localhub.repository.UserRepository;
+import com.localhub.localhub.repository.jpaReposi.ChatRoomRepository;
+import com.localhub.localhub.repository.jpaReposi.InquiryChatRepository;
+import com.localhub.localhub.repository.jpaReposi.UserChatroomMappingRepository;
+import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import com.localhub.localhub.service.ChatService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

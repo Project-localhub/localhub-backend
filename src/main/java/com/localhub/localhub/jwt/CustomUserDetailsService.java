@@ -1,7 +1,7 @@
 package com.localhub.localhub.jwt;
 
 import com.localhub.localhub.entity.UserEntity;
-import com.localhub.localhub.repository.UserRepository;
+import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
