@@ -1,10 +1,9 @@
 package com.localhub.localhub.AuthIntegreationTest;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserRole;
 import com.localhub.localhub.entity.UserType;
-import com.localhub.localhub.repository.UserRepository;
+import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

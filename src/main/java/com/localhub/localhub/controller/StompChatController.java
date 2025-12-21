@@ -2,11 +2,9 @@ package com.localhub.localhub.controller;
 
 import com.localhub.localhub.dto.response.ChatMessageDto;
 import com.localhub.localhub.entity.Message;
-import com.localhub.localhub.entity.UserEntity;
-import com.localhub.localhub.repository.MessageRepository;
-import com.localhub.localhub.repository.UserRepository;
+import com.localhub.localhub.repository.jpaReposi.MessageRepository;
+import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import com.localhub.localhub.service.ChatService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;

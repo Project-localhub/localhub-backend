@@ -24,7 +24,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
@@ -33,7 +33,6 @@ spring:
   sql:
     init:
       mode: always
-      encoding: utf-8
 
 
   security:

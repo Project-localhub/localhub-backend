@@ -3,7 +3,7 @@ package com.localhub.localhub.OAuth2;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserRole;
 import com.localhub.localhub.entity.UserType;
-import com.localhub.localhub.repository.UserRepository;
+import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

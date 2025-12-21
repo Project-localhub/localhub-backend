@@ -6,11 +6,12 @@ import com.localhub.localhub.dto.response.TokenResponse;
 import com.localhub.localhub.dto.response.ReissueTokens;
 import com.localhub.localhub.entity.*;
 import com.localhub.localhub.jwt.JWTUtil;
-import com.localhub.localhub.repository.EmailVerificationRepository;
-import com.localhub.localhub.repository.RefreshRepository;
-import com.localhub.localhub.repository.UserRepository;
+import com.localhub.localhub.repository.jpaReposi.EmailVerificationRepository;
+import com.localhub.localhub.repository.jpaReposi.RefreshRepository;
+import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.util.Date;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -186,7 +188,7 @@ public class AuthService {
     }
     //유저정보조회
     public GetUserInfo getUserInfo(String username) {
-
+        log.info("getuserinfo 서비스 호출");
         UserEntity userEntity = userRepository.findByUsername(username).orElseThrow
                 (() -> new EntityNotFoundException("존재하지않는 유저입니다."));
 

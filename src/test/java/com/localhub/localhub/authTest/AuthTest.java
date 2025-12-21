@@ -1,10 +1,9 @@
 package com.localhub.localhub.authTest;
 
-import com.localhub.localhub.dto.request.ChangeTypeDto;
 import com.localhub.localhub.dto.request.JoinDto;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
-import com.localhub.localhub.repository.UserRepository;
+import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import com.localhub.localhub.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -4,7 +4,7 @@ package com.localhub.localhub.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.localhub.localhub.dto.request.LoginRequest;
 import com.localhub.localhub.entity.RefreshEntity;
-import com.localhub.localhub.repository.RefreshRepository;
+import com.localhub.localhub.repository.jpaReposi.RefreshRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

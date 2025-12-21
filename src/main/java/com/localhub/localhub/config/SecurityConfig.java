@@ -7,8 +7,7 @@ import com.localhub.localhub.jwt.CustomLogoutFilter;
 import com.localhub.localhub.jwt.JWTFilter;
 import com.localhub.localhub.jwt.JWTUtil;
 import com.localhub.localhub.jwt.LoginFilter;
-import com.localhub.localhub.repository.RefreshRepository;
-import jakarta.servlet.http.HttpServletRequest;
+import com.localhub.localhub.repository.jpaReposi.RefreshRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +26,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Collections;
 import java.util.List;
 
 @Configuration

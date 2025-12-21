@@ -2,7 +2,7 @@ package com.localhub.localhub.OAuth2;
 
 import com.localhub.localhub.entity.RefreshEntity;
 import com.localhub.localhub.jwt.JWTUtil;
-import com.localhub.localhub.repository.RefreshRepository;
+import com.localhub.localhub.repository.jpaReposi.RefreshRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 

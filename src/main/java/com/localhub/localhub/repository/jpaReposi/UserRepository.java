@@ -1,4 +1,4 @@
-package com.localhub.localhub.repository;
+package com.localhub.localhub.repository.jpaReposi;
 
 import com.localhub.localhub.dto.response.GetUserInfo;
 import com.localhub.localhub.entity.UserEntity;
@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository

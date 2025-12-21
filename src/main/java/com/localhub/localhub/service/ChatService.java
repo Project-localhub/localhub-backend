@@ -4,7 +4,7 @@ import com.localhub.localhub.dto.response.ChatMessageDto;
 import com.localhub.localhub.dto.response.ChatroomDto;
 import com.localhub.localhub.dto.response.InquiryChatDto;
 import com.localhub.localhub.entity.*;
-import com.localhub.localhub.repository.*;
+import com.localhub.localhub.repository.jpaReposi.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

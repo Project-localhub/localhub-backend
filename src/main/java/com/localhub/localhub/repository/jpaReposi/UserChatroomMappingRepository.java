@@ -1,7 +1,6 @@
-package com.localhub.localhub.repository;
+package com.localhub.localhub.repository.jpaReposi;
 
 import com.localhub.localhub.entity.UserChatroomMapping;
-import com.localhub.localhub.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
