@@ -3,6 +3,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.localhub.localhub.LocalhubApplication;
 import com.localhub.localhub.OAuth2.CustomOAuth2UserService;
 import com.localhub.localhub.OAuth2.CustomSuccessHandler;
+import com.localhub.localhub.config.TestExternalConfig;
 import com.localhub.localhub.config.TestOAuthConfig;
 import com.localhub.localhub.dto.request.JoinDto;
 import com.localhub.localhub.dto.request.LoginRequest;
@@ -37,7 +38,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-@Import(TestOAuthConfig.class)
+@Import({TestOAuthConfig.class,
+        TestExternalConfig.class
+})
 public class JwtIntegrationTest {
 
     @Autowired

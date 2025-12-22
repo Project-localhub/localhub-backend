@@ -49,11 +49,7 @@ public class MailService {
         } catch (Exception e) {
             throw new RuntimeException("이메일 전송실패 : "+ e.getMessage());
         }
-
-
     }
-
-
 
     @Transactional
     public void sendEmailVerification(String email) {
@@ -61,9 +57,7 @@ public class MailService {
         String code = String.valueOf(
                 ThreadLocalRandom.current().nextInt(100000, 1000000)
         );
-
         LocalDateTime expiredAt = LocalDateTime.now().plusMinutes(5);
-
 
         EmailVerification emailVerification =
                 emailVerificationRepository.findByEmail(email)
@@ -86,19 +80,15 @@ public class MailService {
     public void sendUsername(String toEmail, String username) {
 
         SimpleMailMessage message = new SimpleMailMessage();
-
         try {
 
             message.setTo(toEmail);
             message.setText("localhub에 가입하신 아이디는 " + username + " 입니다.");
             message.setSubject("localhub 아이디 찾기 안내");
             mailSender.send(message);
-
-
         } catch (Exception e) {
             throw new RuntimeException("이메일 전송 실패 " + e.getMessage());
         }
-
 
     }
 

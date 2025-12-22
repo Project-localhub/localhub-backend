@@ -39,10 +39,10 @@ public class UserController {
             name,username,email,password 확인
             """)
     @GetMapping("/getUserInfo")
-    public ResponseEntity<ApiResponse<GetUserInfo>> getUserInfo(Authentication authentication) {
+    public ResponseEntity<GetUserInfo> getUserInfo(Authentication authentication) {
         log.info("getuerinfo 컨트롤러호출");
         GetUserInfo userInfo = authService.getUserInfo(authentication.getName());
-        return ResponseEntity.ok(new ApiResponse<>("이 호출은 성공했습니다.", userInfo));
+        return ResponseEntity.ok(userInfo);
     }
 
     @PutMapping("/changePassword")

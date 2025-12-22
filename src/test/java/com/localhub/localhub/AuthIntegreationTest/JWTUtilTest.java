@@ -1,5 +1,6 @@
 package com.localhub.localhub.AuthIntegreationTest;
 
+import com.localhub.localhub.config.TestExternalConfig;
 import com.localhub.localhub.config.TestOAuthConfig;
 import com.localhub.localhub.jwt.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -17,7 +18,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test")
-@Import(TestOAuthConfig.class)
+@Import({TestOAuthConfig.class,
+        TestExternalConfig.class
+})
 class JWTUtilTest {
 
     @Autowired

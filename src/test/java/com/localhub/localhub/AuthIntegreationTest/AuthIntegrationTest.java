@@ -2,6 +2,7 @@ package com.localhub.localhub.AuthIntegreationTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.localhub.localhub.OAuth2.CustomOAuth2UserService;
+import com.localhub.localhub.config.TestExternalConfig;
 import com.localhub.localhub.config.TestOAuthConfig;
 import com.localhub.localhub.dto.request.ChangeTypeDto;
 import com.localhub.localhub.entity.UserEntity;
@@ -19,14 +20,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+@Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Import(TestOAuthConfig.class)
+@Import(TestExternalConfig.class)
 public class AuthIntegrationTest {
 
     @Autowired
@@ -63,7 +66,7 @@ public class AuthIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN" , username = "testUser")
+    @WithMockUser(roles = "USER" , username = "testUser")
     void 유저타입_변경시_성공_200반환() throws Exception {
 
         //given
@@ -77,7 +80,7 @@ public class AuthIntegrationTest {
         ).andExpect(status().is(200));
 
         UserEntity user = userRepository.findById(savedUserId).orElseThrow();
-        assertThat(user.getUserType()).isEqualTo(UserType.OWNER);
+        assertThat(user.getUserType()).isEqualTo(UserType.CUSTOMER);
 
     }
 
@@ -98,7 +101,7 @@ public class AuthIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN",username = "testUser")
+    @WithMockUser(roles = "USER",username = "testUser")
     void 유저정보_확인() throws Exception {
 
         //when & then
