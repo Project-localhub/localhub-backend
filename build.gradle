@@ -48,6 +48,10 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+	//r2
+	implementation 'software.amazon.awssdk:s3:2.25.40'
+	implementation 'software.amazon.awssdk:url-connection-client:2.25.40'
 }
 
 tasks.named('test') {

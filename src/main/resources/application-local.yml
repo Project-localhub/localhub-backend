@@ -24,7 +24,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
@@ -32,7 +32,7 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never
 
 
   security:
@@ -91,3 +91,13 @@ spring:
 jwt:
   secret: dgsaljklkdsagjldsajglajlk124asdf5125126tdsaaa
   expiration: 3600000
+
+
+storage:
+  provider: r2
+  bucket: localhub
+  accessKey: ${R2_ACCESS_KEY}
+  secretKey: ${R2_SECRET_KEY}
+  endpoint: ${R2_ENDPOINT}
+  region: auto
+  presignSecond: 300
