@@ -1,5 +1,6 @@
 package com.localhub.localhub.AuthIntegreationTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.localhub.localhub.config.TestExternalConfig;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserRole;
 import com.localhub.localhub.entity.UserType;
@@ -25,7 +26,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@Import(TestOAuthConfig.class)
+@Import({TestOAuthConfig.class,
+        TestExternalConfig.class
+})
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
