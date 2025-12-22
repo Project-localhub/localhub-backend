@@ -92,7 +92,7 @@ public class RestaurantTest {
 
 
     @Test
-    @WithMockUser(username = "test", roles = "USER")
+    @WithMockUser(username = "owner", roles = "USER")
     void 가게등록후_정상이면_200반환() throws Exception {
 
         //given
