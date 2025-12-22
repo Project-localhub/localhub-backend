@@ -98,8 +98,9 @@ CREATE TABLE restaurant (
  longitude DECIMAL(10,7),
  open_time TIME,
  close_time TIME,
- has_break_time TINYINT(1) NOT NULL DEFAULT 0,
+ has_break_time TINYINT(1) DEFAULT 0,
  break_start_time TIME,
+ break_end_time TIME,
  image_key VARCHAR(255),
 
  FOREIGN KEY (owner_id)

@@ -95,11 +95,15 @@ CREATE TABLE IF NOT EXISTS restaurant (
  address VARCHAR(255),
  latitude DECIMAL(10,7),
  longitude DECIMAL(10,7),
- openTime TIME,
- closeTime TIME,
+ open_time TIME,
+ close_time TIME,
  has_break_time TINYINT(1) NOT NULL DEFAULT 0,
  break_start_time TIME,
- image_key VARCHAR(255)
+ image_key VARCHAR(255),
+ owner_id BIGINT,
+
+ FOREIGN KEY (owner_id)
+ REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS restaurant_keyword(

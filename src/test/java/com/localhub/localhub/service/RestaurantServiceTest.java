@@ -6,7 +6,7 @@ import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.entity.restaurant.Restaurant;
 import com.localhub.localhub.entity.restaurant.RestaurantReview;
-import com.localhub.localhub.repository.jdbcReposi.RestaurantRepository;
+import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepository;
 import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,13 +16,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -31,7 +29,7 @@ class RestaurantServiceTest {
 
 
     @Mock
-    RestaurantRepository restaurantRepository;
+    RestaurantRepositoryJDBC restaurantRepositoryJDBC;
     @InjectMocks
     RestaurantService restaurantService;
     @Mock
@@ -41,7 +39,7 @@ class RestaurantServiceTest {
     RestaurantReviewRepository restaurantReviewRepository;
 
     UserEntity user;
-
+    UserEntity owner;
     @BeforeEach
     void setUp() {
 
@@ -49,6 +47,12 @@ class RestaurantServiceTest {
                 .id(1L)
                 .userType(UserType.CUSTOMER)
                 .username("test")
+                .build();
+
+        owner = UserEntity.builder()
+                .id(2L)
+                .userType(UserType.OWNER)
+                .username("ownertest")
                 .build();
 
     }
@@ -113,14 +117,14 @@ class RestaurantServiceTest {
 
         given(userRepository.findByUsername(user.getUsername()))
                 .willReturn(Optional.of(user));
-        given(restaurantRepository.save(user.getId(), requestRestaurantDto))
+        given(restaurantRepositoryJDBC.save(user.getId(), requestRestaurantDto))
                 .willReturn(1);
 
         //when
         restaurantService.save(user.getUsername(), requestRestaurantDto);
 
         //then
-        verify(restaurantRepository).save(user.getId(), requestRestaurantDto);
+        verify(restaurantRepositoryJDBC).save(user.getId(), requestRestaurantDto);
     }
 
     @Test
@@ -144,7 +148,7 @@ class RestaurantServiceTest {
 
         given(userRepository.findByUsername(user.getUsername()))
                 .willReturn(Optional.of(user));
-        given(restaurantRepository.findById(1L))
+        given(restaurantRepositoryJDBC.findById(1L))
                 .willReturn(Optional.of(restaurant));
         given(restaurantReviewRepository.save(user.getId(), createReview))
                 .willReturn(1);
@@ -176,7 +180,7 @@ class RestaurantServiceTest {
 
         given(userRepository.findByUsername(user.getUsername()))
                 .willReturn(Optional.of(user));
-        given(restaurantRepository.findById(1L))
+        given(restaurantRepositoryJDBC.findById(1L))
                 .willReturn(Optional.of(restaurant));
         //when & then
 
@@ -187,8 +191,61 @@ class RestaurantServiceTest {
 
     }
 
+    @Test
+    void 가게삭제_완료_db호출성공() {
+
+        //given
+        Long restaurantId = 1L;
+
+        Restaurant restaurant = Restaurant.builder()
+                .ownerId(2L)
+                .build();
+
+        given(restaurantRepositoryJDBC.findById(restaurantId))
+                .willReturn(Optional.of(restaurant));
+
+        given(userRepository.findByUsername(owner.getUsername()))
+                .willReturn(Optional.of(owner));
+
+        //when
+        restaurantService.deleteRestaurant(owner.getUsername(), restaurantId);
+
+        //then
+
+        verify(restaurantRepositoryJDBC).deleteById(restaurantId);
+
+    }
+
+    @Test
+    void 가게_OWNER가_아니면_에러발생() {
+
+        //given
+
+        Long restaurantId = 1L;
+
+        Restaurant restaurant = Restaurant.builder()
+                .ownerId(1L) //위에 선언한 CUSTOMER의 아이디 선언.
+                .build();
 
 
+        given(restaurantRepositoryJDBC.findById(restaurantId))
+                .willReturn(Optional.of(restaurant));
+
+        given(userRepository.findByUsername(user.getUsername()))
+                .willReturn(Optional.of(user));
+
+        //when & then
+        assertThatThrownBy(() -> restaurantService.deleteRestaurant(user.getUsername(), restaurantId))
+                .hasMessageContaining("OWNER만 삭제할수있습니다.");
+    }
+
+    @Test
+    void 가게_주인이_아니면_에러발생() {
+
+
+
+
+    }
 
 }
 

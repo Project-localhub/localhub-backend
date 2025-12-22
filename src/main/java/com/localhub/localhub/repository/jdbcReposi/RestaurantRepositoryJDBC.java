@@ -1,6 +1,7 @@
 package com.localhub.localhub.repository.jdbcReposi;
 
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
+import com.localhub.localhub.entity.restaurant.Category;
 import com.localhub.localhub.entity.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -13,7 +14,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class RestaurantRepository {
+public class RestaurantRepositoryJDBC {
 
     private final NamedParameterJdbcTemplate template;
 
@@ -66,7 +67,7 @@ public class RestaurantRepository {
                 .addValue("longitude", dto.getLongitude())
                 .addValue("open_time", dto.getOpenTime())
                 .addValue("close_time", dto.getCloseTime())
-                .addValue("hasBreakTime", dto.isHasBreakTime())
+                .addValue("hasBreakTime", dto.getHasBreakTime())
                 .addValue("breakStartTime", dto.getBreakStartTime());
 
         return template.update(sql, params);
@@ -91,6 +92,45 @@ public class RestaurantRepository {
         );
 
         return result.stream().findFirst();
+
+    }
+
+    public Optional<Restaurant> findByOwnerId(Long userId) {
+
+        String sql = """
+                SELECT * 
+                FROM restaurant rs
+                WHERE rs.owner_id = :userId
+                """;
+        Map<String, Long> param = Map.of("userId", userId);
+
+        List<Restaurant> result = template.query(sql, param, (rs, roNum) ->
+                Restaurant.builder()
+                        .id(rs.getLong("id"))
+                        .ownerId(rs.getLong("owner_id"))
+                        .category(Category.valueOf(rs.getNString("cateogry")))
+                        .address(rs.getNString("address"))
+                        .name(rs.getNString("name"))
+                        .openTime(rs.getTime("open_time").toLocalTime())
+                        .closeTime(rs.getTime("close_time").toLocalTime())
+                        .hasBreakTime(rs.getBoolean("has_break_time"))
+                        .build()
+        );
+
+        return result.stream().findFirst();
+    }
+
+    public int deleteById(Long restaurantId) {
+
+        String sql = """
+                DELETE res
+                FROM restaurant res
+                WHERE id =:id
+                """;
+        Map<String, Long> param = Map.of("id", restaurantId);
+        int result = template.update(sql, param);
+
+        return result;
 
     }
 }

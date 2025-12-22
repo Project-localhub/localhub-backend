@@ -31,7 +31,7 @@ public class RestaurantController {
                                         @RequestBody CreateReview createReview) {
         restaurantService.createReview(authentication.getName(), createReview);
 
-        return null; ///작업중
+        return ResponseEntity.ok("'가게 리뷰 작성 완료");
     }
 
 
@@ -41,6 +41,17 @@ public class RestaurantController {
                                               @RequestBody RequestRestaurantDto requestRestaurantDto) {
 
 
-        return null; //작업중
+        restaurantService.updateRestaurantInfo(authentication.getName(), requestRestaurantDto);
+        return ResponseEntity.ok("가게정보 수정 완료");
+    }
+
+    @Operation(summary = "가게삭제", description = "OWNER유저가 등록 가게 삭제")
+    @DeleteMapping("/delete/{restaurantId}")
+    public ResponseEntity<?> deleteRestaurant(Authentication authentication,
+                                              @PathVariable("restaurantId") Long restaurantId) {
+
+        restaurantService.deleteRestaurant(authentication.getName(), restaurantId);
+        return ResponseEntity.ok("가게 삭제 완료");
+
     }
 }

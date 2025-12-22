@@ -1,15 +1,22 @@
-package com.localhub.localhub.dto.request;
+package com.localhub.localhub.dto.response;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.List;
 
 @Getter
-@Setter
-public class RequestRestaurantDto {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class ResponseRestaurantDto {
+
+
     private Long id;
     private String name;
     private String businessNumber;
@@ -19,14 +26,14 @@ public class RequestRestaurantDto {
     private String address;
     private BigDecimal latitude;
     private BigDecimal longitude;
-    private String keywords;
+    private List<?> keyword;
+    private List<?> imageUrl;
     private LocalTime openTime;
     private LocalTime closeTime;
     private Boolean hasBreakTime;
     private LocalTime breakStartTime;
     private LocalTime breakEndTime;
-
-    private List<RequestRestaurantImages> images;
-
+    private Integer reviewCount;
+    private Integer favoriteCount;
 
 }

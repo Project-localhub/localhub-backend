@@ -1,5 +1,6 @@
 package com.localhub.localhub.entity.restaurant;
 
+import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,13 +51,67 @@ public class Restaurant {
     private LocalTime closeTime;
 
     @Column(name = "has_break_time", nullable = true)
-    private boolean hasBreakTime;
+    private Boolean hasBreakTime;
 
     @Column(name = "break_start_time")
     private LocalTime breakStartTime;
 
-    @Column(name = "image_key")
-    private String imageKey;
+    @Column(name = "break_end_time")
+    private LocalTime breakEndTime;
 
 
+    public void update(RequestRestaurantDto dto) {
+
+        if (dto.getName() != null) {
+            this.name = dto.getName();
+        }
+
+        if (dto.getBusinessNumber() != null) {
+            this.businessNumber = dto.getBusinessNumber();
+        }
+
+        if (dto.getDescription() != null) {
+            this.description = dto.getDescription();
+        }
+
+        if (dto.getCategory() != null) {
+            this.category = Category.valueOf(dto.getCategory());
+        }
+
+        if (dto.getPhone() != null) {
+            this.phone = dto.getPhone();
+        }
+
+        if (dto.getAddress() != null) {
+            this.address = dto.getAddress();
+        }
+
+        if (dto.getLatitude() != null) {
+            this.latitude = dto.getLatitude();
+        }
+
+        if (dto.getLongitude() != null) {
+            this.longitude = dto.getLongitude();
+        }
+
+        if (dto.getOpenTime() != null) {
+            this.openTime = dto.getOpenTime();
+        }
+
+        if (dto.getCloseTime() != null) {
+            this.closeTime = dto.getCloseTime();
+        }
+
+        if (dto.getHasBreakTime() != null) {
+            this.hasBreakTime = dto.getHasBreakTime();
+        }
+
+        if (dto.getBreakStartTime() != null) {
+            this.breakStartTime = dto.getBreakStartTime();
+        }
+
+        if (dto.getBreakEndTime() != null) {
+            this.breakEndTime = dto.getBreakEndTime();
+        }
+    }
 }
