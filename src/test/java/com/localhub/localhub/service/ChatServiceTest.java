@@ -1,4 +1,4 @@
-package com.localhub.localhub.chattest;
+package com.localhub.localhub.service;
 
 import com.localhub.localhub.dto.response.ChatroomDto;
 import com.localhub.localhub.dto.response.InquiryChatDto;
@@ -7,7 +7,6 @@ import com.localhub.localhub.repository.jpaReposi.ChatRoomRepository;
 import com.localhub.localhub.repository.jpaReposi.InquiryChatRepository;
 import com.localhub.localhub.repository.jpaReposi.UserChatroomMappingRepository;
 import com.localhub.localhub.repository.jpaReposi.UserRepository;
-import com.localhub.localhub.service.ChatService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
