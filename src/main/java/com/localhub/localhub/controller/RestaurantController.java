@@ -2,6 +2,7 @@ package com.localhub.localhub.controller;
 
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
+import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -45,10 +46,27 @@ public class RestaurantController {
         return ResponseEntity.ok("가게정보 수정 완료");
     }
 
+    @Operation(summary = "가게 정보 조회",
+            description = "가게의 아이디를 param으로 받고 해당 가게 상세정보 조회")
+    @GetMapping("/{restaurantId}")
+    public ResponseEntity<ResponseRestaurantDto> getRestaurantInfoById
+            (@PathVariable("restaurantId") Long restaurantId) {
+
+        ResponseRestaurantDto result = restaurantService.findRestaurantById(restaurantId);
+        return ResponseEntity.ok(result);
+
+
+
+    }
+
+
+
     @Operation(summary = "가게삭제", description = "OWNER유저가 등록 가게 삭제")
     @DeleteMapping("/delete/{restaurantId}")
     public ResponseEntity<?> deleteRestaurant(Authentication authentication,
                                               @PathVariable("restaurantId") Long restaurantId) {
+
+
 
         restaurantService.deleteRestaurant(authentication.getName(), restaurantId);
         return ResponseEntity.ok("가게 삭제 완료");
