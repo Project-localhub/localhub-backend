@@ -19,9 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-
 class RestaurantServiceTest {
 
 
@@ -80,4 +80,26 @@ class RestaurantServiceTest {
 
     }
 
+    @Test
+    void save_int1반환_정상호출_검증() {
+
+        //given
+        RequestRestaurantDto requestRestaurantDto = new RequestRestaurantDto();
+        UserEntity user = UserEntity.builder()
+                .id(1L)
+                .username("테스트")
+                .userType(UserType.OWNER)
+                .build();
+
+        given(userRepository.findByUsername(user.getUsername()))
+                .willReturn(Optional.of(user));
+        given(restaurantRepository.save(user.getId(), requestRestaurantDto))
+                .willReturn(1);
+
+        //when
+        restaurantService.save(user.getUsername(), requestRestaurantDto);
+
+        //then
+        verify(restaurantRepository).save(user.getId(), requestRestaurantDto);
+    }
 }

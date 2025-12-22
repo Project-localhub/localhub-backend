@@ -19,6 +19,9 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "owner_id")
+    private Long ownerId;
+
     private String name;
 
     @Column(name = "business_number", length = 12)
@@ -39,9 +42,9 @@ public class Restaurant {
 
     @Column(precision = 10, scale = 7)
     private BigDecimal longitude;
-
+    @Column(name ="open_time")
     private LocalTime openTime;
-
+    @Column(name = "close_time")
     private LocalTime closeTime;
 
     @Column(name = "has_break_time", nullable = false)
