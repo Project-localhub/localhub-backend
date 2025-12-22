@@ -2,6 +2,7 @@ package com.localhub.localhub.entity.restaurant;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.time.LocalTime;
 @Getter
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "restaurant")
 public class Restaurant {
 
@@ -47,7 +49,7 @@ public class Restaurant {
     @Column(name = "close_time")
     private LocalTime closeTime;
 
-    @Column(name = "has_break_time", nullable = false)
+    @Column(name = "has_break_time", nullable = true)
     private boolean hasBreakTime;
 
     @Column(name = "break_start_time")

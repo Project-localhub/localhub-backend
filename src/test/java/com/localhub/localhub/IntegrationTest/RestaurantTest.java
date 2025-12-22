@@ -95,5 +95,25 @@ public class RestaurantTest {
 
     }
 
+    @Test
+    @WithMockUser(username = "wrong", roles = "USER")
+    void 가게등록_존재하지않는유저_404반환() throws Exception {
+        //given
+
+        RequestRestaurantDto request = new RequestRestaurantDto();
+
+        request.setAddress("강서구");
+        request.setName("테스트");
+        request.setCategory("한식");
+
+
+        //when&then
+        mockMvc.perform(post("/api/restaurant/save")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        ).andExpect(status().is(404));
+
+    }
+
 
 }
