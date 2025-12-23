@@ -56,10 +56,7 @@ public class RestaurantController {
         return ResponseEntity.ok(result);
 
 
-
     }
-
-
 
     @Operation(summary = "가게삭제", description = "OWNER유저가 등록 가게 삭제")
     @DeleteMapping("/delete/{restaurantId}")
@@ -67,9 +64,23 @@ public class RestaurantController {
                                               @PathVariable("restaurantId") Long restaurantId) {
 
 
-
         restaurantService.deleteRestaurant(authentication.getName(), restaurantId);
         return ResponseEntity.ok("가게 삭제 완료");
 
     }
+
+    @Operation(summary = "찜하기", description = "유저가 마음에 드는 가게 찜하기 기능")
+    @PostMapping("/like/{restaurantId}")
+    public ResponseEntity<?> likeRestaurant(Authentication authentication,
+                                            @PathVariable("restaurantId") Long restaurantId) {
+
+
+        restaurantService.likeRestaurant(authentication.getName(), restaurantId);
+        return ResponseEntity.ok("찜 완료");
+
+    }
+
+
+
+
 }

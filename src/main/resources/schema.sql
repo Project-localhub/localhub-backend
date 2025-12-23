@@ -141,3 +141,17 @@ CREATE TABLE IF NOT EXISTS restaurant_review (
  REFERENCES restaurant(id)
 );
 
+CREATE TABLE user_like_restaurant(
+
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    restaurant_id BIGINT NOT NULL,
+
+    FOREIGN KEY (user_id)
+    REFERENCES users(id),
+
+    FOREIGN KEY (restaurant_id)
+    REFERENCES restaurant(id)
+);
+
+
