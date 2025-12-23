@@ -10,6 +10,7 @@ import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.entity.restaurant.Restaurant;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
+import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import com.localhub.localhub.service.RestaurantService;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DirtiesContext
@@ -42,6 +44,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         })
 
 public class RestaurantTest {
+    @Autowired
+    UserLikeRestaurantRepositoryJDBC userLikeRestaurantRepositoryJDBC;
 
     @Autowired
     MockMvc mockMvc;
@@ -70,7 +74,7 @@ public class RestaurantTest {
 
     UserEntity user;
     UserEntity owner;
-
+    Restaurant restaurant;
     @BeforeEach
     void setup() {
 
@@ -90,7 +94,10 @@ public class RestaurantTest {
                 .build();
         userRepository.save(owner);
 
-
+        restaurant = Restaurant.builder()
+                .address("테스트")
+                .build();
+        restaurantRepositoryJpa.save(restaurant);
     }
 
 
@@ -171,6 +178,46 @@ public class RestaurantTest {
         //when & then
         mockMvc.perform(delete("/api/restaurant/delete/" + restaurantId))
                 .andExpect(status().is(200));
+
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void 가게_찜하기_성공_200() throws Exception {
+
+        //given
+        Long userId = user.getId();
+        String username = user.getUsername();
+        Long restaurantId = restaurant.getId();
+
+        //when
+        mockMvc.perform(post("/api/restaurant/like/" + restaurantId))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void 존재하지않는가게_400() throws Exception {
+
+        //when & then
+        mockMvc.perform(post("/api/restaurant/like/" + 999))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.message").value("존재하지않는 가게입니다."));
+    }
+
+    @Test
+    @WithMockUser(username = "user",roles = "USER")
+    void 이미찜한가게_400() throws Exception {
+        //given
+        Long userId = user.getId();
+        String userName = user.getName();
+        Long restaurantId = restaurant.getId();
+        userLikeRestaurantRepositoryJDBC.save(userId, restaurantId);
+
+        //when & then
+        mockMvc.perform(post("/api/restaurant/like/" + restaurantId))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.message").value("이미 찜한 가게입니다."));
 
     }
 }

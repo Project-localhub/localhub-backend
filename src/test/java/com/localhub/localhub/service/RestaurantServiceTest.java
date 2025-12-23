@@ -2,12 +2,14 @@ package com.localhub.localhub.service;
 
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
+import com.localhub.localhub.entity.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.entity.restaurant.Restaurant;
 import com.localhub.localhub.entity.restaurant.RestaurantReview;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepository;
+import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,17 +31,22 @@ class RestaurantServiceTest {
 
 
     @Mock
+    UserLikeRestaurantRepositoryJDBC userLikeRestaurantRepositoryJDBC;
+    @Mock
     RestaurantRepositoryJDBC restaurantRepositoryJDBC;
     @InjectMocks
     RestaurantService restaurantService;
     @Mock
     UserRepository userRepository;
+    @Mock
+    RestaurantRepositoryJpa restaurantRepository;
 
     @Mock
     RestaurantReviewRepository restaurantReviewRepository;
 
     UserEntity user;
     UserEntity owner;
+    Restaurant testRestaurant;
     @BeforeEach
     void setUp() {
 
@@ -54,6 +61,11 @@ class RestaurantServiceTest {
                 .userType(UserType.OWNER)
                 .username("ownertest")
                 .build();
+
+        testRestaurant = Restaurant.builder()
+                .id(1L)
+                .build();
+
 
     }
 
@@ -242,11 +254,54 @@ class RestaurantServiceTest {
     }
 
     @Test
-    void 가게_주인이_아니면_에러발생() {
+    void 이미_찜한가게면_에러발생() {
+
+        //given
+        given(userRepository.findByUsername(user.getUsername()))
+                .willReturn(Optional.of(user));
+        given(restaurantRepository.findById(testRestaurant.getId()))
+                .willReturn(Optional.of(testRestaurant));
+        given(userLikeRestaurantRepositoryJDBC.isExistByUserIdAndRestaurantId(user.getId(), testRestaurant.getId()))
+                .willReturn(1);
+
+        //when & then
+        assertThatThrownBy(() -> restaurantService.likeRestaurant(user.getUsername(), testRestaurant.getId()))
+                .hasMessageContaining("이미 찜한 가게입니다.");
+
+    }
 
 
+    @Test
+    void 찜하기_성공_db호출() {
+
+        //given
+        given(userRepository.findByUsername(user.getUsername()))
+                .willReturn(Optional.of(user));
+        given(restaurantRepository.findById(testRestaurant.getId()))
+                .willReturn(Optional.of(testRestaurant));
+        given(userLikeRestaurantRepositoryJDBC.isExistByUserIdAndRestaurantId(user.getId(), testRestaurant.getId()))
+                .willReturn(0);
+        given(userLikeRestaurantRepositoryJDBC.save(user.getId(), testRestaurant.getId()))
+                .willReturn(1);
+        //when & then
+        restaurantService.likeRestaurant(user.getUsername(),testRestaurant.getId());
+        verify(userLikeRestaurantRepositoryJDBC).save(user.getId(), testRestaurant.getId());
 
 
+    }
+    @Test
+    void 존재하지않는_가게_에러발생() {
+
+
+        //given
+        given(userRepository.findByUsername(user.getUsername()))
+                .willReturn(Optional.of(user));
+        given(restaurantRepository.findById(testRestaurant.getId()))
+                .willReturn(Optional.empty());
+
+        //when & then
+        assertThatThrownBy(() -> restaurantService.likeRestaurant(user.getUsername(), testRestaurant.getId()))
+                .hasMessageContaining("존재하지않는 가게입니다.");
     }
 
 }

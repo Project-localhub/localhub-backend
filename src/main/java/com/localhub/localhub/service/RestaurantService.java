@@ -8,8 +8,10 @@ import com.localhub.localhub.entity.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.entity.restaurant.Restaurant;
+import com.localhub.localhub.entity.restaurant.UserLikeRestaurant;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepository;
+import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,8 @@ public class RestaurantService {
     private final RestaurantRepositoryJDBC restaurantRepositoryJDBC;
     private final UserRepository userRepository;
     private final RestaurantReviewRepository restaurantReviewRepository;
+    private final UserLikeRestaurantRepositoryJDBC userLikeRestaurantRepositoryJDBC;
+
 
     //가게 등록
     public void save(String username, RequestRestaurantDto requestRestaurantDto) {
@@ -139,5 +143,28 @@ public class RestaurantService {
             throw new RuntimeException("db 저장 실패");
         }
     }
+
+    //가게 찜하기
+    public void likeRestaurant(String username, Long restaurantId) {
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+
+        Restaurant restaurant = restaurantRepositoryJpa.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지않는 가게입니다."));
+
+        int isExist =  userLikeRestaurantRepositoryJDBC.isExistByUserIdAndRestaurantId
+                        (userEntity.getId(), restaurantId);
+        //이미 찜한가게면 에러발생
+        if (isExist == 1) {
+            throw new IllegalArgumentException("이미 찜한 가게입니다.");
+        }
+        //가게저장
+        int result = userLikeRestaurantRepositoryJDBC.save(userEntity.getId(), restaurantId);
+        if (result != 1) {
+            throw new RuntimeException("db 저장 실패");
+        }
+    }
+
 
 }
