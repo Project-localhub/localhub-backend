@@ -2,6 +2,7 @@ package com.localhub.localhub.IntegrationTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.localhub.localhub.config.TestExternalConfig;
+import com.localhub.localhub.config.TestSecurityConfig;
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.entity.RestaurantRepositoryJpa;
@@ -21,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,14 +32,15 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
+@DirtiesContext
 @SpringBootTest
 @Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Import(
-        {TestExternalConfig.class,
+        {TestExternalConfig.class
         })
+
 public class RestaurantTest {
 
     @Autowired

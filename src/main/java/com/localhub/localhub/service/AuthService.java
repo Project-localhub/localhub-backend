@@ -200,7 +200,8 @@ public class AuthService {
     }
     //이메일 전송코드 확인 verify
     @Transactional
-    public void verifyEmail(String email, String code) {
+    public void
+    verifyEmail(String email, String code) {
 
         EmailVerification emailVerification = emailVerificationRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("인증 요청이 없습니다."));
@@ -234,7 +235,6 @@ public class AuthService {
 
         mailService.sendUsername(email, userEntity.getUsername());
         emailVerificationRepository.delete(emailVerification);
-
 
     }
 

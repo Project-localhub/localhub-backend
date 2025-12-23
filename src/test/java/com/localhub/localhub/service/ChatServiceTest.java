@@ -148,9 +148,7 @@ public class ChatServiceTest {
 
     @Test
     void 이미_참가한_유저면_예외() {
-
         //given
-
         String username = "usernmae";
         UserEntity userEntity = UserEntity.builder()
                 .id(10L)
@@ -166,13 +164,10 @@ public class ChatServiceTest {
 
         given(userRepository.findByUsername(username))
                 .willReturn(Optional.of(userEntity));
-        given(chatRoomRepository.findById(chatroomId))
-                .willReturn(Optional.of(chatroom));
         given(userChatroomMappingRepository.existsByUserIdAndChatroomId(userEntity.getId(), chatroomId))
                 .willReturn(true);
 
         //when & then
-
         assertThatThrownBy(() -> chatService.joinChatroom(username, chatroomId))
                 .isInstanceOf(IllegalArgumentException.class);
 
@@ -372,13 +367,10 @@ public class ChatServiceTest {
         given(userRepository.findById(owner.getId()))
                 .willReturn(Optional.of(owner));
         given(inquiryChatRepository.findByUserIdAndOwnerId(customer.getId(), owner.getId()))
-                .willReturn(true);
-
+                .willReturn(false);
 
         //when
         chatService.openInquiryChat(customer.getUsername(), owner.getId());
-
-
 
         //then
         verify(inquiryChatRepository).save(any(InquiryChat.class));

@@ -28,7 +28,7 @@ public class MailController {
     }
 
     @Operation(summary = "인증코드 검증", description = "전송한 인증코드와 이메일과 일치하는지 검증")
-    @PostMapping("email/verify")
+    @PostMapping("/email/verify")
     public ResponseEntity<?> verifyEmail(@RequestBody EmailVerifyRequest request) {
 
         authService.verifyEmail(request.getEmail(), request.getCode());

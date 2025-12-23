@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.localhub.localhub.OAuth2.CustomOAuth2UserService;
 import com.localhub.localhub.config.TestExternalConfig;
 import com.localhub.localhub.config.TestOAuthConfig;
+import com.localhub.localhub.config.TestSecurityConfig;
 import com.localhub.localhub.dto.request.ChangeTypeDto;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserRole;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +31,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Import(TestExternalConfig.class)
+@Import({TestExternalConfig.class
+        })
+@DirtiesContext
 public class AuthIntegrationTest {
 
     @Autowired
@@ -41,8 +45,8 @@ public class AuthIntegrationTest {
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Autowired
-    CustomOAuth2UserService customOAuth2UserService;
+//    @Autowired
+//    CustomOAuth2UserService customOAuth2UserService;
 
 
     @Autowired

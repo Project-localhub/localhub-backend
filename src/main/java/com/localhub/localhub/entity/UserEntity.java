@@ -21,7 +21,7 @@ public class UserEntity {
     @Column(name = "name")
     private String name;
     //유저 id 개념인 username과는 별개의 email
-    @Column(name = "email")
+    @Column(name = "email" , unique = true)
     private String email;
 
     @Column(name = "password")
