@@ -1,7 +1,10 @@
 package com.localhub.localhub.service;
 
 import com.localhub.localhub.entity.EmailVerification;
+import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.repository.jpaReposi.EmailVerificationRepository;
+import com.localhub.localhub.repository.jpaReposi.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -17,6 +20,7 @@ public class MailService {
 
     private final JavaMailSender mailSender;
     private final EmailVerificationRepository emailVerificationRepository;
+    private final UserRepository userRepository;
 
 
     public void sendMail(String to, String subject, String text) {
@@ -54,6 +58,10 @@ public class MailService {
     @Transactional
     public void sendEmailVerification(String email) {
 
+
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("가입된 이력이 없는 이메일입니다."));
+
         String code = String.valueOf(
                 ThreadLocalRandom.current().nextInt(100000, 1000000)
         );
@@ -73,8 +81,6 @@ public class MailService {
         emailVerification.update(code,expiredAt);
         emailVerificationRepository.save(emailVerification);
         sendVerify(email,code);
-
-
     }
 
     public void sendUsername(String toEmail, String username) {

@@ -5,6 +5,7 @@ import com.localhub.localhub.OAuth2.CustomOAuth2UserService;
 import com.localhub.localhub.OAuth2.CustomSuccessHandler;
 import com.localhub.localhub.config.TestExternalConfig;
 import com.localhub.localhub.config.TestOAuthConfig;
+import com.localhub.localhub.config.TestSecurityConfig;
 import com.localhub.localhub.dto.request.JoinDto;
 import com.localhub.localhub.dto.request.LoginRequest;
 import com.localhub.localhub.entity.RefreshEntity;
@@ -25,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -32,13 +34,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-
+@DirtiesContext
 @SpringBootTest(classes = LocalhubApplication.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-@Import({TestOAuthConfig.class,
+@Import({
         TestExternalConfig.class
 })
 public class JwtIntegrationTest {

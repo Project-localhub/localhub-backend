@@ -2,6 +2,7 @@ package com.localhub.localhub.AuthIntegreationTest;
 
 import com.localhub.localhub.config.TestExternalConfig;
 import com.localhub.localhub.config.TestOAuthConfig;
+import com.localhub.localhub.config.TestSecurityConfig;
 import com.localhub.localhub.jwt.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -18,9 +20,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test")
-@Import({TestOAuthConfig.class,
+@Import({
         TestExternalConfig.class
 })
+@DirtiesContext
 class JWTUtilTest {
 
     @Autowired

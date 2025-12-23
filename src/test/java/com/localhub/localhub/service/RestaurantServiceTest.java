@@ -198,6 +198,7 @@ class RestaurantServiceTest {
         Long restaurantId = 1L;
 
         Restaurant restaurant = Restaurant.builder()
+                .id(restaurantId)
                 .ownerId(2L)
                 .build();
 
@@ -206,7 +207,8 @@ class RestaurantServiceTest {
 
         given(userRepository.findByUsername(owner.getUsername()))
                 .willReturn(Optional.of(owner));
-
+        given(restaurantRepositoryJDBC.deleteById(restaurantId))
+                .willReturn(1);
         //when
         restaurantService.deleteRestaurant(owner.getUsername(), restaurantId);
 

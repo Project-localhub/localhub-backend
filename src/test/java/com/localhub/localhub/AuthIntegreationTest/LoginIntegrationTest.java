@@ -1,6 +1,7 @@
 package com.localhub.localhub.AuthIntegreationTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.localhub.localhub.config.TestExternalConfig;
+import com.localhub.localhub.config.TestSecurityConfig;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserRole;
 import com.localhub.localhub.entity.UserType;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -26,12 +28,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@Import({TestOAuthConfig.class,
+@Import({
         TestExternalConfig.class
 })
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@DirtiesContext
 public class LoginIntegrationTest {
 
     private static final Logger log = LoggerFactory.getLogger(LoginIntegrationTest.class);
