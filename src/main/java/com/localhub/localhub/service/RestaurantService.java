@@ -271,6 +271,9 @@ public class RestaurantService {
         restaurantImageRepositoryJpa.deleteByRestaurantId(restaurantId);
         restaurantKeywordRepositoryJpa.deleteByRestaurantId(restaurantId);
 
+        restaurantKeywordRepositoryJpa.deleteByRestaurantId(restaurantId);
+        restaurantImageRepositoryJpa.deleteByRestaurantId(restaurantId);
+
         int result = restaurantRepositoryJDBC.deleteById(restaurantId);
         if (result == 0) {
             throw new RuntimeException("삭제 실패 서버오류발생");

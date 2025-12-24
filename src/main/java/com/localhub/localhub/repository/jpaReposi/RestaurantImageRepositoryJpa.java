@@ -19,6 +19,14 @@ public interface RestaurantImageRepositoryJpa extends JpaRepository<RestaurantIm
           
           """)
     List<RestaurantImages> findByRestaurantId(@Param("restaurantId") Long restaurantId);
+    @Modifying
+    @Query("""
+            DELETE 
+            FROM RestaurantImage rs
+            WHERE rs.restaurantId = :restaurantId
+            
+            """)
+    void deleteByRestaurantId(@Param("restaurantId") Long restaurantId);
 
     @Modifying
     @Query("""
