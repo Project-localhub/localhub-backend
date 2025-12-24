@@ -1,4 +1,4 @@
-package com.localhub.localhub.entity;
+package com.localhub.localhub.repository.jpaReposi;
 
 import com.localhub.localhub.entity.restaurant.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;

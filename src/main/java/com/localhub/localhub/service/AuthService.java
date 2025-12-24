@@ -52,10 +52,18 @@ public class AuthService {
 
 
        Long isExist = userRepository.existByUsername(username);
-
+        //이미 존재하는지 확인
         if (isExist == 1L) {
             throw new IllegalStateException("이미 존재하는 유저입니다.");
         }
+        //같은 이메일 쓰는 유저있는지 확인
+        if (userRepository.isExistEmail(joinDto.getEmail())) {
+            throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+        }
+
+
+
+        userRepository.isExistEmail(joinDto.getEmail());
 
         UserEntity user = UserEntity.builder()
                 .username(username)

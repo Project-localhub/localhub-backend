@@ -1,15 +1,14 @@
 package com.localhub.localhub.IntegrationTest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.localhub.localhub.config.TestExternalConfig;
-import com.localhub.localhub.config.TestSecurityConfig;
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.request.RequestRestaurantImages;
-import com.localhub.localhub.entity.RestaurantRepositoryJpa;
+import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
+import com.localhub.localhub.entity.restaurant.Category;
 import com.localhub.localhub.entity.restaurant.Restaurant;
 import com.localhub.localhub.entity.restaurant.RestaurantImages;
 import com.localhub.localhub.entity.restaurant.RestaurantKeyword;
@@ -18,6 +17,7 @@ import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJ
 import com.localhub.localhub.repository.jpaReposi.RestaurantImageRepositoryJpa;
 import com.localhub.localhub.repository.jpaReposi.RestaurantKeywordRepositoryJpa;
 import com.localhub.localhub.repository.jpaReposi.UserRepository;
+import com.localhub.localhub.service.ImageUrlResolver;
 import com.localhub.localhub.service.RestaurantService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,9 +35,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -56,6 +60,9 @@ public class RestaurantTest {
     UserLikeRestaurantRepositoryJDBC userLikeRestaurantRepositoryJDBC;
     @Autowired
     RestaurantImageRepositoryJpa restaurantImageRepositoryJpa;
+
+    @MockitoBean
+    ImageUrlResolver imageUrlResolver;
 
     @Autowired
     MockMvc mockMvc;
@@ -281,5 +288,136 @@ public class RestaurantTest {
         assertThat(savedKeyword)
                 .extracting(key -> key.getKeyword())
                 .containsExactlyInAnyOrder("키워드1", "키워드2", "키워드3");
+    }
+
+    @Test
+    @WithMockUser(username = "user" , roles = "USER")
+    void 레스토랑_조회_반환DTO값_정상확인() {
+
+        // given
+
+        Restaurant thisRestaurant = Restaurant.builder()
+                .name("홍콩반점")
+                .description("짬뽕 맛집")
+                .businessNumber("123456789012")
+                .address("서울")
+                .phone("02-123-4567")
+                .category(Category.한식)
+                .latitude(new BigDecimal("37.1234567"))
+                .longitude(new BigDecimal("127.1234567"))
+                .openTime(LocalTime.of(9, 0))
+                .closeTime(LocalTime.of(22, 0))
+                .hasBreakTime(true)
+                .breakStartTime(LocalTime.of(15, 0))
+                .breakEndTime(LocalTime.of(16, 0))
+                .build();
+
+        Restaurant saveResult = restaurantRepositoryJpa.save(thisRestaurant);
+
+
+        userLikeRestaurantRepositoryJDBC.save(user.getId(), saveResult.getId());
+
+
+
+        for (int i = 0; i <= 1; i++) {
+            restaurantImageRepositoryJpa.save(RestaurantImages.builder()
+                    .restaurantId(saveResult.getId())
+                    .imageKey("key" + i)
+                    .build());
+        }
+
+
+        for (int i = 0 ; i <= 1; i++) {
+            restaurantKeywordRepositoryJpa.save(
+                    RestaurantKeyword.builder()
+                            .restaurantId(saveResult.getId())
+                            .keyword("keyword" + i)
+                            .build()
+
+            );
+        }
+        //when
+
+        Restaurant result = restaurantRepositoryJpa.findById(saveResult.getId()).get();
+        List<RestaurantKeyword> keywordList = restaurantKeywordRepositoryJpa.findByRestaurantId(saveResult.getId());
+        List<RestaurantImages> imagesList = restaurantImageRepositoryJpa.findByRestaurantId(saveResult.getId());
+        // then
+        assertThat(result.getId()).isEqualTo(saveResult.getId());
+        assertThat(result.getName()).isEqualTo("홍콩반점");
+        assertThat(result.getDescription()).isEqualTo("짬뽕 맛집");
+        assertThat(result.getCategory()).isEqualTo(Category.한식);
+
+        assertThat(result.getOpenTime()).isEqualTo(LocalTime.of(9, 0));
+        assertThat(result.getCloseTime()).isEqualTo(LocalTime.of(22, 0));
+        assertThat(result.getHasBreakTime()).isTrue();
+
+
+        //키워드 확인
+        assertThat(keywordList)
+                .extracting(key -> key.getKeyword())
+                .containsExactlyInAnyOrder("keyword0", "keyword1");
+
+        //이미지 확인
+        assertThat(imagesList)
+                .extracting(img -> img.getImageKey())
+                .containsExactlyInAnyOrder("key0", "key1");
+
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void 좋아요_조회_정상확인() throws Exception {
+
+        //given
+
+        // given
+
+        Restaurant thisRestaurant = Restaurant.builder()
+                .name("홍콩반점")
+                .description("짬뽕 맛집")
+                .businessNumber("123456789012")
+                .address("서울")
+                .phone("02-123-4567")
+                .category(Category.한식)
+                .latitude(new BigDecimal("37.1234567"))
+                .longitude(new BigDecimal("127.1234567"))
+                .openTime(LocalTime.of(9, 0))
+                .closeTime(LocalTime.of(22, 0))
+                .hasBreakTime(true)
+                .breakStartTime(LocalTime.of(15, 0))
+                .breakEndTime(LocalTime.of(16, 0))
+                .build();
+
+        Restaurant savedRestaurant = restaurantRepositoryJpa.save(thisRestaurant);
+
+        userLikeRestaurantRepositoryJDBC.save(user.getId(), savedRestaurant.getId());
+
+
+        for (int i = 0; i <= 1; i++) {
+            restaurantImageRepositoryJpa.save(RestaurantImages.builder()
+                    .restaurantId(savedRestaurant.getId())
+                    .imageKey("key" + i)
+                    .build());
+        }
+
+
+        for (int i = 0; i <= 1; i++) {
+            restaurantKeywordRepositoryJpa.save(
+                    RestaurantKeyword.builder()
+                            .restaurantId(savedRestaurant.getId())
+                            .keyword("keyword" + i)
+                            .build()
+            );
+        }
+
+        given(imageUrlResolver.toPresignedUrl(anyString()))
+                .willReturn("https://mock-image-url");
+
+        //when & then
+        mockMvc.perform(get("/api/restaurant/" + savedRestaurant.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.favoriteCount").value(1));
+
+
     }
 }

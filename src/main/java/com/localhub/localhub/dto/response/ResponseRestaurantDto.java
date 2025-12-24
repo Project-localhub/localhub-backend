@@ -34,4 +34,6 @@ public class ResponseRestaurantDto {
     private Integer reviewCount;
     private Integer favoriteCount;
 
+    private List<String> keywordList;
+    private List<String> imageUrlList;
 }

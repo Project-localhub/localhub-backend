@@ -38,7 +38,8 @@ public class RestaurantRepositoryJDBC {
                     open_time,
                     close_time,
                     has_break_time,
-                    break_start_time
+                    break_start_time,
+                    break_end_time
                 )
                 VALUES (
                     :owner_id,
@@ -53,7 +54,8 @@ public class RestaurantRepositoryJDBC {
                     :open_time,
                     :close_time,
                     :hasBreakTime,
-                    :breakStartTime
+                    :breakStartTime,
+                    :breakEndTime
                 )
                 """;
 
@@ -73,7 +75,8 @@ public class RestaurantRepositoryJDBC {
                 .addValue("open_time", dto.getOpenTime())
                 .addValue("close_time", dto.getCloseTime())
                 .addValue("hasBreakTime", dto.getHasBreakTime())
-                .addValue("breakStartTime", dto.getBreakStartTime());
+                .addValue("breakStartTime", dto.getBreakStartTime())
+                .addValue("breakEndTime", dto.getBreakEndTime());
 
         template.update(sql, params,keyHolder);
         return keyHolder.getKey().longValue();

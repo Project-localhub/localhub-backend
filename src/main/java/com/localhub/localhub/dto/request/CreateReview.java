@@ -10,5 +10,7 @@ public class CreateReview {
 
     private Long restaurantId;
     private String content;
+    private Integer score;
+
 
 }
