@@ -4,17 +4,25 @@ package com.localhub.localhub.service;
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
-import com.localhub.localhub.entity.RestaurantRepositoryJpa;
+import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
+import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.entity.restaurant.Restaurant;
-import com.localhub.localhub.entity.restaurant.UserLikeRestaurant;
+import com.localhub.localhub.entity.restaurant.RestaurantImages;
+import com.localhub.localhub.entity.restaurant.RestaurantKeyword;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepository;
 import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
+import com.localhub.localhub.repository.jpaReposi.RestaurantImageRepositoryJpa;
+import com.localhub.localhub.repository.jpaReposi.RestaurantKeywordRepositoryJpa;
+import com.localhub.localhub.repository.jpaReposi.UserLikeRestaurantRepositoryJPA;
 import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,14 +31,20 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class RestaurantService {
+
+    private final UserLikeRestaurantRepositoryJPA userLikeRestaurantRepositoryJPA;
     private final RestaurantRepositoryJpa restaurantRepositoryJpa;
     private final RestaurantRepositoryJDBC restaurantRepositoryJDBC;
     private final UserRepository userRepository;
     private final RestaurantReviewRepository restaurantReviewRepository;
     private final UserLikeRestaurantRepositoryJDBC userLikeRestaurantRepositoryJDBC;
-
+    private final RestaurantImageRepositoryJpa restaurantImageRepositoryJpa;
+    private final RestaurantKeywordRepositoryJpa restaurantKeywordRepositoryJpa;
+    private final ImageUrlResolver imageUrlResolver;
+    private final RestaurantScoreRepositoryJDBC restaurantScoreRepositoryJDBC;
 
     //가게 등록
+    @Transactional
     public void save(String username, RequestRestaurantDto requestRestaurantDto) {
 
         UserEntity userEntity = userRepository.findByUsername(username)
@@ -41,12 +55,39 @@ public class RestaurantService {
         }
 
 
-        int save = restaurantRepositoryJDBC.save(userEntity.getId(), requestRestaurantDto);
-        if (save == 0) {
+        Long restaurantId = restaurantRepositoryJDBC.save(userEntity.getId(), requestRestaurantDto);
+        if (restaurantId == null) {
             throw new IllegalArgumentException("저장 실패");
         }
+        // 이미지 저장
+        if (requestRestaurantDto.getImages() != null &&
+                !requestRestaurantDto.getImages().isEmpty()) {
+            List<RestaurantImages> imagesList = requestRestaurantDto.getImages().stream()
+                    .map(dto -> RestaurantImages.builder()
+                            .imageKey(dto.getImageKey())
+                            .restaurantId(restaurantId)
+                            .build()
+                    ).toList();
 
+            for (RestaurantImages restaurantImages : imagesList) {
+                restaurantImageRepositoryJpa.save(restaurantImages);
+            }
+        }
 
+        // 키워드 저장
+        if (requestRestaurantDto.getKeyword() != null &&
+                !requestRestaurantDto.getKeyword().isEmpty()) {
+            List<RestaurantKeyword> keywordList = requestRestaurantDto.getKeyword().stream()
+                    .map(dto -> RestaurantKeyword.builder()
+                            .keyword(dto)
+                            .restaurantId(restaurantId)
+                            .build()
+                    ).toList();
+
+            for (RestaurantKeyword restaurantKeyword : keywordList) {
+                restaurantKeywordRepositoryJpa.save(restaurantKeyword);
+            }
+        }
     }
 
     //가게 정보 수정
@@ -68,11 +109,46 @@ public class RestaurantService {
         restaurant.update(dto);
     }
 
+    //가게 이미지 수정
+    public void changeRestaurantImages() {
+
+    }
+
+
     //가게 정보 조회
     public ResponseRestaurantDto findRestaurantById(Long restaurantId) {
-        Restaurant restaurant = restaurantRepositoryJDBC.findById(restaurantId)
-                .orElseThrow(() -> new EntityNotFoundException("가게정보를 찾을 수 없습니다."));
 
+
+        Restaurant restaurant = restaurantRepositoryJpa.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("가게 정보를 찾을 수 없습니다."));
+
+
+        //이미지조회
+        List<RestaurantImages> imagesList =
+                restaurantImageRepositoryJpa.findByRestaurantId(restaurantId);
+        //키워드조회
+        List<RestaurantKeyword> keywordList =
+                restaurantKeywordRepositoryJpa.findByRestaurantId(restaurantId);
+
+        //이미지키 URL 변환
+        List<String> urlList = imagesList.stream().map(
+                ent ->
+                        imageUrlResolver.toPresignedUrl(ent.getImageKey())
+        ).toList();
+
+        //키워드 DTO변환
+        List<String> keyList = keywordList.stream().map(ent ->
+                ent.getKeyword()
+        ).toList();
+
+
+        //좋아요 갯수
+        Integer totalLikeCount = userLikeRestaurantRepositoryJDBC.getTotalLikeCount(restaurantId);
+
+
+
+
+        //찜한 목록 확인
         ResponseRestaurantDto build = ResponseRestaurantDto.builder()
                 .id(restaurantId)
                 .description(restaurant.getDescription())
@@ -82,23 +158,29 @@ public class RestaurantService {
                 .name(restaurant.getName())
                 .address(restaurant.getAddress())
                 .phone(restaurant.getPhone())
-                .keyword(List.of())
-                .imageUrl(List.of())
+                .keywordList(keyList)
+                .imageUrlList(urlList)
                 .category(restaurant.getCategory().name())
                 .latitude(restaurant.getLatitude())
                 .longitude(restaurant.getLongitude())
                 .openTime(restaurant.getOpenTime())
                 .closeTime(restaurant.getCloseTime())
                 .hasBreakTime(restaurant.getHasBreakTime())
-                .favoriteCount(0) //추후수정
+                .favoriteCount(totalLikeCount) //추후수정
                 .reviewCount(0) //추후수정
                 .build();
-
-
         return build;
     }
 
+    //전체 가게목록 조회
+    public void getAllRestaurant() {
+        //작업중
+
+
+    }
+
     //가게 삭제
+    @Transactional
     public void deleteRestaurant(String username, Long restaurantId) {
 
         Restaurant restaurant = restaurantRepositoryJDBC.findById(restaurantId)
@@ -107,14 +189,15 @@ public class RestaurantService {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
+        if (userEntity.getUserType() != UserType.OWNER) {
+            throw new IllegalArgumentException("OWNER만 삭제할수있습니다.");
+        }
+
+
         if (!restaurant.getOwnerId().equals(userEntity.getId())) {
             throw new IllegalArgumentException("가게 주인만 정보를 지울 수 있습니다.");
         }
 
-
-        if (userEntity.getUserType() != UserType.OWNER) {
-            throw new IllegalArgumentException("OWNER만 삭제할수있습니다.");
-        }
 
         int result = restaurantRepositoryJDBC.deleteById(restaurantId);
         if (result == 0) {
@@ -125,7 +208,10 @@ public class RestaurantService {
 
 
     //리뷰작성
+    @Transactional
     public void createReview(String username, CreateReview createReview) {
+
+        Long savedScoreId;
 
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
@@ -137,14 +223,23 @@ public class RestaurantService {
         if (restaurant.getOwnerId().equals(userEntity.getId())) {
             throw new IllegalArgumentException("자신의 가게에는 리뷰를 작성할 수 없습니다.");
         }
+        Integer score = createReview.getScore();
+        if (score != null) {
+            if (score < 1 || score > 5) {
+                throw new IllegalArgumentException("별점은 1~5 사이여야 합니다.");
+            }
+                savedScoreId = restaurantScoreRepositoryJDBC.save
+                            (userEntity.getId(), restaurant.getId(), createReview.getScore());
+        }
 
         int save = restaurantReviewRepository.save(userEntity.getId(), createReview);
-        if (save != 1) {
+        if (save == 0) {
             throw new RuntimeException("db 저장 실패");
         }
     }
 
     //가게 찜하기
+    @Transactional
     public void likeRestaurant(String username, Long restaurantId) {
 
         UserEntity userEntity = userRepository.findByUsername(username)
@@ -166,5 +261,22 @@ public class RestaurantService {
         }
     }
 
+    //찜한 목록 조회
+    public Page<ResponseRestaurantDto> getLikeList(Pageable pageable,String username) {
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
+        int limit = pageable.getPageSize();
+        int offset = (int) pageable.getOffset();
+
+        List<ResponseRestaurantDto> content =
+                userLikeRestaurantRepositoryJPA.findLikedRestaurants(userEntity.getId(),limit,offset);
+
+        Page<ResponseRestaurantDto> page =
+                new PageImpl<>(content, pageable, content.size());
+
+        return page;
+
+
+    }
 }

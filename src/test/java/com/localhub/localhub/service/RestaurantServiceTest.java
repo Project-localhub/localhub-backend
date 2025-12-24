@@ -2,7 +2,8 @@ package com.localhub.localhub.service;
 
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
-import com.localhub.localhub.entity.RestaurantRepositoryJpa;
+import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
+import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.entity.restaurant.Restaurant;
@@ -19,11 +20,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,10 +45,11 @@ class RestaurantServiceTest {
     UserRepository userRepository;
     @Mock
     RestaurantRepositoryJpa restaurantRepository;
+    @Mock
+    RestaurantScoreRepositoryJDBC restaurantScoreRepositoryJDBC;
 
     @Mock
     RestaurantReviewRepository restaurantReviewRepository;
-
     UserEntity user;
     UserEntity owner;
     Restaurant testRestaurant;
@@ -64,6 +70,7 @@ class RestaurantServiceTest {
 
         testRestaurant = Restaurant.builder()
                 .id(1L)
+                .ownerId(owner.getId())
                 .build();
 
 
@@ -121,22 +128,18 @@ class RestaurantServiceTest {
 
         //given
         RequestRestaurantDto requestRestaurantDto = new RequestRestaurantDto();
-        UserEntity user = UserEntity.builder()
-                .id(1L)
-                .username("테스트")
-                .userType(UserType.OWNER)
-                .build();
+        requestRestaurantDto.setImages(List.of());
 
-        given(userRepository.findByUsername(user.getUsername()))
-                .willReturn(Optional.of(user));
-        given(restaurantRepositoryJDBC.save(user.getId(), requestRestaurantDto))
-                .willReturn(1);
+        given(userRepository.findByUsername(owner.getUsername()))
+                .willReturn(Optional.of(owner));
+        given(restaurantRepositoryJDBC.save(owner.getId(), requestRestaurantDto))
+                .willReturn(3L);
 
         //when
-        restaurantService.save(user.getUsername(), requestRestaurantDto);
+        restaurantService.save(owner.getUsername(), requestRestaurantDto);
 
         //then
-        verify(restaurantRepositoryJDBC).save(user.getId(), requestRestaurantDto);
+        verify(restaurantRepositoryJDBC).save(owner.getId(), requestRestaurantDto);
     }
 
     @Test
@@ -153,8 +156,8 @@ class RestaurantServiceTest {
                 .build();
 
         RestaurantReview restaurantReview = RestaurantReview.builder()
-                .restaurant_id(1L)
-                .user_id(2L)
+                .restaurant_id(restaurant.getId())
+                .user_id(user.getId())
                 .content("리뷰")
                 .build();
 
@@ -225,7 +228,6 @@ class RestaurantServiceTest {
         restaurantService.deleteRestaurant(owner.getUsername(), restaurantId);
 
         //then
-
         verify(restaurantRepositoryJDBC).deleteById(restaurantId);
 
     }
@@ -234,13 +236,11 @@ class RestaurantServiceTest {
     void 가게_OWNER가_아니면_에러발생() {
 
         //given
-
-        Long restaurantId = 1L;
-
         Restaurant restaurant = Restaurant.builder()
-                .ownerId(1L) //위에 선언한 CUSTOMER의 아이디 선언.
+                .id(1L)
+                .ownerId(user.getId()) //위에 선언한 CUSTOMER의 아이디 선언.
                 .build();
-
+        Long restaurantId = restaurant.getId();
 
         given(restaurantRepositoryJDBC.findById(restaurantId))
                 .willReturn(Optional.of(restaurant));
@@ -304,5 +304,84 @@ class RestaurantServiceTest {
                 .hasMessageContaining("존재하지않는 가게입니다.");
     }
 
+
+    @Test
+    void 리뷰작성시_score값있으면_저장() {
+
+
+        //given
+        CreateReview createReview = new CreateReview();
+        createReview.setContent("content");
+        createReview.setRestaurantId(testRestaurant.getId());
+        createReview.setScore(1);
+        given(userRepository.findByUsername(user.getUsername()))
+                .willReturn(Optional.of(user));
+        given(restaurantRepositoryJDBC.findById(testRestaurant.getId()))
+                .willReturn(Optional.of(testRestaurant));
+        given(restaurantReviewRepository.save(user.getId(), createReview))
+                .willReturn(1);
+        //when
+        restaurantService.createReview(user.getUsername(), createReview);
+
+        //then
+        verify(restaurantScoreRepositoryJDBC).save
+    (user.getId(), testRestaurant.getId(), createReview.getScore());
+
+    }
+
+    @Test
+    void 리뷰작성시_score값_없으면_scoreReposi_호출X() {
+
+        //given
+        CreateReview createReview = new CreateReview();
+        createReview.setContent("content");
+        createReview.setRestaurantId(testRestaurant.getId());
+//        given(userRepository.findByUsername(user.getUsername()))
+//                .willReturn(Optional.of(user));
+//        given(restaurantRepositoryJDBC.findById(testRestaurant.getId()))
+//                .willReturn(Optional.of(testRestaurant));
+//        given(restaurantReviewRepository.save(user.getId(), createReview))
+//                .willReturn(1);
+
+        //when & then
+        verify(restaurantScoreRepositoryJDBC, times(0))
+                .save(anyLong(), anyLong(), anyInt());
+    }
+
+    @Test
+    void score값_1에서5_범위_아닐시_에러발생_score6() {
+
+        //given
+        CreateReview createReview = new CreateReview();
+        createReview.setContent("content");
+        createReview.setRestaurantId(testRestaurant.getId());
+        createReview.setScore(6);
+        given(userRepository.findByUsername(user.getUsername()))
+                .willReturn(Optional.of(user));
+        given(restaurantRepositoryJDBC.findById(testRestaurant.getId()))
+             .willReturn(Optional.of(testRestaurant));
+        //when & then
+        assertThatThrownBy(() -> restaurantService.createReview(user.getUsername(), createReview))
+                .hasMessageContaining("별점은 1~5 사이여야 합니다.");
+
+    }
+
+    @Test
+    void score값_1에서5_범위_아닐시_에러발생_score0() {
+
+        //given
+        CreateReview createReview = new CreateReview();
+        createReview.setContent("content");
+        createReview.setRestaurantId(testRestaurant.getId());
+        createReview.setScore(0);
+        given(userRepository.findByUsername(user.getUsername()))
+                .willReturn(Optional.of(user));
+        given(restaurantRepositoryJDBC.findById(testRestaurant.getId()))
+                .willReturn(Optional.of(testRestaurant));
+        //when & then
+        assertThatThrownBy(() -> restaurantService.createReview(user.getUsername(), createReview))
+                .hasMessageContaining("별점은 1~5 사이여야 합니다.");
+
+    }
 }
 

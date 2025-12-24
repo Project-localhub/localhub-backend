@@ -6,10 +6,12 @@ import com.localhub.localhub.entity.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -20,7 +22,7 @@ public class RestaurantRepositoryJDBC {
 
 
     // 레스토랑 등록
-    public int save(Long userId, RequestRestaurantDto dto) {
+    public Long save(Long userId, RequestRestaurantDto dto) {
 
         String sql = """
                 INSERT INTO restaurant (
@@ -36,7 +38,8 @@ public class RestaurantRepositoryJDBC {
                     open_time,
                     close_time,
                     has_break_time,
-                    break_start_time
+                    break_start_time,
+                    break_end_time
                 )
                 VALUES (
                     :owner_id,
@@ -51,9 +54,13 @@ public class RestaurantRepositoryJDBC {
                     :open_time,
                     :close_time,
                     :hasBreakTime,
-                    :breakStartTime
+                    :breakStartTime,
+                    :breakEndTime
                 )
                 """;
+
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("owner_id", userId)
@@ -68,9 +75,11 @@ public class RestaurantRepositoryJDBC {
                 .addValue("open_time", dto.getOpenTime())
                 .addValue("close_time", dto.getCloseTime())
                 .addValue("hasBreakTime", dto.getHasBreakTime())
-                .addValue("breakStartTime", dto.getBreakStartTime());
+                .addValue("breakStartTime", dto.getBreakStartTime())
+                .addValue("breakEndTime", dto.getBreakEndTime());
 
-        return template.update(sql, params);
+        template.update(sql, params,keyHolder);
+        return keyHolder.getKey().longValue();
     }
 
     public Optional<Restaurant> findById(Long id) {

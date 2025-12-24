@@ -65,7 +65,6 @@ public class AuthController {
     public ResponseEntity<?> findPassword(@RequestBody EmailRequest request) {
         authService.findPassword(request.getEmail());
         return ResponseEntity.ok("임시 비밀번호가 이메일로 전송되었습니다.");
-
     }
 
     private Cookie createCookie(String key, String value, int maxAge) {

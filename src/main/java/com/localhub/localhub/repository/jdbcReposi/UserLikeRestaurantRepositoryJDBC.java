@@ -7,6 +7,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
+
 @Repository
 @Slf4j
 @RequiredArgsConstructor
@@ -58,6 +60,20 @@ public class UserLikeRestaurantRepositoryJDBC {
                 .addValue("userId", userId)
                 .addValue("restaurantId", restaurantId);
         return template.queryForObject(sql, params, Integer.class);
+
+    }
+
+    public Integer getTotalLikeCount(Long restaurantId) {
+
+        String sql = """
+                SELECT COUNT(*)
+                FROM user_like_restaurant u
+                WHERE u.restaurant_id =:restaurantId
+                """;
+
+        Map<String, Long> param = Map.of("restaurantId", restaurantId);
+
+        return template.queryForObject(sql, param, Integer.class);
 
     }
 }

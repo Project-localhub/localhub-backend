@@ -77,6 +77,41 @@ public class AuthTest {
     }
 
 
+    @Test
+    void 같은_이메일_사용_유저_에러() {
+
+        //given
+        JoinDto joinDto = new JoinDto();
+        joinDto.setUsername("123");
+        joinDto.setEmail("existEmail");
+        joinDto.setUserType(UserType.CUSTOMER);
+
+        given(userRepository.isExistEmail(joinDto.getEmail()))
+                .willReturn(true);
+
+        //when & then
+        assertThatThrownBy(() -> authService.Join(joinDto))
+                .hasMessageContaining("이미 사용중인 이메일입니다.");
+
+    }
+
+    @Test
+    void 이미_사용중인_아이디_400에러() {
+
+
+        //given
+        JoinDto joinDto = new JoinDto();
+        joinDto.setUsername("123");
+        joinDto.setEmail("existEmail");
+        joinDto.setUserType(UserType.CUSTOMER);
+
+        given(userRepository.existByUsername(joinDto.getUsername()))
+                .willReturn(1L);
+
+        //when & then
+        assertThatThrownBy(() -> authService.Join(joinDto))
+                .hasMessageContaining("이미 존재하는 유저입니다.");
+    }
 
 
 }

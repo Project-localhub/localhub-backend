@@ -74,4 +74,16 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
             """)
     Optional<UserEntity> findByEmail(@Param("email") String email);
 
+
+    @Query("""
+         SELECT CASE
+         WHEN COUNT(u) > 0 THEN true
+         ELSE false
+         END
+         FROM UserEntity u
+         WHERE u.email = :email
+            
+            """)
+    boolean isExistEmail(@Param("email") String email);
+
 }

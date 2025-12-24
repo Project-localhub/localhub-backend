@@ -6,6 +6,11 @@ import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -80,7 +85,16 @@ public class RestaurantController {
 
     }
 
+    @Operation(summary = "찜목록 조회", description = "유저의 찜목록 조회")
+    @GetMapping("/get/likeList")
+    public ResponseEntity<Page<ResponseRestaurantDto>> getLikeList(
+            Authentication authentication,
+            @ParameterObject
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable){
 
+        Page<ResponseRestaurantDto> result = restaurantService.getLikeList(pageable,authentication.getName());
+        return ResponseEntity.ok(result);
 
-
-}
+    }
+    }
