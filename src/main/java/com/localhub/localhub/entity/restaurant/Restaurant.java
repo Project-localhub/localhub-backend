@@ -113,5 +113,6 @@ public class Restaurant {
         if (dto.getBreakEndTime() != null) {
             this.breakEndTime = dto.getBreakEndTime();
         }
+
     }
 }

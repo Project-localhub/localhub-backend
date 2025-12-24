@@ -140,3 +140,31 @@ CREATE TABLE user_like_restaurant(
     REFERENCES restaurant(id)
 );
 
+CREATE TABLE restaurant_review (
+
+ id BIGINT AUTO_INCREMENT PRIMARY KEY,
+ content TEXT,
+ user_id BIGINT,
+ restaurant_id BIGINT,
+
+ FOREIGN KEY (user_id)
+ REFERENCES users(id),
+
+ FOREIGN KEY (restaurant_id)
+ REFERENCES restaurant(id)
+);
+
+CREATE TABLE user_score_restaurant(
+ id BIGINT AUTO_INCREMENT PRIMARY KEY,
+ user_id BIGINT,
+ restaurant_id BIGINT,
+ score tinyint,
+
+ FOREIGN KEY (user_id)
+ REFERENCES users(id),
+
+ FOREIGN KEY (restaurant_id)
+ REFERENCES restaurant(id)
+);
+
+

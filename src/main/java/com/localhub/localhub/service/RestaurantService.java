@@ -4,6 +4,7 @@ package com.localhub.localhub.service;
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
+import com.localhub.localhub.entity.restaurant.Category;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
@@ -12,7 +13,7 @@ import com.localhub.localhub.entity.restaurant.Restaurant;
 import com.localhub.localhub.entity.restaurant.RestaurantImages;
 import com.localhub.localhub.entity.restaurant.RestaurantKeyword;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
-import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepository;
+import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.RestaurantImageRepositoryJpa;
 import com.localhub.localhub.repository.jpaReposi.RestaurantKeywordRepositoryJpa;
@@ -36,7 +37,7 @@ public class RestaurantService {
     private final RestaurantRepositoryJpa restaurantRepositoryJpa;
     private final RestaurantRepositoryJDBC restaurantRepositoryJDBC;
     private final UserRepository userRepository;
-    private final RestaurantReviewRepository restaurantReviewRepository;
+    private final RestaurantReviewRepositoryJDBC restaurantReviewRepositoryJDBC;
     private final UserLikeRestaurantRepositoryJDBC userLikeRestaurantRepositoryJDBC;
     private final RestaurantImageRepositoryJpa restaurantImageRepositoryJpa;
     private final RestaurantKeywordRepositoryJpa restaurantKeywordRepositoryJpa;
@@ -53,7 +54,18 @@ public class RestaurantService {
         if (userEntity.getUserType() != UserType.OWNER) {
             throw new IllegalArgumentException("OWNER만 가게등록을 할 수 있습니다.");
         }
+        String category = requestRestaurantDto.getCategory();
 
+        //카테고리는 필수값 , enum값이랑 다를때 예외처리
+        if (category == null) {
+            throw new IllegalArgumentException("카테고리는 null일 수 없습니다.");
+        }
+
+        try {
+            Category.valueOf(category);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("존재하지 않는 카테고리입니다.");
+        }
 
         Long restaurantId = restaurantRepositoryJDBC.save(userEntity.getId(), requestRestaurantDto);
         if (restaurantId == null) {
@@ -115,6 +127,9 @@ public class RestaurantService {
     }
 
 
+    //가게 키워드 수정
+
+
     //가게 정보 조회
     public ResponseRestaurantDto findRestaurantById(Long restaurantId) {
 
@@ -145,9 +160,10 @@ public class RestaurantService {
         //좋아요 갯수
         Integer totalLikeCount = userLikeRestaurantRepositoryJDBC.getTotalLikeCount(restaurantId);
 
+        int totalReviewCount = restaurantReviewRepositoryJDBC.getTotalReviewCount(restaurantId);
 
-
-
+        double avg = restaurantScoreRepositoryJDBC.countScore(restaurantId);
+        double score = Math.round(avg * 10) / 10.0;
         //찜한 목록 확인
         ResponseRestaurantDto build = ResponseRestaurantDto.builder()
                 .id(restaurantId)
@@ -166,8 +182,9 @@ public class RestaurantService {
                 .openTime(restaurant.getOpenTime())
                 .closeTime(restaurant.getCloseTime())
                 .hasBreakTime(restaurant.getHasBreakTime())
-                .favoriteCount(totalLikeCount) //추후수정
-                .reviewCount(0) //추후수정
+                .favoriteCount(totalLikeCount)
+                .score(score)
+                .reviewCount(totalReviewCount)
                 .build();
         return build;
     }
@@ -232,7 +249,7 @@ public class RestaurantService {
                             (userEntity.getId(), restaurant.getId(), createReview.getScore());
         }
 
-        int save = restaurantReviewRepository.save(userEntity.getId(), createReview);
+        int save = restaurantReviewRepositoryJDBC.save(userEntity.getId(), createReview);
         if (save == 0) {
             throw new RuntimeException("db 저장 실패");
         }

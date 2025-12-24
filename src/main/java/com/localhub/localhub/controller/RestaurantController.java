@@ -26,7 +26,6 @@ public class RestaurantController {
     @PostMapping("/save")
     public ResponseEntity<String> saveRestaurant(Authentication authentication,
                                                  @RequestBody RequestRestaurantDto requestRestaurantDto) {
-
         restaurantService.save(authentication.getName(), requestRestaurantDto);
         return ResponseEntity.ok("가게 등록 완료.");
     }
@@ -36,16 +35,13 @@ public class RestaurantController {
     public ResponseEntity<?> saveReview(Authentication authentication,
                                         @RequestBody CreateReview createReview) {
         restaurantService.createReview(authentication.getName(), createReview);
-
         return ResponseEntity.ok("'가게 리뷰 작성 완료");
     }
-
 
     @Operation(summary = "가게 정보 수정", description = "ONWER유저가 자신의 가게 수정")
     @PutMapping("/update")
     public ResponseEntity<?> updateRestaurant(Authentication authentication,
                                               @RequestBody RequestRestaurantDto requestRestaurantDto) {
-
 
         restaurantService.updateRestaurantInfo(authentication.getName(), requestRestaurantDto);
         return ResponseEntity.ok("가게정보 수정 완료");
@@ -59,7 +55,6 @@ public class RestaurantController {
 
         ResponseRestaurantDto result = restaurantService.findRestaurantById(restaurantId);
         return ResponseEntity.ok(result);
-
 
     }
 

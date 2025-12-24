@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
+
 @RequiredArgsConstructor
 @Repository
 public class RestaurantScoreRepositoryJDBC {
@@ -33,6 +35,21 @@ public class RestaurantScoreRepositoryJDBC {
 
         template.update(sql, params, keyHolder);
         return keyHolder.getKey().longValue();
+
+    }
+
+    public double countScore(Long restaurantId) {
+
+        String sql = """
+                
+                SELECT
+                COALESCE(AVG(usr.score), 0)
+                FROM user_score_restaurant usr
+                WHERE usr.restaurant_id = :restaurantId
+                """;
+        Map<String, Long> param = Map.of("restaurantId", restaurantId);
+        return template.queryForObject(sql, param, Double.class);
+
 
     }
 

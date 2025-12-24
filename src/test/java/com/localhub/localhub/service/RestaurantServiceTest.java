@@ -2,6 +2,7 @@ package com.localhub.localhub.service;
 
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
+import com.localhub.localhub.entity.restaurant.Category;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
@@ -9,7 +10,7 @@ import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.entity.restaurant.Restaurant;
 import com.localhub.localhub.entity.restaurant.RestaurantReview;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
-import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepository;
+import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -49,7 +50,7 @@ class RestaurantServiceTest {
     RestaurantScoreRepositoryJDBC restaurantScoreRepositoryJDBC;
 
     @Mock
-    RestaurantReviewRepository restaurantReviewRepository;
+    RestaurantReviewRepositoryJDBC restaurantReviewRepositoryJDBC;
     UserEntity user;
     UserEntity owner;
     Restaurant testRestaurant;
@@ -129,6 +130,7 @@ class RestaurantServiceTest {
         //given
         RequestRestaurantDto requestRestaurantDto = new RequestRestaurantDto();
         requestRestaurantDto.setImages(List.of());
+        requestRestaurantDto.setCategory(Category.한식.name());
 
         given(userRepository.findByUsername(owner.getUsername()))
                 .willReturn(Optional.of(owner));
@@ -165,12 +167,12 @@ class RestaurantServiceTest {
                 .willReturn(Optional.of(user));
         given(restaurantRepositoryJDBC.findById(1L))
                 .willReturn(Optional.of(restaurant));
-        given(restaurantReviewRepository.save(user.getId(), createReview))
+        given(restaurantReviewRepositoryJDBC.save(user.getId(), createReview))
                 .willReturn(1);
         //when
         restaurantService.createReview(user.getUsername(), createReview);
         //then
-        verify(restaurantReviewRepository).save(user.getId(), createReview);
+        verify(restaurantReviewRepositoryJDBC).save(user.getId(), createReview);
     }
 
     @Test
@@ -318,7 +320,7 @@ class RestaurantServiceTest {
                 .willReturn(Optional.of(user));
         given(restaurantRepositoryJDBC.findById(testRestaurant.getId()))
                 .willReturn(Optional.of(testRestaurant));
-        given(restaurantReviewRepository.save(user.getId(), createReview))
+        given(restaurantReviewRepositoryJDBC.save(user.getId(), createReview))
                 .willReturn(1);
         //when
         restaurantService.createReview(user.getUsername(), createReview);

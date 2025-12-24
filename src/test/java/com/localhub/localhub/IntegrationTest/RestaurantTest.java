@@ -1,17 +1,17 @@
 package com.localhub.localhub.IntegrationTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import com.localhub.localhub.config.TestExternalConfig;
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.request.RequestRestaurantImages;
+import com.localhub.localhub.entity.restaurant.*;
+import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepositoryJDBC;
+import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
-import com.localhub.localhub.entity.restaurant.Category;
-import com.localhub.localhub.entity.restaurant.Restaurant;
-import com.localhub.localhub.entity.restaurant.RestaurantImages;
-import com.localhub.localhub.entity.restaurant.RestaurantKeyword;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.RestaurantImageRepositoryJpa;
@@ -42,6 +42,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -60,6 +61,13 @@ public class RestaurantTest {
     UserLikeRestaurantRepositoryJDBC userLikeRestaurantRepositoryJDBC;
     @Autowired
     RestaurantImageRepositoryJpa restaurantImageRepositoryJpa;
+
+    @Autowired
+    RestaurantReviewRepositoryJDBC restaurantReviewRepositoryJDBC;
+
+
+    @Autowired
+    RestaurantScoreRepositoryJDBC restaurantScoreRepositoryJDBC;
 
     @MockitoBean
     ImageUrlResolver imageUrlResolver;
@@ -94,6 +102,7 @@ public class RestaurantTest {
     UserEntity user;
     UserEntity owner;
     Restaurant restaurant;
+
     @BeforeEach
     void setup() {
 
@@ -105,7 +114,6 @@ public class RestaurantTest {
         userRepository.save(user);
 
 
-
         owner = UserEntity.builder()
                 .username("owner")
                 .name("owner")
@@ -114,6 +122,7 @@ public class RestaurantTest {
         userRepository.save(owner);
 
         restaurant = Restaurant.builder()
+                .category(Category.한식)
                 .address("테스트")
                 .build();
         restaurantRepositoryJpa.save(restaurant);
@@ -164,7 +173,7 @@ public class RestaurantTest {
     }
 
     @Test
-    @WithMockUser(username = "test" , roles = "USER")
+    @WithMockUser(username = "test", roles = "USER")
     void 가게_리뷰_작성_성공_200() {
 
 
@@ -175,7 +184,6 @@ public class RestaurantTest {
         CreateReview createReview = new CreateReview();
         createReview.setRestaurantId(1L);
         createReview.setContent("테스트");
-
 
 
     }
@@ -224,7 +232,7 @@ public class RestaurantTest {
     }
 
     @Test
-    @WithMockUser(username = "user",roles = "USER")
+    @WithMockUser(username = "user", roles = "USER")
     void 이미찜한가게_400() throws Exception {
         //given
         Long userId = user.getId();
@@ -291,7 +299,7 @@ public class RestaurantTest {
     }
 
     @Test
-    @WithMockUser(username = "user" , roles = "USER")
+    @WithMockUser(username = "user", roles = "USER")
     void 레스토랑_조회_반환DTO값_정상확인() {
 
         // given
@@ -318,7 +326,6 @@ public class RestaurantTest {
         userLikeRestaurantRepositoryJDBC.save(user.getId(), saveResult.getId());
 
 
-
         for (int i = 0; i <= 1; i++) {
             restaurantImageRepositoryJpa.save(RestaurantImages.builder()
                     .restaurantId(saveResult.getId())
@@ -327,7 +334,7 @@ public class RestaurantTest {
         }
 
 
-        for (int i = 0 ; i <= 1; i++) {
+        for (int i = 0; i <= 1; i++) {
             restaurantKeywordRepositoryJpa.save(
                     RestaurantKeyword.builder()
                             .restaurantId(saveResult.getId())
@@ -368,7 +375,6 @@ public class RestaurantTest {
     @WithMockUser(username = "user", roles = "USER")
     void 좋아요_조회_정상확인() throws Exception {
 
-        //given
 
         // given
 
@@ -417,7 +423,65 @@ public class RestaurantTest {
         mockMvc.perform(get("/api/restaurant/" + savedRestaurant.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.favoriteCount").value(1));
+    }
 
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void 리뷰갯수_조회_정상확인() throws Exception {
+
+
+        //given
+        CreateReview createReview = new CreateReview();
+        createReview.setRestaurantId(restaurant.getId());
+        createReview.setScore(1);
+        createReview.setContent("테스트");
+        restaurantReviewRepositoryJDBC.save(user.getId(), createReview);
+
+
+        //when & then
+        mockMvc.perform(get("/api/restaurant/" + restaurant.getId()))
+                .andExpect(jsonPath("$.reviewCount").value(1));
+
+
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void 별점_평균계산_정상확인() throws Exception {
+
+        //given
+
+        restaurantScoreRepositoryJDBC.save(user.getId(), restaurant.getId(), 1);
+        restaurantScoreRepositoryJDBC.save(owner.getId(), restaurant.getId(), 1);
+
+
+
+
+        //when
+        mockMvc.perform(get("/api/restaurant/" + restaurant.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.score").value(1.0));
+
+    }
+
+
+
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void 별점_평균계산_소수점_반환_확인() throws Exception {
+
+        //given
+
+        restaurantScoreRepositoryJDBC.save(user.getId(), restaurant.getId(), 1);
+        restaurantScoreRepositoryJDBC.save(owner.getId(), restaurant.getId(), 2);
+
+
+
+
+        //when
+        mockMvc.perform(get("/api/restaurant/" + restaurant.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.score").value(1.5));
 
     }
 }
