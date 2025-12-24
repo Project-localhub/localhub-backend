@@ -19,13 +19,14 @@ public class RequestRestaurantDto {
     private String address;
     private BigDecimal latitude;
     private BigDecimal longitude;
-    private String keywords;
     private LocalTime openTime;
     private LocalTime closeTime;
     private Boolean hasBreakTime;
     private LocalTime breakStartTime;
     private LocalTime breakEndTime;
 
+
+    private List<String> keyword;
     private List<RequestRestaurantImages> images;
 
 

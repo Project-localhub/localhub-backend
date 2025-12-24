@@ -8,13 +8,21 @@ import com.localhub.localhub.entity.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.entity.restaurant.Restaurant;
+import com.localhub.localhub.entity.restaurant.RestaurantImages;
+import com.localhub.localhub.entity.restaurant.RestaurantKeyword;
 import com.localhub.localhub.entity.restaurant.UserLikeRestaurant;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepository;
 import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
+import com.localhub.localhub.repository.jpaReposi.RestaurantImageRepositoryJpa;
+import com.localhub.localhub.repository.jpaReposi.RestaurantKeywordRepositoryJpa;
+import com.localhub.localhub.repository.jpaReposi.UserLikeRestaurantRepositoryJPA;
 import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,14 +31,18 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class RestaurantService {
+
+    private final UserLikeRestaurantRepositoryJPA userLikeRestaurantRepositoryJPA;
     private final RestaurantRepositoryJpa restaurantRepositoryJpa;
     private final RestaurantRepositoryJDBC restaurantRepositoryJDBC;
     private final UserRepository userRepository;
     private final RestaurantReviewRepository restaurantReviewRepository;
     private final UserLikeRestaurantRepositoryJDBC userLikeRestaurantRepositoryJDBC;
-
+    private final RestaurantImageRepositoryJpa restaurantImageRepositoryJpa;
+    private final RestaurantKeywordRepositoryJpa restaurantKeywordRepositoryJpa;
 
     //가게 등록
+    @Transactional
     public void save(String username, RequestRestaurantDto requestRestaurantDto) {
 
         UserEntity userEntity = userRepository.findByUsername(username)
@@ -41,12 +53,39 @@ public class RestaurantService {
         }
 
 
-        int save = restaurantRepositoryJDBC.save(userEntity.getId(), requestRestaurantDto);
-        if (save == 0) {
+        Long restaurantId = restaurantRepositoryJDBC.save(userEntity.getId(), requestRestaurantDto);
+        if (restaurantId == null) {
             throw new IllegalArgumentException("저장 실패");
         }
+        // 이미지 저장
+        if (requestRestaurantDto.getImages() != null &&
+                !requestRestaurantDto.getImages().isEmpty()) {
+            List<RestaurantImages> imagesList = requestRestaurantDto.getImages().stream()
+                    .map(dto -> RestaurantImages.builder()
+                            .imageKey(dto.getImageKey())
+                            .restaurantId(restaurantId)
+                            .build()
+                    ).toList();
 
+            for (RestaurantImages restaurantImages : imagesList) {
+                restaurantImageRepositoryJpa.save(restaurantImages);
+            }
+        }
 
+        // 키워드 저장
+        if (requestRestaurantDto.getKeyword() != null &&
+                !requestRestaurantDto.getKeyword().isEmpty()) {
+            List<RestaurantKeyword> keywordList = requestRestaurantDto.getKeyword().stream()
+                    .map(dto -> RestaurantKeyword.builder()
+                            .keyword(dto)
+                            .restaurantId(restaurantId)
+                            .build()
+                    ).toList();
+
+            for (RestaurantKeyword restaurantKeyword : keywordList) {
+                restaurantKeywordRepositoryJpa.save(restaurantKeyword);
+            }
+        }
     }
 
     //가게 정보 수정
@@ -68,6 +107,12 @@ public class RestaurantService {
         restaurant.update(dto);
     }
 
+    //가게 이미지 수정
+    public void changeRestaurantImages() {
+
+    }
+
+
     //가게 정보 조회
     public ResponseRestaurantDto findRestaurantById(Long restaurantId) {
         Restaurant restaurant = restaurantRepositoryJDBC.findById(restaurantId)
@@ -82,8 +127,8 @@ public class RestaurantService {
                 .name(restaurant.getName())
                 .address(restaurant.getAddress())
                 .phone(restaurant.getPhone())
-                .keyword(List.of())
-                .imageUrl(List.of())
+//                .keyword(List.of())
+//                .imageUrl(List.of())
                 .category(restaurant.getCategory().name())
                 .latitude(restaurant.getLatitude())
                 .longitude(restaurant.getLongitude())
@@ -107,14 +152,17 @@ public class RestaurantService {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
+        if (userEntity.getUserType() != UserType.OWNER) {
+            throw new IllegalArgumentException("OWNER만 삭제할수있습니다.");
+        }
+
+
         if (!restaurant.getOwnerId().equals(userEntity.getId())) {
             throw new IllegalArgumentException("가게 주인만 정보를 지울 수 있습니다.");
         }
 
 
-        if (userEntity.getUserType() != UserType.OWNER) {
-            throw new IllegalArgumentException("OWNER만 삭제할수있습니다.");
-        }
+
 
         int result = restaurantRepositoryJDBC.deleteById(restaurantId);
         if (result == 0) {
@@ -167,4 +215,21 @@ public class RestaurantService {
     }
 
 
+    public Page<ResponseRestaurantDto> getLikeList(Pageable pageable,String username) {
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+
+        int limit = pageable.getPageSize();
+        int offset = (int) pageable.getOffset();
+
+        List<ResponseRestaurantDto> content =
+                userLikeRestaurantRepositoryJPA.findLikedRestaurants(userEntity.getId(),limit,offset);
+
+        Page<ResponseRestaurantDto> page =
+                new PageImpl<>(content, pageable, content.size());
+
+        return page;
+
+
+    }
 }

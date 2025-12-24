@@ -1,26 +1,22 @@
 package com.localhub.localhub.entity.restaurant;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Builder
-@Table(name = "restaurant_images")
-public class RestaurantImages {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Entity
+@Table(name = "restaurant_keyword")
+public class RestaurantKeyword {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "image_key")
-    private String imageKey;
-    @Column(name = "restaurant_id ")
+    @Column(name = "keyword")
+    private String keyword;
+    @Column(name = "restaurant_id")
     private Long restaurantId;
-
 }

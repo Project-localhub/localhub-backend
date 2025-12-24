@@ -6,10 +6,12 @@ import com.localhub.localhub.entity.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -20,7 +22,7 @@ public class RestaurantRepositoryJDBC {
 
 
     // 레스토랑 등록
-    public int save(Long userId, RequestRestaurantDto dto) {
+    public Long save(Long userId, RequestRestaurantDto dto) {
 
         String sql = """
                 INSERT INTO restaurant (
@@ -55,6 +57,9 @@ public class RestaurantRepositoryJDBC {
                 )
                 """;
 
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
+
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("owner_id", userId)
                 .addValue("name", dto.getName())
@@ -70,7 +75,8 @@ public class RestaurantRepositoryJDBC {
                 .addValue("hasBreakTime", dto.getHasBreakTime())
                 .addValue("breakStartTime", dto.getBreakStartTime());
 
-        return template.update(sql, params);
+        template.update(sql, params,keyHolder);
+        return keyHolder.getKey().longValue();
     }
 
     public Optional<Restaurant> findById(Long id) {

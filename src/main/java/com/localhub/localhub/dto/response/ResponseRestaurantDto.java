@@ -26,8 +26,6 @@ public class ResponseRestaurantDto {
     private String address;
     private BigDecimal latitude;
     private BigDecimal longitude;
-    private List<?> keyword;
-    private List<?> imageUrl;
     private LocalTime openTime;
     private LocalTime closeTime;
     private Boolean hasBreakTime;

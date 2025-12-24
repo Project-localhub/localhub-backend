@@ -12,6 +12,7 @@ import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepository;
 import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.apache.catalina.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +45,6 @@ class RestaurantServiceTest {
 
     @Mock
     RestaurantReviewRepository restaurantReviewRepository;
-
     UserEntity user;
     UserEntity owner;
     Restaurant testRestaurant;
@@ -121,22 +122,18 @@ class RestaurantServiceTest {
 
         //given
         RequestRestaurantDto requestRestaurantDto = new RequestRestaurantDto();
-        UserEntity user = UserEntity.builder()
-                .id(1L)
-                .username("테스트")
-                .userType(UserType.OWNER)
-                .build();
+        requestRestaurantDto.setImages(List.of());
 
-        given(userRepository.findByUsername(user.getUsername()))
-                .willReturn(Optional.of(user));
-        given(restaurantRepositoryJDBC.save(user.getId(), requestRestaurantDto))
-                .willReturn(1);
+        given(userRepository.findByUsername(owner.getUsername()))
+                .willReturn(Optional.of(owner));
+        given(restaurantRepositoryJDBC.save(owner.getId(), requestRestaurantDto))
+                .willReturn(3L);
 
         //when
-        restaurantService.save(user.getUsername(), requestRestaurantDto);
+        restaurantService.save(owner.getUsername(), requestRestaurantDto);
 
         //then
-        verify(restaurantRepositoryJDBC).save(user.getId(), requestRestaurantDto);
+        verify(restaurantRepositoryJDBC).save(owner.getId(), requestRestaurantDto);
     }
 
     @Test
@@ -153,8 +150,8 @@ class RestaurantServiceTest {
                 .build();
 
         RestaurantReview restaurantReview = RestaurantReview.builder()
-                .restaurant_id(1L)
-                .user_id(2L)
+                .restaurant_id(restaurant.getId())
+                .user_id(user.getId())
                 .content("리뷰")
                 .build();
 
@@ -225,7 +222,6 @@ class RestaurantServiceTest {
         restaurantService.deleteRestaurant(owner.getUsername(), restaurantId);
 
         //then
-
         verify(restaurantRepositoryJDBC).deleteById(restaurantId);
 
     }
@@ -234,13 +230,11 @@ class RestaurantServiceTest {
     void 가게_OWNER가_아니면_에러발생() {
 
         //given
-
-        Long restaurantId = 1L;
-
         Restaurant restaurant = Restaurant.builder()
-                .ownerId(1L) //위에 선언한 CUSTOMER의 아이디 선언.
+                .id(1L)
+                .ownerId(user.getId()) //위에 선언한 CUSTOMER의 아이디 선언.
                 .build();
-
+        Long restaurantId = restaurant.getId();
 
         given(restaurantRepositoryJDBC.findById(restaurantId))
                 .willReturn(Optional.of(restaurant));
