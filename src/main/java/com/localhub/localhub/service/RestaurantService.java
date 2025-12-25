@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -292,15 +293,14 @@ public class RestaurantService {
                 restaurantKeywordRepositoryJpa
                         .findByRestaurantIdIn(restaurantIds);
 
-        keywords.stream()
+        Map<Long, List<String>> keywordMap = keywords.stream()
                 .collect(Collectors.groupingBy(
-                        RestaurantKeyword::getId,
+                        RestaurantKeyword::getRestaurantId,
                         Collectors.mapping(
                                 RestaurantKeyword::getKeyword,
                                 Collectors.toList()
                         )
                 ));
-
 
 
     }
