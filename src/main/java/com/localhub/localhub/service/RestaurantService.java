@@ -3,6 +3,7 @@ package com.localhub.localhub.service;
 
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
+import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.entity.restaurant.Category;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
@@ -122,12 +123,42 @@ public class RestaurantService {
     }
 
     //가게 이미지 수정
-    public void changeRestaurantImages() {
+    @Transactional
+    public void changeRestaurantImages(String username,Long restaurantId,
+                                       List<RequestRestaurantImagesDto> imagesDtos) {
 
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+
+
+        Restaurant restaurant = restaurantRepositoryJpa.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("레스토랑을 찾을 수 없습니다."));
+
+        if (userEntity.getId() != restaurant.getOwnerId()) {
+            throw new IllegalArgumentException("가게 주인만 수정이 가능합니다.");
+        }
+
+        restaurantImageRepositoryJpa.deleteByRestaurantId(restaurantId);
+
+        List<RestaurantImages> imagesEntityList = imagesDtos.stream().map(
+                dto ->
+                        RestaurantImages.builder()
+                                .restaurantId(restaurantId)
+                                .sortOrder(dto.getSortOrder())
+                                .imageKey(dto.getImageKey())
+                                .build()
+        ).toList();
+
+        for (RestaurantImages image : imagesEntityList) {
+            restaurantImageRepositoryJpa.save(image);
+        }
     }
 
 
     //가게 키워드 수정
+    public void changeRestaurantKeyword() {
+        //작업중
+    }
 
 
     //가게 정보 조회

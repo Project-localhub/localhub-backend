@@ -2,6 +2,7 @@ package com.localhub.localhub.repository.jpaReposi;
 
 import com.localhub.localhub.entity.restaurant.RestaurantImages;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,5 +19,15 @@ public interface RestaurantImageRepositoryJpa extends JpaRepository<RestaurantIm
           
           """)
     List<RestaurantImages> findByRestaurantId(@Param("restaurantId") Long restaurantId);
+
+    @Modifying
+    @Query("""
+            DELETE 
+            FROM RestaurantImages img
+            WHERE img.restaurantId = :restaurantId
+            """)
+    void deleteByRestaurantId(@Param("restaurantId") Long restaurantId);
+
+
 
 }

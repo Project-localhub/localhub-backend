@@ -2,6 +2,7 @@ package com.localhub.localhub.controller;
 
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
+import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -47,7 +50,19 @@ public class RestaurantController {
         return ResponseEntity.ok("가게정보 수정 완료");
     }
 
-    @Operation(summary = "가게 정보 조회",
+    @Operation(summary = "가게 이미지 변경", description = "가게OWNER 유저가 자신의 가게 이미지변경")
+    @PostMapping("/updateImages/{restaurantId}")
+    public ResponseEntity<?> changeRestaurantImages(Authentication authentication,
+                                                    @RequestBody List<RequestRestaurantImagesDto> dtoList,
+                                                    @PathVariable("restaurantId") Long restaurantId
+    ) {
+        restaurantService.changeRestaurantImages(authentication.getName(), restaurantId, dtoList);
+        return ResponseEntity.ok("가게 이미지 변경 완료.");
+
+    }
+
+
+    @Operation(summary = "가게 상세정보 조회",
             description = "가게의 아이디를 param으로 받고 해당 가게 상세정보 조회")
     @GetMapping("/{restaurantId}")
     public ResponseEntity<ResponseRestaurantDto> getRestaurantInfoById

@@ -2,8 +2,11 @@ package com.localhub.localhub.service;
 
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
+import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.entity.restaurant.Category;
+import com.localhub.localhub.entity.restaurant.RestaurantImages;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
+import com.localhub.localhub.repository.jpaReposi.RestaurantImageRepositoryJpa;
 import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
@@ -26,8 +29,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,9 +47,11 @@ class RestaurantServiceTest {
     @Mock
     UserRepository userRepository;
     @Mock
-    RestaurantRepositoryJpa restaurantRepository;
+    RestaurantRepositoryJpa restaurantRepositoryJpa;
     @Mock
     RestaurantScoreRepositoryJDBC restaurantScoreRepositoryJDBC;
+    @Mock
+    RestaurantImageRepositoryJpa restaurantImageRepositoryJpa;
 
     @Mock
     RestaurantReviewRepositoryJDBC restaurantReviewRepositoryJDBC;
@@ -261,7 +265,7 @@ class RestaurantServiceTest {
         //given
         given(userRepository.findByUsername(user.getUsername()))
                 .willReturn(Optional.of(user));
-        given(restaurantRepository.findById(testRestaurant.getId()))
+        given(restaurantRepositoryJpa.findById(testRestaurant.getId()))
                 .willReturn(Optional.of(testRestaurant));
         given(userLikeRestaurantRepositoryJDBC.isExistByUserIdAndRestaurantId(user.getId(), testRestaurant.getId()))
                 .willReturn(1);
@@ -279,7 +283,7 @@ class RestaurantServiceTest {
         //given
         given(userRepository.findByUsername(user.getUsername()))
                 .willReturn(Optional.of(user));
-        given(restaurantRepository.findById(testRestaurant.getId()))
+        given(restaurantRepositoryJpa.findById(testRestaurant.getId()))
                 .willReturn(Optional.of(testRestaurant));
         given(userLikeRestaurantRepositoryJDBC.isExistByUserIdAndRestaurantId(user.getId(), testRestaurant.getId()))
                 .willReturn(0);
@@ -298,7 +302,7 @@ class RestaurantServiceTest {
         //given
         given(userRepository.findByUsername(user.getUsername()))
                 .willReturn(Optional.of(user));
-        given(restaurantRepository.findById(testRestaurant.getId()))
+        given(restaurantRepositoryJpa.findById(testRestaurant.getId()))
                 .willReturn(Optional.empty());
 
         //when & then
@@ -385,5 +389,57 @@ class RestaurantServiceTest {
                 .hasMessageContaining("별점은 1~5 사이여야 합니다.");
 
     }
+
+    @Test
+    void 레스토랑이미지_변경_db호출_확인() {
+
+
+        //given
+        RequestRestaurantImagesDto dto1 = new RequestRestaurantImagesDto();
+        RequestRestaurantImagesDto dto2 = new RequestRestaurantImagesDto();
+        RequestRestaurantImagesDto dto3 = new RequestRestaurantImagesDto();
+        List<RequestRestaurantImagesDto> dtoList = List.of(dto1, dto2, dto3);
+
+
+
+        given(userRepository.findByUsername(owner.getUsername()))
+                .willReturn(Optional.of(owner));
+
+        given(restaurantRepositoryJpa.findById(testRestaurant.getId()))
+                .willReturn(Optional.of(testRestaurant));
+
+        //when
+        restaurantService.changeRestaurantImages(owner.getUsername(), testRestaurant.getId(), dtoList);
+
+        //then
+
+        verify(restaurantImageRepositoryJpa,times(1)).deleteByRestaurantId(testRestaurant.getId());
+        verify(restaurantImageRepositoryJpa, times(3)).save(any());
+
+    }
+    @Test
+    void 오너가_아닌_사람이_변경시_에러발생() {
+
+        //given
+        RequestRestaurantImagesDto dto1 = new RequestRestaurantImagesDto();
+        RequestRestaurantImagesDto dto2 = new RequestRestaurantImagesDto();
+        RequestRestaurantImagesDto dto3 = new RequestRestaurantImagesDto();
+        List<RequestRestaurantImagesDto> dtoList = List.of(dto1, dto2, dto3);
+
+
+
+        given(userRepository.findByUsername(user.getUsername()))
+                .willReturn(Optional.of(user));
+
+        given(restaurantRepositoryJpa.findById(testRestaurant.getId()))
+                .willReturn(Optional.of(testRestaurant));
+
+
+        //when & then
+
+        assertThatThrownBy(() -> restaurantService.changeRestaurantImages(user.getUsername(), testRestaurant.getId(), dtoList))
+                .hasMessageContaining("가게 주인만 수정이 가능합니다.");
+    }
+
 }
 

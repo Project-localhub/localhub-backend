@@ -1,11 +1,13 @@
 package com.localhub.localhub.IntegrationTest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.localhub.localhub.config.TestExternalConfig;
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.request.RequestRestaurantImages;
+import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.entity.restaurant.*;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
@@ -122,6 +124,7 @@ public class RestaurantTest {
         userRepository.save(owner);
 
         restaurant = Restaurant.builder()
+                .ownerId(owner.getId())
                 .category(Category.한식)
                 .address("테스트")
                 .build();
@@ -455,15 +458,12 @@ public class RestaurantTest {
         restaurantScoreRepositoryJDBC.save(owner.getId(), restaurant.getId(), 1);
 
 
-
-
         //when
         mockMvc.perform(get("/api/restaurant/" + restaurant.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.score").value(1.0));
 
     }
-
 
 
     @Test
@@ -476,12 +476,119 @@ public class RestaurantTest {
         restaurantScoreRepositoryJDBC.save(owner.getId(), restaurant.getId(), 2);
 
 
-
-
         //when
         mockMvc.perform(get("/api/restaurant/" + restaurant.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.score").value(1.5));
+    }
 
+    @Test
+    @WithMockUser(username = "owner", roles = "OWNER")
+    void 레스토랑_이미지_저장_정상확인_200반환() throws Exception {
+
+
+        //given
+
+        RequestRestaurantImagesDto dto1 = new RequestRestaurantImagesDto("imageKey1", 1);
+        RequestRestaurantImagesDto dto2 = new RequestRestaurantImagesDto("imageKey2", 2);
+        RequestRestaurantImagesDto dto3 = new RequestRestaurantImagesDto("imageKey3", 3);
+
+
+        List<RequestRestaurantImagesDto> dtoList = List.of(dto1, dto2, dto3);
+
+        //when & then
+        mockMvc.perform(post("/api/restaurant/updateImages/" + restaurant.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dtoList))
+        ).andExpect(status().isOk());
+    }
+
+
+    @Test
+    @WithMockUser(username = "owner", roles = "USER")
+    void 레스토랑_이미지_저장_후_정상으로들어갔는지_hasSize_확인() throws Exception {
+
+        //given
+
+        RequestRestaurantImagesDto dto1 = new RequestRestaurantImagesDto("imageKey1", 1);
+        RequestRestaurantImagesDto dto2 = new RequestRestaurantImagesDto("imageKey2", 2);
+        RequestRestaurantImagesDto dto3 = new RequestRestaurantImagesDto("imageKey3", 3);
+
+
+        List<RequestRestaurantImagesDto> dtoList = List.of(dto1, dto2, dto3);
+
+        //when
+        mockMvc.perform(post("/api/restaurant/updateImages/" + restaurant.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dtoList))
+        ).andExpect(status().isOk());
+
+        List<RestaurantImages> result = restaurantImageRepositoryJpa.findAll();
+
+        //then
+        assertThat(result).hasSize(3);
+        assertThat(result)
+                .extracting(images -> images.getImageKey())
+                .containsExactlyInAnyOrder("imageKey1", "imageKey2", "imageKey3");
+
+        assertThat(result)
+                .extracting(images -> images.getSortOrder())
+                .containsExactlyInAnyOrder(1, 2, 3);
+
+    }
+
+
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void 가게주인이_아닌_사람의_요청이면_400반환() throws Exception {
+
+        //given
+
+        RequestRestaurantImagesDto dto1 = new RequestRestaurantImagesDto("imageKey1", 1);
+        RequestRestaurantImagesDto dto2 = new RequestRestaurantImagesDto("imageKey2", 2);
+        RequestRestaurantImagesDto dto3 = new RequestRestaurantImagesDto("imageKey3", 3);
+
+
+        List<RequestRestaurantImagesDto> dtoList = List.of(dto1, dto2, dto3);
+
+        //when
+        mockMvc.perform(post("/api/restaurant/updateImages/" + restaurant.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dtoList))
+        ).andExpect(status().is(400));
+    }
+
+    @Test
+    @WithMockUser(username = "owner", roles = "OWNER")
+    void 이미지업데이트시에_기존이미지_정상_삭제됐는지_확인() throws Exception {
+
+        //given
+
+        RequestRestaurantImagesDto dto1 = new RequestRestaurantImagesDto("imageKey1", 1);
+        RequestRestaurantImagesDto dto2 = new RequestRestaurantImagesDto("imageKey2", 2);
+        RequestRestaurantImagesDto dto3 = new RequestRestaurantImagesDto("imageKey3", 3);
+
+
+        List<RequestRestaurantImagesDto> dtoList = List.of(dto1, dto2, dto3);
+
+        RestaurantImages delete = RestaurantImages.builder()
+                .restaurantId(restaurant.getId())
+                .imageKey("delete")
+                .build();
+        restaurantImageRepositoryJpa.save(delete);
+
+        //when
+        mockMvc.perform(post("/api/restaurant/updateImages/" + restaurant.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dtoList))
+        ).andExpect(status().isOk());
+
+        List<RestaurantImages> result = restaurantImageRepositoryJpa.findAll();
+
+        //then
+        assertThat(result).hasSize(3);
+        assertThat(result)
+                .extracting(images -> images.getImageKey())
+                .containsExactlyInAnyOrder("imageKey1", "imageKey2", "imageKey3");
     }
 }
