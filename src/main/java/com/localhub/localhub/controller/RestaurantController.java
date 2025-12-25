@@ -61,12 +61,21 @@ public class RestaurantController {
 
     }
 
+    @Operation(summary = "가게 키워드 변경", description = "가게OWNER 유저가 자신의 가게 키워드 변경")
+    @PostMapping("/updateKeywords/{restaurantId}")
+    public ResponseEntity<?> changeRestaurantKeyword(Authentication authentication,
+                                                     @RequestBody List<String> keywords,
+                                                     @PathVariable("restaurantId") Long restaurantId) {
+        restaurantService.changeRestaurantKeyword(authentication.getName(), restaurantId, keywords);
+        return ResponseEntity.ok("가게 키워드 변경 완료");
 
+    }
     @Operation(summary = "가게 상세정보 조회",
             description = "가게의 아이디를 param으로 받고 해당 가게 상세정보 조회")
     @GetMapping("/{restaurantId}")
     public ResponseEntity<ResponseRestaurantDto> getRestaurantInfoById
             (@PathVariable("restaurantId") Long restaurantId) {
+
 
         ResponseRestaurantDto result = restaurantService.findRestaurantById(restaurantId);
         return ResponseEntity.ok(result);

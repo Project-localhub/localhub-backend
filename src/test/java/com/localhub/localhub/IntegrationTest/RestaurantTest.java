@@ -591,4 +591,88 @@ public class RestaurantTest {
                 .extracting(images -> images.getImageKey())
                 .containsExactlyInAnyOrder("imageKey1", "imageKey2", "imageKey3");
     }
+
+    @Test
+    @WithMockUser(username = "owner", roles = "USER")
+    void 가게_키워드변경_성공_200반환() throws Exception {
+
+
+        //given
+        List<String> keywordDtoList = List.of("변경1", "변경2", "변경3");
+
+        //when
+        mockMvc.perform(post("/api/restaurant/updateKeywords/" + restaurant.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(keywordDtoList)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "owner", roles = "USER")
+    void 가게_키워드변경_값_조회_확인() throws Exception {
+
+        //given
+        List<String> keywordDtoList = List.of("변경1", "변경2", "변경3");
+
+        //when
+        mockMvc.perform(post("/api/restaurant/updateKeywords/" + restaurant.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(keywordDtoList)));
+        List<RestaurantKeyword> result = restaurantKeywordRepositoryJpa.findAll();
+        //then
+        assertThat(result).hasSize(3);
+        assertThat(result)
+                .extracting(key -> key.getKeyword())
+                .containsExactlyInAnyOrder("변경1", "변경2", "변경3");
+
+    }
+
+    @Test
+    @WithMockUser(username = "owner", roles = "USER")
+    void 가게_키워드변경_기존값_삭제_확인() throws Exception {
+
+        //given
+        List<String> keywordDtoList = List.of("변경1", "변경2", "변경3");
+
+        RestaurantKeyword restaurantKeyword = RestaurantKeyword.builder()
+                .keyword("기존값")
+                .restaurantId(restaurant.getId())
+                .build();
+        restaurantKeywordRepositoryJpa.save(restaurantKeyword);
+        //when
+        mockMvc.perform(post("/api/restaurant/updateKeywords/" + restaurant.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(keywordDtoList)));
+        List<RestaurantKeyword> result = restaurantKeywordRepositoryJpa.findAll();
+
+        //then
+
+        assertThat(result).hasSize(3);
+        assertThat(result).extracting(key -> key.getKeyword())
+                .containsExactlyInAnyOrder("변경1", "변경2", "변경3");
+    }
+
+    @Test
+    @WithMockUser(username = "user",roles = "USER")
+    void 가게_주인이_아니면_키워드변경_불가능_400() throws Exception{
+
+
+        //given
+        List<String> keywordDtoList = List.of("변경1", "변경2", "변경3");
+
+        RestaurantKeyword restaurantKeyword = RestaurantKeyword.builder()
+                .keyword("기존값")
+                .restaurantId(restaurant.getId())
+                .build();
+        restaurantKeywordRepositoryJpa.save(restaurantKeyword);
+        //when & then
+        mockMvc.perform(post("/api/restaurant/updateKeywords/" + restaurant.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(keywordDtoList)))
+                .andExpect(status().is(400))
+                .andExpect(jsonPath("$.message").value("가게 주인만 변경가능합니다."));
+
+
+    }
 }
+
