@@ -121,6 +121,7 @@ CREATE TABLE IF NOT EXISTS restaurant_images(
  id BIGINT AUTO_INCREMENT PRIMARY KEY,
  restaurant_id BIGINT NOT NULL,
  image_key VARCHAR(255),
+ sort_order TINYINT,
 
  FOREIGN KEY (restaurant_id)
  REFERENCES restaurant(id)

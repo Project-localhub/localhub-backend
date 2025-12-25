@@ -22,5 +22,6 @@ public class RestaurantImages {
     private String imageKey;
     @Column(name = "restaurant_id ")
     private Long restaurantId;
-
+    @Column(name = "sort_order")
+    private Integer sortOrder;
 }

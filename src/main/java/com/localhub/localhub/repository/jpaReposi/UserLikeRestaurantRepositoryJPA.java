@@ -26,7 +26,7 @@ public interface UserLikeRestaurantRepositoryJPA extends JpaRepository<UserLikeR
                         r.close_time          AS closeTime,
                         r.has_break_time      AS hasBreakTime,
                         r.break_start_time    AS breakStartTime,
-                        r.break_end_time      AS breakEndTime,
+                        r.break_end_time      AS breakEndTime
                     
                     
                     FROM user_like_restaurant ulr

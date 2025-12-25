@@ -33,6 +33,7 @@ public class ResponseRestaurantDto {
     private LocalTime breakEndTime;
     private Integer reviewCount;
     private Integer favoriteCount;
+    private double score;
 
     private List<String> keywordList;
     private List<String> imageUrlList;

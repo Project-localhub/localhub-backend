@@ -2,6 +2,7 @@ package com.localhub.localhub.controller;
 
 import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
+import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/restaurant")
@@ -26,7 +29,6 @@ public class RestaurantController {
     @PostMapping("/save")
     public ResponseEntity<String> saveRestaurant(Authentication authentication,
                                                  @RequestBody RequestRestaurantDto requestRestaurantDto) {
-
         restaurantService.save(authentication.getName(), requestRestaurantDto);
         return ResponseEntity.ok("가게 등록 완료.");
     }
@@ -36,30 +38,47 @@ public class RestaurantController {
     public ResponseEntity<?> saveReview(Authentication authentication,
                                         @RequestBody CreateReview createReview) {
         restaurantService.createReview(authentication.getName(), createReview);
-
         return ResponseEntity.ok("'가게 리뷰 작성 완료");
     }
-
 
     @Operation(summary = "가게 정보 수정", description = "ONWER유저가 자신의 가게 수정")
     @PutMapping("/update")
     public ResponseEntity<?> updateRestaurant(Authentication authentication,
                                               @RequestBody RequestRestaurantDto requestRestaurantDto) {
 
-
         restaurantService.updateRestaurantInfo(authentication.getName(), requestRestaurantDto);
         return ResponseEntity.ok("가게정보 수정 완료");
     }
 
-    @Operation(summary = "가게 정보 조회",
+    @Operation(summary = "가게 이미지 변경", description = "가게OWNER 유저가 자신의 가게 이미지변경")
+    @PostMapping("/updateImages/{restaurantId}")
+    public ResponseEntity<?> changeRestaurantImages(Authentication authentication,
+                                                    @RequestBody List<RequestRestaurantImagesDto> dtoList,
+                                                    @PathVariable("restaurantId") Long restaurantId
+    ) {
+        restaurantService.changeRestaurantImages(authentication.getName(), restaurantId, dtoList);
+        return ResponseEntity.ok("가게 이미지 변경 완료.");
+
+    }
+
+    @Operation(summary = "가게 키워드 변경", description = "가게OWNER 유저가 자신의 가게 키워드 변경")
+    @PostMapping("/updateKeywords/{restaurantId}")
+    public ResponseEntity<?> changeRestaurantKeyword(Authentication authentication,
+                                                     @RequestBody List<String> keywords,
+                                                     @PathVariable("restaurantId") Long restaurantId) {
+        restaurantService.changeRestaurantKeyword(authentication.getName(), restaurantId, keywords);
+        return ResponseEntity.ok("가게 키워드 변경 완료");
+
+    }
+    @Operation(summary = "가게 상세정보 조회",
             description = "가게의 아이디를 param으로 받고 해당 가게 상세정보 조회")
     @GetMapping("/{restaurantId}")
     public ResponseEntity<ResponseRestaurantDto> getRestaurantInfoById
             (@PathVariable("restaurantId") Long restaurantId) {
 
+
         ResponseRestaurantDto result = restaurantService.findRestaurantById(restaurantId);
         return ResponseEntity.ok(result);
-
 
     }
 
