@@ -1,13 +1,16 @@
 package com.localhub.localhub.config;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.localhub.localhub.OAuth2.CustomOAuth2UserService;
 import com.localhub.localhub.OAuth2.CustomSuccessHandler;
+import com.localhub.localhub.exception.ErrorResponse;
 import com.localhub.localhub.jwt.CustomLogoutFilter;
 import com.localhub.localhub.jwt.JWTFilter;
 import com.localhub.localhub.jwt.JWTUtil;
 import com.localhub.localhub.jwt.LoginFilter;
 import com.localhub.localhub.repository.jpaReposi.RefreshRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -125,6 +128,32 @@ public class SecurityConfig {
         http
                 .sessionManagement((session) ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint((req, res, e) -> {
+                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+                    res.setContentType("application/json;charset=UTF-8");
+                    res.getWriter().write("""
+                {"status":401,"code":"UNAUTHORIZED","message":"로그인이 필요합니다.","path":"%s"}
+                """.formatted(req.getRequestURI()));
+                })
+
+
+                .accessDeniedHandler((req, res, e) -> {
+                    res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    res.setContentType("application/json;charset=UTF-8");
+
+                    ErrorResponse errorResponse =
+                            new ErrorResponse(403, "권한이 없습니다.");
+
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    res.getWriter().write(
+                            objectMapper.writeValueAsString(errorResponse)
+                    );
+                })
+        );
+
+
 
 
         return http.build();

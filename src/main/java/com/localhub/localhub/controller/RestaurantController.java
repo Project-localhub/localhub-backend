@@ -4,6 +4,7 @@ import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
+import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
 import com.localhub.localhub.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -91,6 +92,19 @@ public class RestaurantController {
         restaurantService.deleteRestaurant(authentication.getName(), restaurantId);
         return ResponseEntity.ok("가게 삭제 완료");
 
+    }
+
+    @Operation(summary = "가게 전체 목록 조회", description = """
+                        가게 전체 목록 조회(페이징처리)
+                        디폴트 값 사이즈 10
+                        """)
+    @GetMapping("/get-all-restaurants")
+    public ResponseEntity<Page<ResponseRestaurantListDto>> getAllRestaurants(
+            @ParameterObject
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantList(pageable);
+        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "찜하기", description = "유저가 마음에 드는 가게 찜하기 기능")

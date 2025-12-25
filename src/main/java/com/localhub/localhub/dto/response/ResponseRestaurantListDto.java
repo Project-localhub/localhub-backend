@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -18,6 +20,9 @@ public class ResponseRestaurantListDto {
     private Integer reviewCount;
 
     private Integer favoriteCount;
+
+    private String imageUrl;
+    private List<String> keyword;
 
 
 
