@@ -1,6 +1,7 @@
 package com.localhub.localhub.entity.restaurant;
 
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
+import com.localhub.localhub.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +17,7 @@ import java.time.LocalTime;
 @Entity
 @Builder
 @Table(name = "restaurant")
-public class Restaurant {
+public class Restaurant extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

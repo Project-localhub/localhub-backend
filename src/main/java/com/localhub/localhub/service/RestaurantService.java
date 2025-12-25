@@ -5,6 +5,7 @@ import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
+import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
 import com.localhub.localhub.entity.restaurant.Category;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
@@ -280,22 +281,22 @@ public class RestaurantService {
         }
     }
 
-    //전체 가게목록조회
-    public void getAllRestaurantList(Pageable pageable) {
-//작업중
+    //전체 가게목록조회 (작업중)
+    public Page<ResponseRestaurantListDto> getAllRestaurantList(Pageable pageable) {
 
         Page<Restaurant> page = restaurantRepositoryJpa.findAll(pageable);
-
+        //뽑아온 레스토랑의 아이디를 뽑아서 list로 만들기 이미지랑 키워드 뽑을때 where in으로 뽑기위함
         List<Long> restaurantIds = page.getContent().stream()
                 .map(Restaurant::getId)
                 .toList();
 
 
-
+        //레스토랑 아이디로 해당 키워드 조회(리스트)
         List<RestaurantKeyword> keywords =
                 restaurantKeywordRepositoryJpa
                         .findByRestaurantIdIn(restaurantIds);
 
+        //레스토랑 아이디로 그룹핑해서 해당 레스토랑 아이디에 해당하는 키워드들 리스트로 분류 후 MAP으로 뽑기
         Map<Long, List<String>> keywordMap = keywords.stream()
                 .collect(Collectors.groupingBy(
                         RestaurantKeyword::getRestaurantId,
@@ -304,8 +305,29 @@ public class RestaurantService {
                                 Collectors.toList()
                         )
                 ));
+        //해당 레스토랑 이미지중 1번째 이미지만 뽑아오기
+        List<RestaurantImages> firstImageByRestaurantIds =
+                restaurantImageRepositoryJpa
+                        .findFirstImageByRestaurantIds(restaurantIds);
 
+        Map<Long, String> firstImageMap = firstImageByRestaurantIds.stream().collect(Collectors.toMap(
+                RestaurantImages::getRestaurantId,
+                RestaurantImages::getImageKey
+        ));
 
+        Page<ResponseRestaurantListDto> result = page.map(r ->
+                ResponseRestaurantListDto.builder()
+                        .restaurantId(r.getId())
+                        .name(r.getName())
+                        .category(r.getCategory().name())
+                        .imageUrl(imageUrlResolver.toPresignedUrl(firstImageMap.get(r.getId())))
+                        .keyword(keywordMap.getOrDefault(r.getId(), List.of()))
+                        .reviewCount(1) //수정필요 우선 mock
+                        .score(1.0) // 수정필요 우선 mock
+                        .favoriteCount(1) //수정필요 우선 mock
+                        .build()
+        );
+        return result;
     }
 
 

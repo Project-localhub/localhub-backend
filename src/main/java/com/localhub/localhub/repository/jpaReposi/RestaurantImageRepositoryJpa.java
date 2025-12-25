@@ -19,23 +19,21 @@ public interface RestaurantImageRepositoryJpa extends JpaRepository<RestaurantIm
           
           """)
     List<RestaurantImages> findByRestaurantId(@Param("restaurantId") Long restaurantId);
-    @Modifying
+
+  @Modifying
     @Query("""
             DELETE 
-            FROM RestaurantImage rs
+            FROM RestaurantImages rs
             WHERE rs.restaurantId = :restaurantId
-            
             """)
     void deleteByRestaurantId(@Param("restaurantId") Long restaurantId);
 
-    @Modifying
-    @Query("""
-            DELETE 
-            FROM RestaurantImages img
-            WHERE img.restaurantId = :restaurantId
-            """)
-    void deleteByRestaurantId(@Param("restaurantId") Long restaurantId);
-
-
-
+  @Query("""
+            SELECT ri
+            FROM RestaurantImages ri
+            WHERE ri.restaurantId in :restaurantIds
+            and ri.sortOrder = 1
+          """)
+  List<RestaurantImages> findFirstImageByRestaurantIds
+          (@Param("restaurantIds") List<Long> restaurantIds);
 }

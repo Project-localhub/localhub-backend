@@ -160,7 +160,8 @@ CREATE TABLE user_score_restaurant(
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     score TINYINT,
     user_id BIGINT NOT NULL,
-    restaurant_id BIGINT NOT NULL
+    restaurant_id BIGINT NOT NULL,
+
 
 
     FOREIGN KEY (user_id)
