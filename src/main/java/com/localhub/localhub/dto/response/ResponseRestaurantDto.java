@@ -36,5 +36,5 @@ public class ResponseRestaurantDto {
     private double score;
 
     private List<String> keywordList;
-    private List<String> imageUrlList;
+    private List<ResponseRestaurantImageDto> imageUrlList;
 }
