@@ -142,4 +142,16 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurantService.findByOwner(authentication.getName()));
     }
 
+    @Operation(summary = "찜목록 삭제", description = """
+            
+            유저가 식당의 id를 파라미터로받고 찜한 상태라면
+            해당 id의 식당을 찜한 목록에서 삭제
+            """)
+    @DeleteMapping("/deleteBy/{restaurantId}")
+    public ResponseEntity<?> deleteByRestaurantId(Authentication authentication,
+                                                  @PathVariable Long restaurantId) {
+
+        restaurantService.deleteLikeRestaurant(restaurantId, authentication.getName());
+        return ResponseEntity.ok("찜목록 삭제 완료 해당 식당 id : " + restaurantId);
+    }
 }

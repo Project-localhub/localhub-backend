@@ -478,6 +478,26 @@ public class RestaurantService {
                 .reviewCount(totalReviewCount)
                 .build();
         return build;
+    }
+    //찜한 목록 삭제
+    @Transactional
+    public void deleteLikeRestaurant(Long restaurantId, String username) {
 
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+
+
+        int existByUserIdAndRestaurantId = userLikeRestaurantRepositoryJDBC
+                .isExistByUserIdAndRestaurantId(userEntity.getId(), restaurantId);
+
+        if (existByUserIdAndRestaurantId == 0) {
+            throw new IllegalArgumentException("찜한 목록이 없습니다.");
+        }
+
+        int result = userLikeRestaurantRepositoryJDBC
+                .deleteByUserIdAndRestaurantId(userEntity.getId(), restaurantId);
+        if (result == 0) {
+            throw new IllegalArgumentException("삭제할 찜할 목록이 없습니다.");
+        }
     }
 }
