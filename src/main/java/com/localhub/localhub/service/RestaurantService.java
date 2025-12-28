@@ -284,7 +284,7 @@ public class RestaurantService {
     //전체 가게목록조회 (작업중)
     public Page<ResponseRestaurantListDto> getAllRestaurantList(Pageable pageable) {
 
-        Page<Restaurant> page = restaurantRepositoryJpa.findAll(pageable);
+        Page<Restaurant> page = restaurantRepositoryJpa.findAllWithScores(pageable);
         //뽑아온 레스토랑의 아이디를 뽑아서 list로 만들기 이미지랑 키워드 뽑을때 where in으로 뽑기위함
         List<Long> restaurantIds = page.getContent().stream()
                 .map(Restaurant::getId)
