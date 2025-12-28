@@ -102,6 +102,9 @@ CREATE TABLE restaurant (
  break_start_time TIME,
  break_end_time TIME,
  image_key VARCHAR(255),
+ created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+ updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
 
  FOREIGN KEY (owner_id)
  REFERENCES users(id)

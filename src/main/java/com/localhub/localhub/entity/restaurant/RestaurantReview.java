@@ -18,8 +18,8 @@ public class RestaurantReview {
     private String content;
 
     @Column(name = "user_id")
-    private Long user_id;
+    private Long userId;
     @Column(name = "restaurant_id")
-    private Long restaurant_id;
+    private Long restaurantId;
 
 }

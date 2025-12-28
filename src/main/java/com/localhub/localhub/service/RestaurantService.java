@@ -269,10 +269,9 @@ public class RestaurantService {
         if (!restaurant.getOwnerId().equals(userEntity.getId())) {
             throw new IllegalArgumentException("가게 주인만 정보를 지울 수 있습니다.");
         }
-        restaurantImageRepositoryJpa.deleteByRestaurantId(restaurantId);
+        //키워드 삭제
         restaurantKeywordRepositoryJpa.deleteByRestaurantId(restaurantId);
-
-        restaurantKeywordRepositoryJpa.deleteByRestaurantId(restaurantId);
+        //이미지 삭제
         restaurantImageRepositoryJpa.deleteByRestaurantId(restaurantId);
 
         int result = restaurantRepositoryJDBC.deleteById(restaurantId);
@@ -281,13 +280,13 @@ public class RestaurantService {
         }
     }
 
-    //전체 가게목록조회 (작업중)
+    //전체 가게목록조회
     public Page<ResponseRestaurantListDto> getAllRestaurantList(Pageable pageable) {
 
-        Page<Restaurant> page = restaurantRepositoryJpa.findAll(pageable);
+        Page<ResponseRestaurantListDto> page = restaurantRepositoryJpa.findAllWithScores(pageable);
         //뽑아온 레스토랑의 아이디를 뽑아서 list로 만들기 이미지랑 키워드 뽑을때 where in으로 뽑기위함
         List<Long> restaurantIds = page.getContent().stream()
-                .map(Restaurant::getId)
+                .map(ResponseRestaurantListDto::getRestaurantId)
                 .toList();
 
 
@@ -315,19 +314,18 @@ public class RestaurantService {
                 RestaurantImages::getImageKey
         ));
 
-        Page<ResponseRestaurantListDto> result = page.map(r ->
-                ResponseRestaurantListDto.builder()
-                        .restaurantId(r.getId())
-                        .name(r.getName())
-                        .category(r.getCategory().name())
-                        .imageUrl(imageUrlResolver.toPresignedUrl(firstImageMap.get(r.getId())))
-                        .keyword(keywordMap.getOrDefault(r.getId(), List.of()))
-                        .reviewCount(1) //수정필요 우선 mock
-                        .score(1.0) // 수정필요 우선 mock
-                        .favoriteCount(1) //수정필요 우선 mock
-                        .build()
-        );
-        return result;
+       page.stream().forEach(
+            pg->
+               {
+                   pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
+
+                   pg.setImageUrl(imageUrlResolver.toPresignedUrl(pg.getImageUrl()));
+               }
+
+       );
+
+
+        return page;
     }
 
 
@@ -353,6 +351,7 @@ public class RestaurantService {
             if (score < 1 || score > 5) {
                 throw new IllegalArgumentException("별점은 1~5 사이여야 합니다.");
             }
+            //지금은 한 유저가 한 가게에 1개의 리뷰밖에 못달음(score 유니크조건때문에 나중에 리팩토링필요할수도)
             savedScoreId = restaurantScoreRepositoryJDBC.save
                     (userEntity.getId(), restaurant.getId(), createReview.getScore());
         }
@@ -387,20 +386,118 @@ public class RestaurantService {
     }
 
     //찜한 목록 조회
-    public Page<ResponseRestaurantDto> getLikeList(Pageable pageable, String username) {
+    public Page<ResponseRestaurantListDto> getLikeList(Pageable pageable, String username) {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
-        int limit = pageable.getPageSize();
-        int offset = (int) pageable.getOffset();
+        if (!userLikeRestaurantRepositoryJPA.isExistByUserId(userEntity.getId())) {
+            return Page.empty();
+        }
 
-        List<ResponseRestaurantDto> content =
-                userLikeRestaurantRepositoryJPA.findLikedRestaurants(userEntity.getId(), limit, offset);
+        Page<ResponseRestaurantListDto> page = userLikeRestaurantRepositoryJPA.findLikedRestaurant(userEntity.getId(),pageable);
 
-        Page<ResponseRestaurantDto> page =
-                new PageImpl<>(content, pageable, content.size());
+        List<RestaurantKeyword> all = restaurantKeywordRepositoryJpa.findAll();
 
+        Map<Long, List<String>> keywordMap = all.stream().collect(Collectors.groupingBy(
+                keyword -> keyword.getRestaurantId(),
+                Collectors.mapping(keyword -> keyword.getKeyword(),
+                        Collectors.toList())
+        ));
+
+        page.stream().forEach(
+                pg ->
+                {
+
+                    pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
+                    pg.setImageUrl(imageUrlResolver.toPresignedUrl(pg.getImageUrl()));
+
+                }
+        );
         return page;
+    }
 
+    //OWNER가 자신의 가게 조회
+    public ResponseRestaurantDto findByOwner(String username) {
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."));
+
+        if (userEntity.getUserType() != UserType.OWNER) {
+            throw new IllegalArgumentException("OWNER 유저가 아닙니다.");
+        }
+        Restaurant restaurant = restaurantRepositoryJpa.findByOwnerId(userEntity.getId())
+                .orElseThrow(() -> new EntityNotFoundException("가게 정보를 찾을 수 없습니다."));
+
+
+        //이미지조회
+        List<RestaurantImages> imagesList =
+                restaurantImageRepositoryJpa.findByRestaurantId(restaurant.getId());
+        //키워드조회
+        List<RestaurantKeyword> keywordList =
+                restaurantKeywordRepositoryJpa.findByRestaurantId(restaurant.getId());
+
+        //이미지키 URL 변환
+        List<String> urlList = imagesList.stream().map(
+                ent ->
+                        imageUrlResolver.toPresignedUrl(ent.getImageKey())
+        ).toList();
+
+        //키워드 DTO변환
+        List<String> keyList = keywordList.stream().map(ent ->
+                ent.getKeyword()
+        ).toList();
+
+
+        //좋아요 갯수
+        Integer totalLikeCount = userLikeRestaurantRepositoryJDBC.getTotalLikeCount(restaurant.getId());
+
+        int totalReviewCount = restaurantReviewRepositoryJDBC.getTotalReviewCount(restaurant.getId());
+
+        double avg = restaurantScoreRepositoryJDBC.countScore(restaurant.getId());
+        double score = Math.round(avg * 10) / 10.0;
+        //찜한 목록 확인
+        ResponseRestaurantDto build = ResponseRestaurantDto.builder()
+                .id(restaurant.getId())
+                .description(restaurant.getDescription())
+                .businessNumber(restaurant.getBusinessNumber())
+                .breakEndTime(restaurant.getBreakEndTime())
+                .breakStartTime(restaurant.getBreakStartTime())
+                .name(restaurant.getName())
+                .address(restaurant.getAddress())
+                .phone(restaurant.getPhone())
+                .keywordList(keyList)
+                .imageUrlList(urlList)
+                .category(restaurant.getCategory().name())
+                .latitude(restaurant.getLatitude())
+                .longitude(restaurant.getLongitude())
+                .openTime(restaurant.getOpenTime())
+                .closeTime(restaurant.getCloseTime())
+                .hasBreakTime(restaurant.getHasBreakTime())
+                .favoriteCount(totalLikeCount)
+                .score(score)
+                .reviewCount(totalReviewCount)
+                .build();
+        return build;
+    }
+    //찜한 목록 삭제
+    @Transactional
+    public void deleteLikeRestaurant(Long restaurantId, String username) {
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+
+
+        int existByUserIdAndRestaurantId = userLikeRestaurantRepositoryJDBC
+                .isExistByUserIdAndRestaurantId(userEntity.getId(), restaurantId);
+
+        if (existByUserIdAndRestaurantId == 0) {
+            throw new IllegalArgumentException("찜한 목록이 없습니다.");
+        }
+
+        int result = userLikeRestaurantRepositoryJDBC
+                .deleteByUserIdAndRestaurantId(userEntity.getId(), restaurantId);
+        if (result == 0) {
+            throw new IllegalArgumentException("삭제할 찜할 목록이 없습니다.");
+        }
     }
 }

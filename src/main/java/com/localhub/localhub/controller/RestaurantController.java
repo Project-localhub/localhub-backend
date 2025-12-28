@@ -7,6 +7,7 @@ import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
 import com.localhub.localhub.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -71,6 +72,7 @@ public class RestaurantController {
         return ResponseEntity.ok("가게 키워드 변경 완료");
 
     }
+
     @Operation(summary = "가게 상세정보 조회",
             description = "가게의 아이디를 param으로 받고 해당 가게 상세정보 조회")
     @GetMapping("/{restaurantId}")
@@ -95,9 +97,9 @@ public class RestaurantController {
     }
 
     @Operation(summary = "가게 전체 목록 조회", description = """
-                        가게 전체 목록 조회(페이징처리)
-                        디폴트 값 사이즈 10
-                        """)
+            가게 전체 목록 조회(페이징처리)
+            디폴트 값 사이즈 10
+            """)
     @GetMapping("/get-all-restaurants")
     public ResponseEntity<Page<ResponseRestaurantListDto>> getAllRestaurants(
             @ParameterObject
@@ -120,14 +122,36 @@ public class RestaurantController {
 
     @Operation(summary = "찜목록 조회", description = "유저의 찜목록 조회")
     @GetMapping("/get/likeList")
-    public ResponseEntity<Page<ResponseRestaurantDto>> getLikeList(
+    public ResponseEntity<Page<ResponseRestaurantListDto>> getLikeList(
             Authentication authentication,
             @ParameterObject
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable){
+            Pageable pageable) {
 
-        Page<ResponseRestaurantDto> result = restaurantService.getLikeList(pageable,authentication.getName());
+        Page<ResponseRestaurantListDto> result = restaurantService.getLikeList(pageable, authentication.getName());
         return ResponseEntity.ok(result);
+    }
 
+    @Operation(summary = "OWNER가 자신의 가게조회", description = """
+            OWNER유저가 자신의 가게조회,OWNER가 아니면 400 에러 발생,
+            가게 정책은 한 OWNER가 하나의 가게만 등록가능
+            """)
+    @GetMapping("/findByOwnerId")
+    public ResponseEntity<ResponseRestaurantDto> findByOwnerID(Authentication authentication) {
+
+        return ResponseEntity.ok(restaurantService.findByOwner(authentication.getName()));
     }
+
+    @Operation(summary = "찜목록 삭제", description = """
+            
+            유저가 식당의 id를 파라미터로받고 찜한 상태라면
+            해당 id의 식당을 찜한 목록에서 삭제
+            """)
+    @DeleteMapping("/deleteBy/{restaurantId}")
+    public ResponseEntity<?> deleteByRestaurantId(Authentication authentication,
+                                                  @PathVariable Long restaurantId) {
+
+        restaurantService.deleteLikeRestaurant(restaurantId, authentication.getName());
+        return ResponseEntity.ok("찜목록 삭제 완료 해당 식당 id : " + restaurantId);
     }
+}

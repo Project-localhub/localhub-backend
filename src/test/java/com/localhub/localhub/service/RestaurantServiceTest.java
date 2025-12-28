@@ -7,6 +7,7 @@ import com.localhub.localhub.entity.restaurant.Category;
 import com.localhub.localhub.entity.restaurant.RestaurantImages;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.RestaurantImageRepositoryJpa;
+import com.localhub.localhub.repository.jpaReposi.RestaurantKeywordRepositoryJpa;
 import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
@@ -48,6 +49,8 @@ class RestaurantServiceTest {
     UserRepository userRepository;
     @Mock
     RestaurantRepositoryJpa restaurantRepositoryJpa;
+    @Mock
+    RestaurantKeywordRepositoryJpa restaurantKeywordRepositoryJpa;
     @Mock
     RestaurantScoreRepositoryJDBC restaurantScoreRepositoryJDBC;
     @Mock
@@ -162,8 +165,8 @@ class RestaurantServiceTest {
                 .build();
 
         RestaurantReview restaurantReview = RestaurantReview.builder()
-                .restaurant_id(restaurant.getId())
-                .user_id(user.getId())
+                .restaurantId(restaurant.getId())
+                .userId(user.getId())
                 .content("리뷰")
                 .build();
 
@@ -194,8 +197,8 @@ class RestaurantServiceTest {
                 .build();
 
         RestaurantReview restaurantReview = RestaurantReview.builder()
-                .restaurant_id(1L)
-                .user_id(1L)
+                .restaurantId(1L)
+                .userId(1L)
                 .content("리뷰")
                 .build();
 

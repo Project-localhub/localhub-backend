@@ -1,6 +1,7 @@
 package com.localhub.localhub.repository.jdbcReposi;
 
 
+import com.localhub.localhub.entity.restaurant.UserLikeRestaurant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -74,6 +75,23 @@ public class UserLikeRestaurantRepositoryJDBC {
         Map<String, Long> param = Map.of("restaurantId", restaurantId);
 
         return template.queryForObject(sql, param, Integer.class);
+
+    }
+
+    public int deleteByUserIdAndRestaurantId(Long userId, Long restaurantId) {
+
+
+        String sql = """
+                DELETE                
+                FROM user_like_restaurant ulr
+                WHERE ulr.user_id = :userId
+                AND ulr.restaurant_id = :restaurantId
+                """;
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        params.addValue("restaurantId", restaurantId);
+
+        return template.update(sql, params);
 
     }
 }
