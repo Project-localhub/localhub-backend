@@ -11,14 +11,11 @@ import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.entity.restaurant.*;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
-import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
+import com.localhub.localhub.repository.jpaReposi.*;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
-import com.localhub.localhub.repository.jpaReposi.RestaurantImageRepositoryJpa;
-import com.localhub.localhub.repository.jpaReposi.RestaurantKeywordRepositoryJpa;
-import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import com.localhub.localhub.service.ImageUrlResolver;
 import com.localhub.localhub.service.RestaurantService;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,9 +64,18 @@ public class RestaurantTest {
     @Autowired
     RestaurantReviewRepositoryJDBC restaurantReviewRepositoryJDBC;
 
+    @Autowired
+    RestaurantReviewRepositoryJpa restaurantReviewRepositoryJpa;
+    @Autowired
+    RestaurantScoreRepositoryJpa restaurantScoreRepositoryJpa;
+
+    @Autowired
+    RestaurantKeywordRepositoryJpa restaurantKeywordRepositoryJpa;
 
     @Autowired
     RestaurantScoreRepositoryJDBC restaurantScoreRepositoryJDBC;
+    @Autowired
+    UserLikeRestaurantRepositoryJPA userLikeRestaurantRepositoryJPA;
 
     @MockitoBean
     ImageUrlResolver imageUrlResolver;
@@ -98,10 +104,9 @@ public class RestaurantTest {
     @MockitoBean
     OAuth2UserRequest oAuth2UserRequest;
 
-    @Autowired
-    RestaurantKeywordRepositoryJpa restaurantKeywordRepositoryJpa;
 
     UserEntity user;
+    UserEntity user2;
     UserEntity owner;
     Restaurant restaurant;
 
@@ -114,6 +119,14 @@ public class RestaurantTest {
                 .userType(UserType.CUSTOMER)
                 .build();
         userRepository.save(user);
+
+
+        user2 = UserEntity.builder()
+                .username("user2")
+                .name("user2")
+                .userType(UserType.CUSTOMER)
+                .build();
+        userRepository.save(user2);
 
 
         owner = UserEntity.builder()
@@ -673,6 +686,99 @@ public class RestaurantTest {
                 .andExpect(jsonPath("$.message").value("가게 주인만 변경가능합니다."));
 
 
+    }
+
+    @Test
+    @WithMockUser(username =  "username", roles = "USER")
+    void 가게조회_전체_값조회_정상확인() throws Exception {
+
+
+        //given
+        RestaurantKeyword restaurantKeyword = RestaurantKeyword.builder()
+                .restaurantId(restaurant.getId())
+                .keyword("키워드1")
+                .build();
+        RestaurantKeyword restaurantKeyword2 = RestaurantKeyword.builder()
+                .restaurantId(restaurant.getId())
+                .keyword("키워드2")
+                .build();
+
+        UserLikeRestaurant userLike = UserLikeRestaurant.builder()
+                .userId(user.getId())
+                .restaurantId(restaurant.getId())
+                .build();
+
+        UserLikeRestaurant userLike2 = UserLikeRestaurant.builder()
+                .userId(user2.getId())
+                .restaurantId(restaurant.getId())
+                .build();
+
+        userLikeRestaurantRepositoryJPA.save(userLike);
+        userLikeRestaurantRepositoryJPA.save(userLike2);
+
+
+        restaurantKeywordRepositoryJpa.save(restaurantKeyword);
+        restaurantKeywordRepositoryJpa.save(restaurantKeyword2);
+
+
+        RestaurantReview review1 = RestaurantReview.builder()
+                .content("리뷰1")
+                .restaurantId(restaurant.getId())
+                .userId(user.getId())
+                .build();
+
+        RestaurantReview review2 = RestaurantReview.builder()
+                .content("리뷰2")
+                .restaurantId(restaurant.getId())
+                .userId(user2.getId())
+                .build();
+
+        RestaurantScore score1 = RestaurantScore.builder()
+                .restaurantId(restaurant.getId())
+                .userId(user.getId())
+                .score(3)
+                .build();
+
+        RestaurantScore score2 = RestaurantScore.builder()
+                .restaurantId(restaurant.getId())
+                .score(4)
+                .userId(user2.getId())
+                .build();
+
+        restaurantScoreRepositoryJpa.save(score1);
+        restaurantScoreRepositoryJpa.save(score2);
+
+
+
+        restaurantReviewRepositoryJpa.save(review1);
+        restaurantReviewRepositoryJpa.save(review2);
+
+        RestaurantImages imageKy1 = RestaurantImages.builder()
+                .imageKey("imageKy")
+                .restaurantId(restaurant.getId())
+                .sortOrder(1)
+                .build();
+        RestaurantImages imageKy2 = RestaurantImages.builder()
+                .imageKey("imageKy2")
+                .restaurantId(restaurant.getId())
+                .sortOrder(2)
+                .build();
+
+        //when
+
+
+        mockMvc.perform(get("/api/restaurant/get-all-restaurants"))
+                //상태
+                .andExpect(status().isOk())
+                //키워드
+                .andExpect(jsonPath("$.content[0].keyword[0]").value("키워드1"))
+                .andExpect(jsonPath("$.content[0].keyword[1]").value("키워드2"))
+                //좋아요갯수
+                .andExpect(jsonPath(".content[0].favoriteCount").value(2))
+                //리뷰갯수
+                .andExpect(jsonPath("content[0].reviewCount").value(2))
+                //별점
+                .andExpect(jsonPath("content[0].score").value(3.5));
     }
 }
 

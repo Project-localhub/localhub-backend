@@ -78,7 +78,7 @@ public class RestaurantRepositoryJDBC {
                 .addValue("breakStartTime", dto.getBreakStartTime())
                 .addValue("breakEndTime", dto.getBreakEndTime());
 
-        template.update(sql, params,keyHolder);
+        template.update(sql, params, keyHolder, new String[]{"id"});
         return keyHolder.getKey().longValue();
     }
 

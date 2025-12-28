@@ -269,10 +269,9 @@ public class RestaurantService {
         if (!restaurant.getOwnerId().equals(userEntity.getId())) {
             throw new IllegalArgumentException("가게 주인만 정보를 지울 수 있습니다.");
         }
-        restaurantImageRepositoryJpa.deleteByRestaurantId(restaurantId);
+        //키워드 삭제
         restaurantKeywordRepositoryJpa.deleteByRestaurantId(restaurantId);
-
-        restaurantKeywordRepositoryJpa.deleteByRestaurantId(restaurantId);
+        //이미지 삭제
         restaurantImageRepositoryJpa.deleteByRestaurantId(restaurantId);
 
         int result = restaurantRepositoryJDBC.deleteById(restaurantId);
@@ -281,13 +280,13 @@ public class RestaurantService {
         }
     }
 
-    //전체 가게목록조회 (작업중)
+    //전체 가게목록조회
     public Page<ResponseRestaurantListDto> getAllRestaurantList(Pageable pageable) {
 
-        Page<Restaurant> page = restaurantRepositoryJpa.findAllWithScores(pageable);
+        Page<ResponseRestaurantListDto> page = restaurantRepositoryJpa.findAllWithScores(pageable);
         //뽑아온 레스토랑의 아이디를 뽑아서 list로 만들기 이미지랑 키워드 뽑을때 where in으로 뽑기위함
         List<Long> restaurantIds = page.getContent().stream()
-                .map(Restaurant::getId)
+                .map(ResponseRestaurantListDto::getRestaurantId)
                 .toList();
 
 
@@ -315,19 +314,18 @@ public class RestaurantService {
                 RestaurantImages::getImageKey
         ));
 
-        Page<ResponseRestaurantListDto> result = page.map(r ->
-                ResponseRestaurantListDto.builder()
-                        .restaurantId(r.getId())
-                        .name(r.getName())
-                        .category(r.getCategory().name())
-                        .imageUrl(imageUrlResolver.toPresignedUrl(firstImageMap.get(r.getId())))
-                        .keyword(keywordMap.getOrDefault(r.getId(), List.of()))
-                        .reviewCount(1) //수정필요 우선 mock
-                        .score(1.0) // 수정필요 우선 mock
-                        .favoriteCount(1) //수정필요 우선 mock
-                        .build()
-        );
-        return result;
+       page.stream().forEach(
+            pg->
+               {
+                   pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
+
+                   pg.setImageUrl(imageUrlResolver.toPresignedUrl(pg.getImageUrl()));
+               }
+
+       );
+
+
+        return page;
     }
 
 
@@ -353,6 +351,7 @@ public class RestaurantService {
             if (score < 1 || score > 5) {
                 throw new IllegalArgumentException("별점은 1~5 사이여야 합니다.");
             }
+            //지금은 한 유저가 한 가게에 1개의 리뷰밖에 못달음(score 유니크조건때문에 나중에 리팩토링필요할수도)
             savedScoreId = restaurantScoreRepositoryJDBC.save
                     (userEntity.getId(), restaurant.getId(), createReview.getScore());
         }
