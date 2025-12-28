@@ -5,6 +5,7 @@ import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
+import com.localhub.localhub.dto.response.ResponseRestaurantImageDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
 import com.localhub.localhub.entity.restaurant.Category;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
@@ -207,9 +208,13 @@ public class RestaurantService {
                 restaurantKeywordRepositoryJpa.findByRestaurantId(restaurantId);
 
         //이미지키 URL 변환
-        List<String> urlList = imagesList.stream().map(
+        List<ResponseRestaurantImageDto> urlList = imagesList.stream().map(
                 ent ->
-                        imageUrlResolver.toPresignedUrl(ent.getImageKey())
+
+                        ResponseRestaurantImageDto.builder()
+                                .sortOrder(ent.getSortOrder())
+                                .imageUrl(imageUrlResolver.toPresignedUrl(ent.getImageKey()))
+                                .build()
         ).toList();
 
         //키워드 DTO변환
@@ -437,9 +442,13 @@ public class RestaurantService {
                 restaurantKeywordRepositoryJpa.findByRestaurantId(restaurant.getId());
 
         //이미지키 URL 변환
-        List<String> urlList = imagesList.stream().map(
+        List<ResponseRestaurantImageDto> urlList = imagesList.stream().map(
                 ent ->
-                        imageUrlResolver.toPresignedUrl(ent.getImageKey())
+                        ResponseRestaurantImageDto.builder()
+                                .sortOrder(ent.getSortOrder())
+                                .imageUrl(imageUrlResolver.toPresignedUrl(ent.getImageKey()))
+                                .build()
+
         ).toList();
 
         //키워드 DTO변환

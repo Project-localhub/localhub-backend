@@ -104,10 +104,6 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated());
 
-        http.exceptionHandling(ex -> ex
-                .authenticationEntryPoint((req, res, e) -> res.sendError(401))
-        );
-
 
 
         http

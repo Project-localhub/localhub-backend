@@ -29,7 +29,7 @@ public class TestExternalConfig {
         return Mockito.mock(ClientRegistrationRepository.class);
     }
 
-    //r2 storage
+    // >>r2 storage
     @Bean
     R2StorageService r2StorageService() {
         return Mockito.mock(R2StorageService.class);
@@ -45,4 +45,5 @@ public class TestExternalConfig {
     R2StorageController r2StorageController() {
         return Mockito.mock(R2StorageController.class);
     }
+    // <<r2
 }
