@@ -386,20 +386,98 @@ public class RestaurantService {
     }
 
     //찜한 목록 조회
-    public Page<ResponseRestaurantDto> getLikeList(Pageable pageable, String username) {
+    public Page<ResponseRestaurantListDto> getLikeList(Pageable pageable, String username) {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
-        int limit = pageable.getPageSize();
-        int offset = (int) pageable.getOffset();
+        if (!userLikeRestaurantRepositoryJPA.isExistByUserId(userEntity.getId())) {
+            return Page.empty();
+        }
 
-        List<ResponseRestaurantDto> content =
-                userLikeRestaurantRepositoryJPA.findLikedRestaurants(userEntity.getId(), limit, offset);
+        Page<ResponseRestaurantListDto> page = userLikeRestaurantRepositoryJPA.findLikedRestaurant(userEntity.getId(),pageable);
 
-        Page<ResponseRestaurantDto> page =
-                new PageImpl<>(content, pageable, content.size());
+        List<RestaurantKeyword> all = restaurantKeywordRepositoryJpa.findAll();
 
+        Map<Long, List<String>> keywordMap = all.stream().collect(Collectors.groupingBy(
+                keyword -> keyword.getRestaurantId(),
+                Collectors.mapping(keyword -> keyword.getKeyword(),
+                        Collectors.toList())
+        ));
+
+        page.stream().forEach(
+                pg ->
+                {
+
+                    pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
+                    pg.setImageUrl(imageUrlResolver.toPresignedUrl(pg.getImageUrl()));
+
+                }
+        );
         return page;
+    }
+
+    //OWNER가 자신의 가게 조회
+    public ResponseRestaurantDto findByOwner(String username) {
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."));
+
+        if (userEntity.getUserType() != UserType.OWNER) {
+            throw new IllegalArgumentException("OWNER 유저가 아닙니다.");
+        }
+        Restaurant restaurant = restaurantRepositoryJpa.findByOwnerId(userEntity.getId())
+                .orElseThrow(() -> new EntityNotFoundException("가게 정보를 찾을 수 없습니다."));
+
+
+        //이미지조회
+        List<RestaurantImages> imagesList =
+                restaurantImageRepositoryJpa.findByRestaurantId(restaurant.getId());
+        //키워드조회
+        List<RestaurantKeyword> keywordList =
+                restaurantKeywordRepositoryJpa.findByRestaurantId(restaurant.getId());
+
+        //이미지키 URL 변환
+        List<String> urlList = imagesList.stream().map(
+                ent ->
+                        imageUrlResolver.toPresignedUrl(ent.getImageKey())
+        ).toList();
+
+        //키워드 DTO변환
+        List<String> keyList = keywordList.stream().map(ent ->
+                ent.getKeyword()
+        ).toList();
+
+
+        //좋아요 갯수
+        Integer totalLikeCount = userLikeRestaurantRepositoryJDBC.getTotalLikeCount(restaurant.getId());
+
+        int totalReviewCount = restaurantReviewRepositoryJDBC.getTotalReviewCount(restaurant.getId());
+
+        double avg = restaurantScoreRepositoryJDBC.countScore(restaurant.getId());
+        double score = Math.round(avg * 10) / 10.0;
+        //찜한 목록 확인
+        ResponseRestaurantDto build = ResponseRestaurantDto.builder()
+                .id(restaurant.getId())
+                .description(restaurant.getDescription())
+                .businessNumber(restaurant.getBusinessNumber())
+                .breakEndTime(restaurant.getBreakEndTime())
+                .breakStartTime(restaurant.getBreakStartTime())
+                .name(restaurant.getName())
+                .address(restaurant.getAddress())
+                .phone(restaurant.getPhone())
+                .keywordList(keyList)
+                .imageUrlList(urlList)
+                .category(restaurant.getCategory().name())
+                .latitude(restaurant.getLatitude())
+                .longitude(restaurant.getLongitude())
+                .openTime(restaurant.getOpenTime())
+                .closeTime(restaurant.getCloseTime())
+                .hasBreakTime(restaurant.getHasBreakTime())
+                .favoriteCount(totalLikeCount)
+                .score(score)
+                .reviewCount(totalReviewCount)
+                .build();
+        return build;
 
     }
 }

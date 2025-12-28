@@ -1,11 +1,16 @@
 package com.localhub.localhub.repository.jpaReposi;
 
+import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
 import com.localhub.localhub.entity.restaurant.Restaurant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface RestaurantRepositoryJpa extends JpaRepository<Restaurant, Long> {
 
@@ -38,4 +43,9 @@ public interface RestaurantRepositoryJpa extends JpaRepository<Restaurant, Long>
     )
     Page<ResponseRestaurantListDto> findAllWithScores(Pageable pageable);
 
+
+
+
+
+    Optional<Restaurant> findByOwnerId(Long id);
 }

@@ -47,7 +47,7 @@ public class OpenApiConfig {
         public GroupedOpenApi publicApis() {
             return GroupedOpenApi.builder()
                     .group("auth")
-                    .pathsToMatch("/health", "/login", "/join")
+                    .pathsToMatch("/api/auth/**")
                     .build();
         }
 
@@ -58,5 +58,13 @@ public class OpenApiConfig {
                     .pathsToMatch("/api/**")
                     .build();
         }
+
+    @Bean
+    public GroupedOpenApi RestaurantApi() {
+        return GroupedOpenApi.builder()
+                .group("식당 CRUD")
+                .pathsToMatch("/api/restaurant/**")
+                .build();
+    }
     }
 

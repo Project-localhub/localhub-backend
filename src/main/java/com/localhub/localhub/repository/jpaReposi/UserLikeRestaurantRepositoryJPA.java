@@ -1,7 +1,10 @@
 package com.localhub.localhub.repository.jpaReposi;
 
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
+import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
 import com.localhub.localhub.entity.restaurant.UserLikeRestaurant;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -37,11 +40,65 @@ public interface UserLikeRestaurantRepositoryJPA extends JpaRepository<UserLikeR
                     """,
             nativeQuery = true
     )
-    List<ResponseRestaurantDto> findLikedRestaurants(
+    List<ResponseRestaurantDto> findRestaurantByOwner(
             @Param("userId") Long userId,
             @Param("limit") int limit,
             @Param("offset") int offset);
 
+
+
+    @Query("""
+            
+            SELECT new com.localhub.localhub.dto.response.ResponseRestaurantListDto
+            (
+            r.id,
+            r.name,
+            r.category,
+            COALESCE(AVG(rs.score),0),
+            COUNT(DISTINCT rv.id),
+            COUNT(DISTINCT ulr.id),
+            rim.imageKey
+            )
+            
+            FROM Restaurant r
+            
+               
+            LEFT JOIN UserLikeRestaurant url
+            on url.restaurantId = r.id
+            
+            LEFT JOIN RestaurantReview rv
+            on rv.restaurantId = r.id
+            
+            LEFT JOIN RestaurantScore rs
+            on rs.restaurantId = r.id
+            
+            LEFT JOIN UserLikeRestaurant ulr
+            on ulr.restaurantId = r.id
+             
+            LEFT JOIN RestaurantImages rim
+            on rim.restaurantId = r.id AND rim.sortOrder = 1
+            
+            WHERE url.userId = :userId 
+            
+            GROUP BY
+            r.id, r.name, r.category, rim.imageKey
+            
+            
+            
+            """)
+    Page<ResponseRestaurantListDto> findLikedRestaurant(@Param("userId") Long userId, Pageable pageable);
+
+
+    @Query("""
+            SELECT CASE WHEN
+            COUNT(url) > 0 THEN TRUE 
+            ELSE FALSE 
+            END
+            FROM UserLikeRestaurant url
+            WHERE url.userId = :userId
+            
+            """)
+    boolean isExistByUserId(@Param("userId") Long userId);
 }
 
 
