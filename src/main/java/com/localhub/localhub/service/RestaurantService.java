@@ -82,6 +82,7 @@ public class RestaurantService {
             List<RestaurantImages> imagesList = requestRestaurantDto.getImages().stream()
                     .map(dto -> RestaurantImages.builder()
                             .imageKey(dto.getImageKey())
+                            .sortOrder(dto.getSortOrder())
                             .restaurantId(restaurantId)
                             .build()
                     ).toList();
@@ -324,7 +325,7 @@ public class RestaurantService {
                {
                    pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
 
-                   pg.setImageUrl(imageUrlResolver.toPresignedUrl(pg.getImageUrl()));
+                   pg.setImageUrl(imageUrlResolver.toPresignedUrl(firstImageMap.get(pg.getRestaurantId())));
                }
 
        );
