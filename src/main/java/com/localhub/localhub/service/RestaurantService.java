@@ -423,7 +423,7 @@ public class RestaurantService {
     }
 
     //OWNER가 자신의 가게 조회
-    public ResponseRestaurantDto findByOwner(String username) {
+    public List<ResponseRestaurantDto> findByOwner(String username) {
 
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."));
