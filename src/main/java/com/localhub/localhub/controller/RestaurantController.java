@@ -137,9 +137,13 @@ public class RestaurantController {
             가게 정책은 한 OWNER가 하나의 가게만 등록가능
             """)
     @GetMapping("/findByOwnerId")
-    public ResponseEntity<List<ResponseRestaurantDto>> findByOwnerID(Authentication authentication) {
+    public ResponseEntity<List<ResponseRestaurantDto>> findByOwnerID
+            (Authentication authentication,
+             @ParameterObject
+             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+             Pageable pageable) {
 
-        return ResponseEntity.ok(restaurantService.findByOwner(authentication.getName()));
+        return ResponseEntity.ok(restaurantService.findByOwner(authentication.getName(),pageable));
     }
 
     @Operation(summary = "찜목록 삭제", description = """

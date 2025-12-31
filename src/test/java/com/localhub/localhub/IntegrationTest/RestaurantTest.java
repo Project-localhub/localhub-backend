@@ -32,6 +32,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -875,5 +876,62 @@ public class RestaurantTest {
                 //별점
                 .andExpect(jsonPath("content[0].score").value(3.5));
     }
+
+    @Test
+    @WithMockUser(username = "owner", roles = "USER")
+    void 한_오너가_여러개의_자신의_레스토랑_조회_가능() throws Exception {
+
+
+        //given
+        Restaurant restaurant2 = Restaurant.builder()
+                .description("설명")
+                .openTime(LocalTime.of(20, 30))
+                .ownerId(owner.getId())
+                .build();
+
+        restaurant2 = restaurantRepositoryJpa.save(restaurant2);
+
+        RestaurantImages restaurantImages = RestaurantImages.builder()
+                .restaurantId(restaurant2.getId())
+                .imageKey("imagekey")
+                .sortOrder(1)
+                .build();
+
+        RestaurantImages restaurantImages2 = RestaurantImages.builder()
+                .restaurantId(restaurant2.getId())
+                .imageKey("imagekey2")
+                .sortOrder(2)
+                .build();
+
+        restaurantImageRepositoryJpa.save(restaurantImages);
+        restaurantImageRepositoryJpa.save(restaurantImages2);
+
+        RestaurantKeyword restaurantKeyword = RestaurantKeyword.builder()
+                .restaurantId(restaurant2.getId())
+                .keyword("키워드1")
+                .build();
+
+        RestaurantKeyword restaurantKeyword2 = RestaurantKeyword.builder()
+                .restaurantId(restaurant2.getId())
+                .keyword("키워드2")
+                .build();
+
+
+        restaurantKeywordRepositoryJpa.save(restaurantKeyword);
+        restaurantKeywordRepositoryJpa.save(restaurantKeyword2);
+
+
+        //when & then
+        mockMvc.perform(get("/api/restaurant/findByOwnerId"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("[1].openTime").value("20:30"))
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$.[1].imageUrlList.length()").value(2))
+                .andExpect(jsonPath("$.[1].keywordList[0]").value("키워드1"))
+                .andExpect(jsonPath("$.[1].keywordList[1]").value("키워드2"));
+
+
+    }
+
 }
 

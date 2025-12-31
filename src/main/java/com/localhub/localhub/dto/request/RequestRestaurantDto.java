@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 public class RequestRestaurantDto {
-    @Schema(description = "가게 ID (수정 시 사용)", example = "1")
+    @Schema(description = "가게 ID (수정 시에만 사용)", example = "수정시에만,생성시에는 값비워둘것")
     private Long id;
 
     @Schema(description = "가게 이름", example = "홍콩반점")

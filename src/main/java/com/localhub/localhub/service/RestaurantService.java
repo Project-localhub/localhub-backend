@@ -320,15 +320,15 @@ public class RestaurantService {
                 RestaurantImages::getImageKey
         ));
 
-       page.stream().forEach(
-            pg->
-               {
-                   pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
+        page.stream().forEach(
+                pg ->
+                {
+                    pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
 
-                   pg.setImageUrl(imageUrlResolver.toPresignedUrl(firstImageMap.get(pg.getRestaurantId())));
-               }
+                    pg.setImageUrl(imageUrlResolver.toPresignedUrl(firstImageMap.get(pg.getRestaurantId())));
+                }
 
-       );
+        );
 
 
         return page;
@@ -400,7 +400,7 @@ public class RestaurantService {
             return Page.empty();
         }
 
-        Page<ResponseRestaurantListDto> page = userLikeRestaurantRepositoryJPA.findLikedRestaurant(userEntity.getId(),pageable);
+        Page<ResponseRestaurantListDto> page = userLikeRestaurantRepositoryJPA.findLikedRestaurant(userEntity.getId(), pageable);
 
         List<RestaurantKeyword> all = restaurantKeywordRepositoryJpa.findAll();
 
@@ -423,7 +423,7 @@ public class RestaurantService {
     }
 
     //OWNER가 자신의 가게 조회
-    public List<ResponseRestaurantDto> findByOwner(String username) {
+    public List<ResponseRestaurantDto> findByOwner(String username, Pageable pageable) {
 
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."));
@@ -431,64 +431,65 @@ public class RestaurantService {
         if (userEntity.getUserType() != UserType.OWNER) {
             throw new IllegalArgumentException("OWNER 유저가 아닙니다.");
         }
-        Restaurant restaurant = restaurantRepositoryJpa.findByOwnerId(userEntity.getId())
-                .orElseThrow(() -> new EntityNotFoundException("가게 정보를 찾을 수 없습니다."));
 
+        //레스토랑 조회
+        List<ResponseRestaurantDto> restaurantListDtoPage =
+                restaurantRepositoryJDBC.findAllWithScoresByOwner(userEntity.getId());
 
-        //이미지조회
-        List<RestaurantImages> imagesList =
-                restaurantImageRepositoryJpa.findByRestaurantId(restaurant.getId());
-        //키워드조회
-        List<RestaurantKeyword> keywordList =
-                restaurantKeywordRepositoryJpa.findByRestaurantId(restaurant.getId());
-
-        //이미지키 URL 변환
-        List<ResponseRestaurantImageDto> urlList = imagesList.stream().map(
-                ent ->
-                        ResponseRestaurantImageDto.builder()
-                                .sortOrder(ent.getSortOrder())
-                                .imageUrl(imageUrlResolver.toPresignedUrl(ent.getImageKey()))
-                                .build()
-
-        ).toList();
-
-        //키워드 DTO변환
-        List<String> keyList = keywordList.stream().map(ent ->
-                ent.getKeyword()
+        //레스토랑 아이디 추출
+        List<Long> restaurantIdList = restaurantListDtoPage.stream().map(
+                ResponseRestaurantDto::getId
         ).toList();
 
 
-        //좋아요 갯수
-        Integer totalLikeCount = userLikeRestaurantRepositoryJDBC.getTotalLikeCount(restaurant.getId());
+        //키워드 조회
 
-        int totalReviewCount = restaurantReviewRepositoryJDBC.getTotalReviewCount(restaurant.getId());
+        List<RestaurantKeyword> restaurantKeywordList =
+                restaurantKeywordRepositoryJpa.findByRestaurantIdIn(restaurantIdList);
 
-        double avg = restaurantScoreRepositoryJDBC.countScore(restaurant.getId());
-        double score = Math.round(avg * 10) / 10.0;
-        //찜한 목록 확인
-        ResponseRestaurantDto build = ResponseRestaurantDto.builder()
-                .id(restaurant.getId())
-                .description(restaurant.getDescription())
-                .businessNumber(restaurant.getBusinessNumber())
-                .breakEndTime(restaurant.getBreakEndTime())
-                .breakStartTime(restaurant.getBreakStartTime())
-                .name(restaurant.getName())
-                .address(restaurant.getAddress())
-                .phone(restaurant.getPhone())
-                .keywordList(keyList)
-                .imageUrlList(urlList)
-                .category(restaurant.getCategory().name())
-                .latitude(restaurant.getLatitude())
-                .longitude(restaurant.getLongitude())
-                .openTime(restaurant.getOpenTime())
-                .closeTime(restaurant.getCloseTime())
-                .hasBreakTime(restaurant.getHasBreakTime())
-                .favoriteCount(totalLikeCount)
-                .score(score)
-                .reviewCount(totalReviewCount)
-                .build();
-        return build;
-    }
+        //RestaurantId의 키 값을 기준으로 RestaurantKeyword의 getKeyword로 키워드 값을 뽑아내서 키,밸류 맵 변환
+
+        Map<Long, List<String>> keywordMap = restaurantKeywordList.stream().collect(Collectors.groupingBy(
+                RestaurantKeyword::getRestaurantId,
+                Collectors.mapping(
+                        RestaurantKeyword::getKeyword,
+                        Collectors.toList()
+                )
+        ));
+
+
+        //이미지 조회
+        List<RestaurantImages> restaurantImagesList =
+                restaurantImageRepositoryJpa.findByREstaurantIdIns(restaurantIdList);
+
+
+        //이미지키 URL 변환 및 RestaurantId에 키값을 기준으로 ResponseRestaurantImageDto 키,밸류 맵 변환
+
+        Map<Long, List<ResponseRestaurantImageDto>> imageMap = restaurantImagesList.stream().collect(Collectors.groupingBy(
+                RestaurantImages::getRestaurantId,
+                Collectors.mapping(
+                        (ent) ->
+                                ResponseRestaurantImageDto.builder()
+                                        .imageUrl(imageUrlResolver.toPresignedUrl(ent.getImageKey()))
+                                        .sortOrder(ent.getSortOrder())
+                                        .build(),
+                        Collectors.toList()
+                )
+        ));
+
+
+        restaurantListDtoPage.stream().forEach(
+            pg->
+                {
+                    pg.setImageUrlList(imageMap.getOrDefault(pg.getId(), List.of()));
+                    pg.setKeywordList(keywordMap.getOrDefault(pg.getId(), List.of()));
+                }
+        );
+
+        return restaurantListDtoPage;
+
+
+}
     //찜한 목록 삭제
     @Transactional
     public void deleteLikeRestaurant(Long restaurantId, String username) {
