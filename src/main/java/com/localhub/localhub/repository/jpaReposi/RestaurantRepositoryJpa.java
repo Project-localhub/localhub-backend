@@ -44,8 +44,65 @@ public interface RestaurantRepositoryJpa extends JpaRepository<Restaurant, Long>
     Page<ResponseRestaurantListDto> findAllWithScores(Pageable pageable);
 
 
+    @Query(value = """
+            SELECT 
+            new com.localhub.localhub.dto.response.ResponseRestaurantDto
+            (
+            r.id,
+            r.name,
+            r.businessNumber,
+            r.description,
+            r.category,
+            r.phone,
+            r.address,
+            r.latitude,
+            r.longitude,
+            r.openTime,
+            r.closeTime,
+            r.hasBreakTime,
+            r.breakStartTime,
+            r.breakEndTime,
+            COUNT(DISTINCT rv.id),
+            COUNT(DISTINCT uls.id),
+            COALESCE(AVG(rs.score),0) AS score
+            )
+
+            FROM Restaurant r
+
+            LEFT JOIN RestaurantScore rs
+            ON rs.restaurantId = r.id
+            LEFT JOIN RestaurantReview rv
+            ON rv.restaurantId = r.id
+            LEFT JOIN UserLikeRestaurant uls
+            on uls.restaurantId = r.id
+
+            WHERE r.ownerId = :ownerId
+
+            GROUP BY
+             r.id,
+            r.name,
+            r.businessNumber,
+            r.description,
+            r.category,
+            r.phone,
+            r.address,
+            r.latitude,
+            r.longitude,
+            r.openTime,
+            r.closeTime,
+            r.hasBreakTime,
+            r.breakStartTime,
+            r.breakEndTime
+            """
+    )
+    Page<ResponseRestaurantDto> findAllWithScoresByOwner(@Param("ownerId") Long ownerId, Pageable pageable);
 
 
 
-    Optional<Restaurant> findByOwnerId(Long id);
+    @Query("""
+            SELECT r
+            FROM Restaurant r
+            WHERE r.ownerId = :ownerId
+            """)
+    List<Restaurant> findByOwnerId(@Param("ownerId") Long id);
 }

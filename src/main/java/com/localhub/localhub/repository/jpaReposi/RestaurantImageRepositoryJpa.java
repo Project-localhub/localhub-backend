@@ -36,4 +36,14 @@ public interface RestaurantImageRepositoryJpa extends JpaRepository<RestaurantIm
           """)
   List<RestaurantImages> findFirstImageByRestaurantIds
           (@Param("restaurantIds") List<Long> restaurantIds);
+
+
+  @Query("""
+          SELECT ri
+          FROM RestaurantImages ri
+          WHERE ri.restaurantId in :restaurantIds
+          """)
+    List<RestaurantImages> findByREstaurantIdIns(@Param("restaurantIds")List<Long> restaurantIdList);
+
+
 }

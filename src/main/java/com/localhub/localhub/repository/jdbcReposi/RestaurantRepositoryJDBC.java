@@ -1,9 +1,11 @@
 package com.localhub.localhub.repository.jdbcReposi;
 
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
+import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.entity.restaurant.Category;
 import com.localhub.localhub.entity.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -141,5 +143,94 @@ public class RestaurantRepositoryJDBC {
 
         return result;
 
+    }
+
+    public List<ResponseRestaurantDto> findAllWithScoresByOwner(Long ownerId) {
+
+        String sql = """
+                SELECT 
+                r.id,
+                r.name,
+                r.address,
+                r.break_end_time,
+                r.break_start_time,
+                r.close_time,
+                r.has_break_time,
+                r.latitude,
+                r.longitude,
+                r.open_time,
+                r.owner_id,
+                r.business_number,
+                r.phone,
+                r.category,
+                r.description,
+                r.created_at,
+                COUNT(DISTINCT rv.id) AS review_count,
+                COUNT(DISTINCT ulr.id) AS favorite_count,
+                COALESCE(AVG(usc.score),0) AS score
+                
+                
+                
+                FROM restaurant r
+                LEFT JOIN user_score_restaurant usc
+                on usc.restaurant_id = r.id
+                LEFT JOIN restaurant_review rv
+                on rv.restaurant_id  = r.id
+                LEFT JOIN user_like_restaurant ulr
+                on ulr.restaurant_id = r.id
+                
+                WHERE r.owner_id =:ownerId
+                
+                GROUP BY
+                 r.id,
+                r.name,
+                r.address,
+                r.break_end_time,
+                r.break_start_time,
+                r.close_time,
+                r.has_break_time,
+                r.latitude,
+                r.longitude,
+                r.open_time,
+                r.owner_id,
+                r.business_number,
+                r.phone,
+                r.category,
+                r.description,
+                r.created_at
+                """;
+
+        Map<String, Long> param = Map.of("ownerId", ownerId);
+
+        return template.query(sql, param, (rs, roNum) ->
+
+                ResponseRestaurantDto.builder()
+                        .id(rs.getLong("id"))
+                        .name(rs.getNString("name"))
+                        .description(rs.getNString("description")) //텍스트 nstring 가능?
+                        .category(rs.getNString("category")) //이넘형 nstring가능 ?
+                        .phone(rs.getNString("phone"))
+                        .address(rs.getNString("address"))
+                        .latitude(rs.getBigDecimal("latitude"))
+                        .longitude(rs.getBigDecimal("longitude"))
+                        .openTime(
+                                rs.getTime("open_time") == null
+                                ? null
+                                : rs.getTime("open_time").toLocalTime()
+                        )
+                        .closeTime(
+                                rs.getTime("close_time") ==  null
+                                ?null
+                                :rs.getTime("close_time").toLocalTime())
+                        .hasBreakTime(rs.getObject("has_break_time") == null
+                                ? null
+                                : rs.getByte("has_break_time") == 1
+                        )
+                        .reviewCount(rs.getInt("review_count"))
+                        .favoriteCount(rs.getInt("favorite_count"))
+                        .score(rs.getDouble("score"))
+                        .build()
+
+        );
     }
 }
