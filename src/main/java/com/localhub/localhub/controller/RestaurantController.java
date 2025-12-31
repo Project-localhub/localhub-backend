@@ -5,6 +5,7 @@ import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
+import com.localhub.localhub.dto.response.ResponseReviewDto;
 import com.localhub.localhub.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.Getter;
@@ -143,7 +144,7 @@ public class RestaurantController {
              @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
              Pageable pageable) {
 
-        return ResponseEntity.ok(restaurantService.findByOwner(authentication.getName(),pageable));
+        return ResponseEntity.ok(restaurantService.findByOwner(authentication.getName(), pageable));
     }
 
     @Operation(summary = "찜목록 삭제", description = """
@@ -157,5 +158,21 @@ public class RestaurantController {
 
         restaurantService.deleteLikeRestaurant(restaurantId, authentication.getName());
         return ResponseEntity.ok("찜목록 삭제 완료 해당 식당 id : " + restaurantId);
+    }
+
+    @Operation(summary = "식당리뷰조회", description = """
+            
+            식당의 id를 기준으로 해당 식당의 리뷰 전체 페이징조회
+            """)
+    @GetMapping("/getReviewBy/{restaurantId}")
+    public ResponseEntity<Page<ResponseReviewDto>> getReviewByRestaurantId
+            (@PathVariable("restaurantId") Long restaurantId,
+             @ParameterObject
+             @PageableDefault(size = 10) Pageable pageable
+            ) {
+
+        Page<ResponseReviewDto> result = restaurantService.getReviewByRestaurantId(restaurantId, pageable);
+        return ResponseEntity.ok(result);
+
     }
 }

@@ -40,6 +40,8 @@ import java.time.LocalTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -929,6 +931,52 @@ public class RestaurantTest {
                 .andExpect(jsonPath("$.[1].imageUrlList.length()").value(2))
                 .andExpect(jsonPath("$.[1].keywordList[0]").value("키워드1"))
                 .andExpect(jsonPath("$.[1].keywordList[1]").value("키워드2"));
+    }
+
+
+    @Test
+    @WithMockUser(username = "user",roles = "USER")
+    void 식당아이디로_해당식당_리뷰_페이징_조회() throws  Exception {
+
+        //given
+        RestaurantReview restaurantReview = RestaurantReview.builder()
+                .userId(user.getId())
+                .restaurantId(restaurant.getId())
+                .content("내용")
+                .build();
+
+        RestaurantReview restaurantReview2 = RestaurantReview.builder()
+                .userId(user2.getId())
+                .restaurantId(restaurant.getId())
+                .content("내용2")
+                .build();
+        restaurantReview = restaurantReviewRepositoryJpa.save(restaurantReview);
+        restaurantReview2 = restaurantReviewRepositoryJpa.save(restaurantReview2);
+
+
+        RestaurantScore restaurantScore = RestaurantScore.builder()
+                .score(3)
+                .userId(user.getId())
+                .restaurantId(restaurant.getId())
+                .build();
+
+        RestaurantScore restaurantScore2 = RestaurantScore.builder()
+                .score(2)
+                .userId(user2.getId())
+                .restaurantId(restaurant.getId())
+                .build();
+
+      restaurantScore =  restaurantScoreRepositoryJpa.save(restaurantScore);
+      restaurantScore2 =  restaurantScoreRepositoryJpa.save(restaurantScore2);
+
+        //when & then
+        ResultActions resultActions = mockMvc.perform(get("/api/restaurant/getReviewBy/" + restaurant.getId()))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.content[*].score", containsInAnyOrder(2.0, 3.0)))
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[*].content",
+                        hasItems("내용", "내용2")));
+
 
 
     }

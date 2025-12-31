@@ -1,0 +1,269 @@
+[33mcommit a6c468d889c291fcd7ebc29d1af0a69a2c62409a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Wed Dec 31 20:43:01 2025 +0900
+
+    fix:오너가 자신의 가게 조회 단수->복수 수정
+
+[33mcommit 9c8d846253289ae698d2447770a4c2ab1464404d[m[33m ([m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Wed Dec 31 16:17:34 2025 +0900
+
+    fix: 오너가 가게 조회 하는부분 리스트로반환 작업중
+
+[33mcommit 297848f79739b67176f3e660e8232944b7fc7995[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Tue Dec 30 19:59:50 2025 +0900
+
+    fix: 가게등록 이미지 저장 null로 되는거 수정
+
+[33mcommit f320e1f2d6fed2937455eadad56cc56fd08ea1f2[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Sun Dec 28 18:28:36 2025 +0900
+
+    fix:이미지반환 (레스토랑) dto 형태로 변환
+
+[33mcommit 385b02d9a1325e764e0676b3f88985a1b7e34826[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Sun Dec 28 16:34:07 2025 +0900
+
+    feat:찜목록에서 삭제 완성
+
+[33mcommit 7fca33437f3fc154097fdce17c232273595991b7[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Sun Dec 28 16:03:53 2025 +0900
+
+    feat: 찜목록조회, OWNER가 자신의 가게조회
+
+[33mcommit 80d44f8c418a41cee0404ecbcc965ad602b218d4[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Sun Dec 28 14:46:04 2025 +0900
+
+    feat:가게전체목록조회 키키워드수,좋아요수,별점평균 완성
+
+[33mcommit b4bc7b4163db9d44b609203604960e95c95f8529[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Sun Dec 28 11:21:37 2025 +0900
+
+    커밋
+
+[33mcommit 2be8d6071ee17b0eed49a1839cc4656133dcd501[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Fri Dec 26 00:01:16 2025 +0900
+
+    feat: 가게목록조회 아직 미완성
+
+[33mcommit 1682b1551eb6ba693c03348822a6625841ffd396[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Thu Dec 25 00:12:31 2025 +0900
+
+    A
+    fix:RestaurantService, ResaurantKeywordRepository complict solve
+
+[33mcommit b1919e4fdd1a7b5e92f37d905ef5629a97a6c15f[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Wed Dec 24 23:56:13 2025 +0900
+
+    feat:가게 삭제로직
+    
+    :wq
+
+[33mcommit 47f84c664a4953ff3674a972d93c4e4243bd4113[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Thu Dec 25 22:08:42 2025 +0900
+
+    feat:레스토랑 리스트 반환 작엄중...
+
+[33mcommit 17567b661c0f9986628e9cec50cdff5b5123b157[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Thu Dec 25 18:33:47 2025 +0900
+
+    feat:찜목록 조회부분 신덱스에러 해결
+
+[33mcommit d0a635cbab86ec7e96f6400482f1370c9bf0f9e8[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Thu Dec 25 16:22:26 2025 +0900
+
+    feat:가게 이미지변경로직 완성
+
+[33mcommit e1cb665f9af7abf6cb7946df29184c86beb8459b[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Wed Dec 24 23:09:17 2025 +0900
+
+    feat: 별점추가, 별점조회 소수점 반환
+
+[33mcommit bbed6312c6eb685b76803e6f4bacb15ff82792e5[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Wed Dec 24 21:26:58 2025 +0900
+
+    feat:리뷰작성시 별점추가기능
+
+[33mcommit f2da565ad9e2d030d15e761601f7e2f240f68c1c[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Wed Dec 24 14:44:29 2025 +0900
+
+    feat:가게 저장 이미지,키워드 추가로직
+
+[33mcommit 6c04073ef9ae46aa02914d0fef7b330e035d6177[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Tue Dec 23 20:41:34 2025 +0900
+
+    feat:가게 찜하기 완성
+
+[33mcommit 513d3c7034a5f038f8701906d5a2d49b0f92f307[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Tue Dec 23 19:17:46 2025 +0900
+
+    fix:이메일 unique 변경
+
+[33mcommit ff7efd36ea97b679e4cda58c169d06e25d2b0ef8[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Mon Dec 22 20:30:47 2025 +0900
+
+    fix:getuserinfo 반환 수정
+
+[33mcommit 97154fa538befde2f5b6c93a907fee6212431dfc[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Mon Dec 22 19:05:10 2025 +0900
+
+    feat:r2 설정
+
+[33mcommit 5c4279e776e585843c3575e75f644fe0e5b5d021[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Mon Dec 22 16:57:19 2025 +0900
+
+    feat: 가게 정보조회 controller 작성
+
+[33mcommit 82610049af973f149573444682e3636ce19176d6[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Mon Dec 22 16:31:32 2025 +0900
+
+    feat: restaurant crud 완성 & 테스트로직 save,delete 통합,단위 완성
+
+[33mcommit 46e0c67c2329bbd79d216ff847cc92da45cf2dad[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Mon Dec 22 13:41:32 2025 +0900
+
+    feat: restaurant save, restaurant review create & test complete
+
+[33mcommit fb6f4f1266fb72e70c14a4a76ac0b7b47d0db2be[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Mon Dec 22 11:35:38 2025 +0900
+
+    feat:레스토랑 저장,테스트로직 테스트 schema 완성
+
+[33mcommit 1b3a9f0e4faf08c85714d52afc56a853b2f31a87[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Sun Dec 21 20:11:32 2025 +0900
+
+    fix:레스토랑레포지 충돌 해결
+
+[33mcommit 3c23ce94e6fad4c99dab504caf77d7bfc178f662[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Sun Dec 21 20:06:23 2025 +0900
+
+    feat:레스토랑 엔티티작성
+
+[33mcommit 818aa9415e1ab8b25984887cb6a1188a0b2b4407[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Sun Dec 21 17:01:35 2025 +0900
+
+    feat:레스토랑레포지 savãve 완성
+
+[33mcommit edb7f1e5179adb189012f7b67485f11cedee89df[m
+Merge: 5d1fab9 205a0e3
+Author: teodev2025 <dongik9467@naver.com>
+Date:   Sun Dec 21 14:47:49 2025 +0900
+
+    Merge pull request #19 from Project-localhub/dev
+    
+    feat:레스토랑 dto엔티티 작성
+
+[33mcommit 205a0e3cbcd56088d195221b31c8f453c37b8b38[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Sun Dec 21 14:18:22 2025 +0900
+
+    feat:레스토랑 dto엔티티 작성
+
+[33mcommit 5d1fab9365843159ff8db7ecfd7598b317357ded[m
+Merge: fdcc4ee 47be9c2
+Author: teodev2025 <dongik9467@naver.com>
+Date:   Fri Dec 19 16:33:04 2025 +0900
+
+    Merge pull request #18 from Project-localhub/dev
+    
+    feat:채팅방 기본 구독,송신 로직
+
+[33mcommit 47be9c2385dc6f6f519dc01e1512ea340ca61669[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Fri Dec 19 16:31:37 2025 +0900
+
+    feat:채팅방 기본 구독,송신 로직
+
+[33mcommit fdcc4ee7df3fee90be545d98f93439bf2af74427[m
+Merge: 71fb7fa 6aba803
+Author: teodev2025 <dongik9467@naver.com>
+Date:   Thu Dec 18 18:15:11 2025 +0900
+
+    Merge pull request #17 from Project-localhub/dev
+    
+    fix:kakao scope 변경
+
+[33mcommit 6aba803bc5522e26320feb63af2a1cbe90c38b3d[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Thu Dec 18 18:13:50 2025 +0900
+
+    fix:kakao scope 변경
+
+[33mcommit 71fb7fa38ba2b787aad948108097a543bd871970[m
+Merge: 57fff98 49c3df9
+Author: teodev2025 <dongik9467@naver.com>
+Date:   Thu Dec 18 01:00:28 2025 +0900
+
+    Merge pull request #16 from Project-localhub/dev
+    
+    fix:kakao scope 수정
+
+[33mcommit 49c3df938ed662d560ea2de58618732e19bc6def[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Thu Dec 18 00:59:35 2025 +0900
+
+    fix:kakao scope 수정
+
+[33mcommit 57fff98e3de2d4914d725837d6d190a67c2d25dd[m
+Merge: fa473db c30c157
+Author: teodev2025 <dongik9467@naver.com>
+Date:   Wed Dec 17 19:21:33 2025 +0900
+
+    Merge pull request #15 from Project-localhub/dev
+    
+    feat:아이디 비밀번호 찾기 로직
+
+[33mcommit c30c1576032793efc31e3e1cd68767cfdd4a351a[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Wed Dec 17 19:20:48 2025 +0900
+
+    feat:아이디 비밀번호 찾기 로직
+
+[33mcommit fa473dbfac6c1e3ca377c4f73986ffc779410830[m
+Merge: bcea66e 8960b52
+Author: teodev2025 <dongik9467@naver.com>
+Date:   Mon Dec 15 20:39:39 2025 +0900
+
+    Merge pull request #14 from Project-localhub/dev
+    
+    feature: 카카오 소셜기능 추가
+
+[33mcommit 8960b52a5c37e671bee1cd2658ed1c28bd1e6075[m
+Author: teotaku <dongik9467@naver.com>
+Date:   Mon Dec 15 20:38:50 2025 +0900
+
+    feature: 카카오 소셜기능 추가
+
+[33mcommit bcea66ee96b8418a3c210ef0a5c3220c566ea044[m
+Merge: 2f8b266 9a13f54
+Author: teodev2025 <dongik9467@naver.com>
+Date:   Mon Dec 15 19:49:36 2025 +0900
+
+    Merge pull request #13 from Project-localhub/dev
+    
+   

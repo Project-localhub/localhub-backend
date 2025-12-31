@@ -7,6 +7,7 @@ import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantImageDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
+import com.localhub.localhub.dto.response.ResponseReviewDto;
 import com.localhub.localhub.entity.restaurant.Category;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
@@ -487,9 +488,23 @@ public class RestaurantService {
         );
 
         return restaurantListDtoPage;
-
-
 }
+
+    public Page<ResponseReviewDto> getReviewByRestaurantId(Long restaurantId, Pageable pageable) {
+
+        long offset = pageable.getOffset();
+        int size = pageable.getPageSize();
+
+       List<ResponseReviewDto> reviewDtoList =
+               restaurantReviewRepositoryJDBC.findByRestaurantId(restaurantId,offset,size);
+
+        Long totalCount = restaurantReviewRepositoryJDBC.countByRestaurantId(restaurantId);
+
+        return new PageImpl<>(reviewDtoList,pageable,totalCount);
+
+
+    }
+
     //찜한 목록 삭제
     @Transactional
     public void deleteLikeRestaurant(Long restaurantId, String username) {
