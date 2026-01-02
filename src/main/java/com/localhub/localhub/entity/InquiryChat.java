@@ -19,7 +19,7 @@ public class InquiryChat extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long ownerId;
+    private Long restaurantId;
     private Long userId;
 
 

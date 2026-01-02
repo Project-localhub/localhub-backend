@@ -17,10 +17,10 @@ public interface InquiryChatRepository extends JpaRepository<InquiryChat, Long> 
         SELECT 1
         FROM InquiryChat inq
         WHERE inq.userId = :userId
-          AND inq.ownerId = :ownerId
+          AND inq.restaurantId = :restaurantId
     )
 """)
-    boolean findByUserIdAndOwnerId(@Param("userId") Long userId, @Param("ownerId") Long ownerId);
+    boolean findByUserIdAndRestaurantId(@Param("userId") Long userId, @Param("restaurantId") Long restaurantId);
 
 
     @Query

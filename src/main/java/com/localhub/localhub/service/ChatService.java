@@ -4,6 +4,7 @@ import com.localhub.localhub.dto.response.ChatMessageDto;
 import com.localhub.localhub.dto.response.ChatroomDto;
 import com.localhub.localhub.dto.response.InquiryChatDto;
 import com.localhub.localhub.entity.*;
+import com.localhub.localhub.entity.restaurant.Restaurant;
 import com.localhub.localhub.repository.jpaReposi.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,26 +24,24 @@ public class ChatService {
     private final UserRepository userRepository;
     private final InquiryChatRepository inquiryChatRepository;
     private final MessageRepository messageRepository;
+    private final RestaurantRepositoryJpa restaurantRepositoryJpa;
     //문의채팅 생성
     @Transactional
-    public void openInquiryChat(String customerUsername, Long ownerId) {
+    public void openInquiryChat(String customerUsername, Long restaurantId) {
         UserEntity customer = userRepository.findByUsername(customerUsername)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
-        UserEntity owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new EntityNotFoundException("점주를 찾을 수 없습니다."));
+        Restaurant restaurant = restaurantRepositoryJpa.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("레스토랑을 찾을 수 없습니다."));
 
-        if (owner.getUserType() != UserType.OWNER) {
-            log.info("owner 값 : {} " + owner.getUserType().toString());
-            throw new IllegalStateException("점주 아님 .");
-        }
 
-        if (inquiryChatRepository.findByUserIdAndOwnerId(customer.getId(), ownerId)) {
+
+        if (inquiryChatRepository.findByUserIdAndRestaurantId(customer.getId(), restaurantId)) {
             throw new IllegalStateException("이미 존재하는 채팅방입니다.");
         }
 
         InquiryChat inquiryChat = InquiryChat.builder()
-                .ownerId(ownerId)
+                .restaurantId(restaurantId)
                 .userId(customer.getId())
                 .build();
         inquiryChatRepository.save(inquiryChat);
