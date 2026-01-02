@@ -79,7 +79,7 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
          SELECT CASE
          WHEN COUNT(u) > 0 THEN true
          ELSE false
-         END
+         END  
          FROM UserEntity u
          WHERE u.email = :email
             
