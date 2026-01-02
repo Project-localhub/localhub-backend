@@ -20,7 +20,7 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    @PostMapping("createInquiry")
+    @PostMapping("/createInquiry")
     public ResponseEntity<String> openInquiryChat(Authentication authentication,
                                                   @RequestParam Long ownerId) {
         chatService.openInquiryChat(authentication.getName(), ownerId);
