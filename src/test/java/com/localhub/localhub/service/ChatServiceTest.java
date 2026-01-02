@@ -366,7 +366,7 @@ public class ChatServiceTest {
 
         given(userRepository.findById(owner.getId()))
                 .willReturn(Optional.of(owner));
-        given(inquiryChatRepository.findByUserIdAndOwnerId(customer.getId(), owner.getId()))
+        given(inquiryChatRepository.findByuserIdAndRestaurantId(customer.getId(), owner.getId()))
                 .willReturn(false);
 
         //when
@@ -482,7 +482,7 @@ public class ChatServiceTest {
                 .willReturn(Optional.of(owner));
         given(userRepository.findByUsername(customer.getUsername()))
                 .willReturn(Optional.of(customer));
-        given(inquiryChatRepository.findByUserIdAndOwnerId(customer.getId(), owner.getId()))
+        given(inquiryChatRepository.findByuserIdAndRestaurantId(customer.getId(), owner.getId()))
                 .willReturn(true);
 
         //when & then
