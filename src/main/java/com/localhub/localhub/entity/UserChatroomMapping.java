@@ -1,17 +1,14 @@
 package com.localhub.localhub.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Table(name = "user_chatroom_mapping")
 @Entity
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserChatroomMapping {
 
     @Id

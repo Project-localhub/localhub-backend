@@ -10,6 +10,7 @@ import com.localhub.localhub.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/restaurant")
@@ -40,6 +42,8 @@ public class RestaurantController {
     @PostMapping("/save-review")
     public ResponseEntity<?> saveReview(Authentication authentication,
                                         @RequestBody CreateReview createReview) {
+        
+        log.info("리뷰 컨트롤러 호출");
         restaurantService.createReview(authentication.getName(), createReview);
         return ResponseEntity.ok("'가게 리뷰 작성 완료");
     }

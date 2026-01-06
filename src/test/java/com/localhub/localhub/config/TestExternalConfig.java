@@ -16,7 +16,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import java.util.List;
 
 @TestConfiguration
-public class TestExternalConfig {
+public class     TestExternalConfig {
         //메일
     @Bean
     JavaMailSender javaMailSender() {
