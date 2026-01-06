@@ -2,13 +2,12 @@ package com.localhub.localhub.service;
 
 
 import com.localhub.localhub.dto.request.CreateReview;
+import com.localhub.localhub.dto.request.LocationSearchRequestDto;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
-import com.localhub.localhub.dto.response.ResponseRestaurantDto;
-import com.localhub.localhub.dto.response.ResponseRestaurantImageDto;
-import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
-import com.localhub.localhub.dto.response.ResponseReviewDto;
+import com.localhub.localhub.dto.response.*;
 import com.localhub.localhub.entity.restaurant.*;
+import com.localhub.localhub.geo.repository.PostgisStoreLocationRepository;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
@@ -25,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +47,8 @@ public class RestaurantService {
     private final RestaurantKeywordRepositoryJpa restaurantKeywordRepositoryJpa;
     private final ImageUrlResolver imageUrlResolver;
     private final RestaurantScoreRepositoryJDBC restaurantScoreRepositoryJDBC;
+    private final PostgisStoreLocationRepository postgisStoreLocationRepository;
+
 
     //가게 등록
     @Transactional
@@ -105,7 +107,15 @@ public class RestaurantService {
                 restaurantKeywordRepositoryJpa.save(restaurantKeyword);
             }
         }
+        //가게 위치정보 테이블 저장
+
+        //  PostGIS (JdbcTemplate)
+      postgisStoreLocationRepository.saveLocation(restaurantId,
+              requestRestaurantDto.getLongitude(),requestRestaurantDto.getLatitude());
+
+
     }
+
 
     //가게 정보 수정
     @Transactional
@@ -286,7 +296,19 @@ public class RestaurantService {
     }
 
     //전체 가게목록조회
-    public Page<ResponseRestaurantListDto> getAllRestaurantList(Pageable pageable,String username) {
+    public Page<ResponseRestaurantListDto> getAllRestaurantList(LocationSearchRequestDto dto,
+                                                                Pageable pageable, String username) {
+        //주변 반경 가게 로직
+        List<StoreDistanceDto> nearbyStores =
+                postgisStoreLocationRepository.findNearbyStoreIds(
+                        dto.getLng(), dto.getLat(), dto.getRadiusMeter(), pageable.getPageSize()
+                );
+
+        List<Long> storeIds = nearbyStores.stream()
+                .map(StoreDistanceDto::getStoreId)
+                .toList();
+
+
         //유저 아이디초기화 null이 아닐시에
         Long userId = null;
         if (username != null) {

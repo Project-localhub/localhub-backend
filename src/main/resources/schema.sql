@@ -172,6 +172,13 @@ CREATE TABLE user_score_restaurant(
 
     CONSTRAINT uk_user_restaurant
     UNIQUE (user_id,restaurant_id)
-)
+);
+
+CREATE TABLE IF NOT EXISTS store_location(
+
+    stored_id BIGINT PRIMARY KEY,
+      location GEOGRAPHY(Point, 4326)
+
+);
 
 
