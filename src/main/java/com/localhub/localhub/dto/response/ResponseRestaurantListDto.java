@@ -25,6 +25,9 @@ public class ResponseRestaurantListDto {
     private String imageUrl;
     private List<String> keyword;
 
+    private boolean liked;
+
+
 
     public void setKeyword(List<String> keywordList) {
         this.keyword = keywordList;
@@ -33,6 +36,12 @@ public class ResponseRestaurantListDto {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
+    public void setLiked(boolean liked) {
+        this.liked = liked;
+    }
+
+
 
     public ResponseRestaurantListDto(
             Long restaurantId,

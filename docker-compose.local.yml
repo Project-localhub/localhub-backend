@@ -1,9 +1,9 @@
 version: "3.9"
 
 services:
-  db:
+  mysql:
     image: mysql:8.0
-    container_name: localhub
+    container_name: localhub_mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 1234
@@ -19,3 +19,17 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: localhub_postgres
+    restart: always
+    volumes:
+      - ./data/localhub-backend-db:/var/lib/postgresql/data
+
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: localhub_postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
