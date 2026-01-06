@@ -352,7 +352,6 @@ public class RestaurantService {
 
         );
 
-
         return page;
     }
 
