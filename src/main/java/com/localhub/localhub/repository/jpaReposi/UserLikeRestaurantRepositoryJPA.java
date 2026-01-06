@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserLikeRestaurantRepositoryJPA extends JpaRepository<UserLikeRestaurant, Long> {
 
@@ -99,6 +100,18 @@ public interface UserLikeRestaurantRepositoryJPA extends JpaRepository<UserLikeR
             
             """)
     boolean isExistByUserId(@Param("userId") Long userId);
+
+
+    @Query("""
+            
+            SELECT ul
+            FROM UserLikeRestaurant ul
+            WHERE ul.userId = :userId
+            AND ul.restaurantId in :restaurantIds
+            
+            """)
+   List<UserLikeRestaurant> findRestaurantIdsByUserIdAndRestaurantIdIn(@Param("userId") Long userId,
+                                                                       @Param("restaurantIds") List<Long> restaurantIds);
 }
 
 

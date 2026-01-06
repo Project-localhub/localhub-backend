@@ -3,10 +3,8 @@ package com.localhub.localhub.service;
 import com.localhub.localhub.dto.response.ChatroomDto;
 import com.localhub.localhub.dto.response.InquiryChatDto;
 import com.localhub.localhub.entity.*;
-import com.localhub.localhub.repository.jpaReposi.ChatRoomRepository;
-import com.localhub.localhub.repository.jpaReposi.InquiryChatRepository;
-import com.localhub.localhub.repository.jpaReposi.UserChatroomMappingRepository;
-import com.localhub.localhub.repository.jpaReposi.UserRepository;
+import com.localhub.localhub.entity.restaurant.Restaurant;
+import com.localhub.localhub.repository.jpaReposi.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +37,9 @@ public class ChatServiceTest {
 
     @Mock
     UserChatroomMappingRepository userChatroomMappingRepository;
+
+    @Mock
+    RestaurantRepositoryJpa restaurantRepositoryJpa;
 
     @InjectMocks
     ChatService chatService;
@@ -355,22 +356,24 @@ public class ChatServiceTest {
                 .build();
 
 
-        UserEntity owner = UserEntity.builder()
-                .id(11L)
-                .username("점주")
-                .userType(UserType.OWNER)
+        Restaurant restaurant = Restaurant.builder()
+                .id(1L)
+
                 .build();
+
 
         given(userRepository.findByUsername(customer.getUsername()))
                 .willReturn(Optional.of(customer));
 
-        given(userRepository.findById(owner.getId()))
-                .willReturn(Optional.of(owner));
-        given(inquiryChatRepository.findByuserIdAndRestaurantId(customer.getId(), owner.getId()))
+
+        given(restaurantRepositoryJpa.findById(restaurant.getId()))
+                .willReturn(Optional.of(restaurant));
+
+        given(inquiryChatRepository.findByUserIdAndRestaurantId(customer.getId(), restaurant.getId()))
                 .willReturn(false);
 
         //when
-        chatService.openInquiryChat(customer.getUsername(), owner.getId());
+        chatService.openInquiryChat(customer.getUsername(), restaurant.getId());
 
         //then
         verify(inquiryChatRepository).save(any(InquiryChat.class));
@@ -407,7 +410,7 @@ public class ChatServiceTest {
     }
 
     @Test
-    void 존재하지않는_점주면_예외() {
+    void 존재하지않는_레스토랑이면_예외() {
 
         //given
         UserEntity customer = UserEntity.builder()
@@ -423,8 +426,10 @@ public class ChatServiceTest {
 
         given(userRepository.findByUsername(customer.getUsername()))
                 .willReturn(Optional.of(customer));
-        given(userRepository.findById(999L))
+
+        given(restaurantRepositoryJpa.findById(any(Long.class)))
                 .willReturn(Optional.empty());
+
 
         //when & then
         assertThatThrownBy(() ->
@@ -434,35 +439,6 @@ public class ChatServiceTest {
 
     }
 
-    @Test
-    void 점주가_OWNER가_아니면_예외() {
-
-
-        //given
-        UserEntity customer = UserEntity.builder()
-                .id(10L)
-                .username("유저")
-                .build();
-
-        UserEntity owner = UserEntity.builder()
-                .id(11L)
-                .username("점주")
-                .userType(UserType.CUSTOMER)
-                .build();
-
-        given(userRepository.findById(owner.getId()))
-                .willReturn(Optional.of(owner));
-        given(userRepository.findByUsername(customer.getUsername()))
-                .willReturn(Optional.of(customer));
-
-        //when & then
-
-        assertThatThrownBy(() -> chatService.openInquiryChat(customer.getUsername(), owner.getId()))
-                .isInstanceOf(IllegalStateException.class);
-
-
-
-    }
 
     @Test
     void 이미_존재하는_문의채팅이면_예외() {
@@ -472,21 +448,21 @@ public class ChatServiceTest {
                 .username("유저")
                 .build();
 
-        UserEntity owner = UserEntity.builder()
-                .id(11L)
-                .username("점주")
-                .userType(UserType.OWNER)
+        Restaurant restaurant = Restaurant.builder()
+                .id(1L)
                 .build();
 
-        given(userRepository.findById(owner.getId()))
-                .willReturn(Optional.of(owner));
+
         given(userRepository.findByUsername(customer.getUsername()))
                 .willReturn(Optional.of(customer));
-        given(inquiryChatRepository.findByuserIdAndRestaurantId(customer.getId(), owner.getId()))
+
+        given(restaurantRepositoryJpa.findById(restaurant.getId()))
+                .willReturn(Optional.of(restaurant));
+        given(inquiryChatRepository.findByUserIdAndRestaurantId(customer.getId(), restaurant.getId()))
                 .willReturn(true);
 
         //when & then
-        assertThatThrownBy(() -> chatService.openInquiryChat(customer.getUsername(), owner.getId()))
+        assertThatThrownBy(() -> chatService.openInquiryChat(customer.getUsername(), restaurant.getId()))
                 .isInstanceOf(IllegalStateException.class);
 
     }

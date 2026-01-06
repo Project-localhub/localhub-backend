@@ -109,8 +109,15 @@ public class RestaurantController {
     public ResponseEntity<Page<ResponseRestaurantListDto>> getAllRestaurants(
             @ParameterObject
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable) {
-        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantList(pageable);
+            Pageable pageable,
+            Authentication authentication) {
+
+
+        String username = authentication != null
+                ? authentication.getName()
+                : null;
+
+        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantList(pageable,authentication.getName());
         return ResponseEntity.ok(result);
     }
 

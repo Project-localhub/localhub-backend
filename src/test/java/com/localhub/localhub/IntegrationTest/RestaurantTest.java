@@ -8,6 +8,7 @@ import com.localhub.localhub.dto.request.CreateReview;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.request.RequestRestaurantImages;
 import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
+import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
 import com.localhub.localhub.entity.restaurant.*;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
@@ -24,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -692,7 +695,7 @@ public class RestaurantTest {
     }
 
     @Test
-    @WithMockUser(username =  "username", roles = "USER")
+    @WithMockUser(username =  "user", roles = "USER")
     void 가게조회_전체_값조회_정상확인() throws Exception {
 
 
@@ -979,6 +982,42 @@ public class RestaurantTest {
 
 
 
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void 가게_조회시_찜한_레스토랑_true_반환() throws Exception {
+
+        //given
+        UserLikeRestaurant userLikeRestaurant = UserLikeRestaurant
+                .builder()
+                .userId(user.getId())
+                .restaurantId(restaurant.getId())
+                .build();
+
+        userLikeRestaurantRepositoryJPA.save(userLikeRestaurant);
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        //when
+        Page<ResponseRestaurantListDto> result =
+                restaurantService.getAllRestaurantList(pageRequest, user.getUsername());
+
+        //then
+        assertThat(result.getContent().get(0).isLiked()).isTrue();
+    }
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void 가게_조회시_찜한_레스토랑_없으면_false_반환() throws Exception {
+
+        //given
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        //when
+        Page<ResponseRestaurantListDto> result =
+                restaurantService.getAllRestaurantList(pageRequest, user.getUsername());
+
+        //then
+        assertThat(result.getContent().get(0).isLiked()).isFalse();
     }
 
 }

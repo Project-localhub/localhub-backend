@@ -8,14 +8,11 @@ import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantImageDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
 import com.localhub.localhub.dto.response.ResponseReviewDto;
-import com.localhub.localhub.entity.restaurant.Category;
+import com.localhub.localhub.entity.restaurant.*;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
-import com.localhub.localhub.entity.restaurant.Restaurant;
-import com.localhub.localhub.entity.restaurant.RestaurantImages;
-import com.localhub.localhub.entity.restaurant.RestaurantKeyword;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
@@ -33,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -288,7 +286,15 @@ public class RestaurantService {
     }
 
     //전체 가게목록조회
-    public Page<ResponseRestaurantListDto> getAllRestaurantList(Pageable pageable) {
+    public Page<ResponseRestaurantListDto> getAllRestaurantList(Pageable pageable,String username) {
+        //유저 아이디초기화 null이 아닐시에
+        Long userId = null;
+        if (username != null) {
+            userId = userRepository
+                    .findByUsername(username)
+                    .orElseThrow()
+                    .getId();
+        }
 
         Page<ResponseRestaurantListDto> page = restaurantRepositoryJpa.findAllWithScores(pageable);
         //뽑아온 레스토랑의 아이디를 뽑아서 list로 만들기 이미지랑 키워드 뽑을때 where in으로 뽑기위함
@@ -296,6 +302,21 @@ public class RestaurantService {
                 .map(ResponseRestaurantListDto::getRestaurantId)
                 .toList();
 
+
+        Set<Long> likedRestaurantIds;
+
+        //유저 아이디가 null 아니고 레스토랑 아이디가 empty 아닐때
+        //userlikerestuarnat중에 위에 뽑은 restuarnatids의 값과 userid를 가지고 필터링해서
+        //좋아요 목록 아이디 get
+        if (userId != null && !restaurantIds.isEmpty()) {
+            likedRestaurantIds = userLikeRestaurantRepositoryJPA
+                    .findRestaurantIdsByUserIdAndRestaurantIdIn(userId, restaurantIds)
+                    .stream().map(ulr ->
+                            ulr.getRestaurantId()
+                    ).collect(Collectors.toSet());
+        } else {
+            likedRestaurantIds = Set.of();
+        }
 
         //레스토랑 아이디로 해당 키워드 조회(리스트)
         List<RestaurantKeyword> keywords =
@@ -325,7 +346,7 @@ public class RestaurantService {
                 pg ->
                 {
                     pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
-
+                    pg.setLiked(likedRestaurantIds.contains(pg.getRestaurantId()));
                     pg.setImageUrl(imageUrlResolver.toPresignedUrl(firstImageMap.get(pg.getRestaurantId())));
                 }
 
