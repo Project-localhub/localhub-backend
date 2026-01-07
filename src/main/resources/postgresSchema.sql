@@ -8,3 +8,7 @@ CREATE TABLE IF NOT EXISTS store_location(
       location GEOGRAPHY(Point, 4326)
 
 );
+
+CREATE INDEX idx_store_location_geo
+ON store_location
+USING GIST (location);
