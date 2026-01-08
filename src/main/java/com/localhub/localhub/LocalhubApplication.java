@@ -7,14 +7,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration;
 
-@SpringBootApplication(
-		exclude = {
-				DataSourceAutoConfiguration.class,
-				DataSourceTransactionManagerAutoConfiguration.class,
-				HibernateJpaAutoConfiguration.class,
-				SqlInitializationAutoConfiguration.class
-		}
-)
+@SpringBootApplication()
 public class LocalhubApplication {
 
 	public static void main(String[] args) {
