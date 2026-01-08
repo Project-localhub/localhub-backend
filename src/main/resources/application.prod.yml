@@ -9,7 +9,7 @@ mysql:
 
 postgres:
   datasource:
-    url: ${POSTRGRE_DB_URL}
+    url: ${POSTGRE_DB_URL}
     username: ${POSTGRE_DB_USERNAME}
     password: ${POSTGRE_DB_PASSWORD}
 
