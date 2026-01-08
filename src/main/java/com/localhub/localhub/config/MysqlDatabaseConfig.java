@@ -1,5 +1,8 @@
 package com.localhub.localhub.config;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -48,11 +51,13 @@ public class MysqlDatabaseConfig {
     }
     @Primary
     @Bean
-    public LocalContainerEntityManagerFactoryBean mysqlEntityManager() {
+    public LocalContainerEntityManagerFactoryBean mysqlEntityManager(
+            @Qualifier("mysqlDataSource") DataSource dataSource
+    ) {
 
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 
-        em.setDataSource(mysqlDataSource());
+        em.setDataSource(dataSource);
         em.setPackagesToScan(new String[]{"com.localhub.localhub.entity"});
         em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 
@@ -64,14 +69,13 @@ public class MysqlDatabaseConfig {
         return em;
 
     }
+
     @Primary
     @Bean
-    public PlatformTransactionManager mysqlTransactionManager() {
+    public PlatformTransactionManager mysqlTransactionManager(
+            @Qualifier("mysqlEntityManager") EntityManagerFactory emf) {
 
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(mysqlEntityManager().getObject());
-
-        return transactionManager;
+        return new JpaTransactionManager(emf);
     }
 
 
