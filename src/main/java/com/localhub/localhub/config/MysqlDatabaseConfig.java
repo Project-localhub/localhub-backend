@@ -1,6 +1,7 @@
 package com.localhub.localhub.config;
 
 import jakarta.persistence.EntityManagerFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -19,9 +20,10 @@ import java.util.HashMap;
 
 @Profile("!test")
 @Configuration
+@RequiredArgsConstructor
 @EnableJpaRepositories(
 
-        basePackages =  "com.localhub.localhub.repository",
+        basePackages = "com.localhub.localhub.repository",
         entityManagerFactoryRef = "mysqlEntityManager",
         transactionManagerRef = "mysqlTransactionManager"
 
@@ -29,25 +31,19 @@ import java.util.HashMap;
 public class MysqlDatabaseConfig {
 
 
-    @Value("${mysql.datasource.url}")
-    private String url;
-
-    @Value("${mysql.datasource.username}")
-    private String username;
-
-    @Value("${mysql.datasource.password}")
-    private String password;
+    private final MysqlDataSourceProperties props;
 
     @Bean(name = "mysqlDataSource")
     @Primary
     public DataSource mysqlDataSource() {
         return DataSourceBuilder.create()
                 .driverClassName("com.mysql.cj.jdbc.Driver")
-                .url(url)
-                .username(username)
-                .password(password)
+                .url(props.getUrl())
+                .username(props.getUsername())
+                .password(props.getPassword())
                 .build();
     }
+
     @Primary
     @Bean
     public LocalContainerEntityManagerFactoryBean mysqlEntityManager(
