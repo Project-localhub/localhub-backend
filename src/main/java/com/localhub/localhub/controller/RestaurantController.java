@@ -1,6 +1,7 @@
 package com.localhub.localhub.controller;
 
 import com.localhub.localhub.dto.request.CreateReview;
+import com.localhub.localhub.dto.request.LocationSearchRequestDto;
 import com.localhub.localhub.dto.request.RequestRestaurantDto;
 import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
@@ -110,14 +111,15 @@ public class RestaurantController {
             @ParameterObject
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable,
-            Authentication authentication) {
+            Authentication authentication,
+            LocationSearchRequestDto dto) {
 
 
         String username = authentication != null
                 ? authentication.getName()
                 : null;
 
-        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantList(pageable,authentication.getName());
+        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantList(dto ,pageable,authentication.getName());
         return ResponseEntity.ok(result);
     }
 

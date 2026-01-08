@@ -1000,7 +1000,7 @@ public class RestaurantTest {
 
         //when
         Page<ResponseRestaurantListDto> result =
-                restaurantService.getAllRestaurantList(pageRequest, user.getUsername());
+                restaurantService.getAllRestaurantList(null,pageRequest, user.getUsername());
 
         //then
         assertThat(result.getContent().get(0).isLiked()).isTrue();
@@ -1014,10 +1014,11 @@ public class RestaurantTest {
 
         //when
         Page<ResponseRestaurantListDto> result =
-                restaurantService.getAllRestaurantList(pageRequest, user.getUsername());
+                restaurantService.getAllRestaurantList(null,pageRequest, user.getUsername());
 
         //then
         assertThat(result.getContent().get(0).isLiked()).isFalse();
+        //리팩토링중
     }
 
 }

@@ -1,5 +1,6 @@
 package com.localhub.localhub.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,14 +27,23 @@ import java.util.HashMap;
 public class MysqlDatabaseConfig {
 
 
+    @Value("${mysql.datasource.url}")
+    private String url;
+
+    @Value("${mysql.datasource.username}")
+    private String username;
+
+    @Value("${mysql.datasource.password}")
+    private String password;
+
     @Bean(name = "mysqlDataSource")
     @Primary
     public DataSource mysqlDataSource() {
         return DataSourceBuilder.create()
                 .driverClassName("com.mysql.cj.jdbc.Driver")
-                .url("jdbc:mysql://localhost:3309/localhub?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8")
-                .username("root")
-                .password("1234")
+                .url(url)
+                .username(username)
+                .password(password)
                 .build();
     }
     @Primary
