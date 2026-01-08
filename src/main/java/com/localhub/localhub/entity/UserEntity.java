@@ -32,10 +32,11 @@ public class UserEntity {
     private String phone;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private UserRole role;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false,name = "user_type")
     private UserType userType;
 
     public void update(String email, String name) {
