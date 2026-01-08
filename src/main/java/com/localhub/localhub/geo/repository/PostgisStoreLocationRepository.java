@@ -21,7 +21,7 @@ public class PostgisStoreLocationRepository {
         postgisJdbcTemplate.update(
                 """
                 INSERT INTO store_location (store_id, location)
-                VALUES (?, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography)
+                VALUES (?, ST_MakePoint(?, ?)::geography)
                 """,
                 storeId,
                 lng,
@@ -38,26 +38,28 @@ public class PostgisStoreLocationRepository {
             int radiusMeter,
             int limit
     ) {
-        return postgisJdbcTemplate.query(
-                """
-                SELECT
-                    store_id,
-                    ST_Distance(
-                        location,
-                        ST_MakePoint(?, ?)::geography
-                    ) AS distance_m
-                FROM store_location
-                WHERE ST_DWithin(
+        String sql = """
+            SELECT
+                store_id,
+                ST_Distance(
                     location,
-                    ST_MakePoint(?, ?)::geography,
-                    ?
-                )
-                ORDER BY distance_m
-                LIMIT ?
-                """,
+                    ST_MakePoint(?, ?)::geography
+                ) / 1000 AS distance_km
+            FROM store_location
+            WHERE ST_DWithin(
+                location,
+                ST_MakePoint(?, ?)::geography,
+                ?
+            )
+            ORDER BY distance_km
+            LIMIT ?
+            """;
+
+        return postgisJdbcTemplate.query(
+                sql,
                 (rs, rowNum) -> new StoreDistanceDto(
                         rs.getLong("store_id"),
-                        rs.getDouble("distance_m") / 1000.0
+                        rs.getDouble("distance_km")
                 ),
                 lng, lat,
                 lng, lat,

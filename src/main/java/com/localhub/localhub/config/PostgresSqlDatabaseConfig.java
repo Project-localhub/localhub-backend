@@ -1,5 +1,6 @@
 package com.localhub.localhub.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +14,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
-@Profile("!test")
+@Profile("local")
 @Configuration
 @EnableJpaRepositories(
 
@@ -23,13 +24,22 @@ import java.util.HashMap;
 )
 public class PostgresSqlDatabaseConfig {
 
+
+    @Value("${POSTGRE_DB_URL}")
+    String url;
+    @Value("${POSTGRE_DB_USERNAME}")
+    String username;
+    @Value("${POSTGRE_DB_PASSWORD}")
+    String password;
+
     @Bean(name = "postgisDataSource")
     public DataSource postgisDataSource() {
+
         return DataSourceBuilder.create()
                 .driverClassName("org.postgresql.Driver")
-                .url("jdbc:postgresql://localhost:5433/localhub_postgres")
-                .username("postgres")
-                .password("1234")
+                .url(url)
+                .username(username)
+                .password(password)
                 .build();
     }
     @Bean

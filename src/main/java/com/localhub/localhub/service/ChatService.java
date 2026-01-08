@@ -45,7 +45,6 @@ public class ChatService {
                 .userId(customer.getId())
                 .build();
         inquiryChatRepository.save(inquiryChat);
-
     }
 
 
