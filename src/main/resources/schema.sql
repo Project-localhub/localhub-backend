@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS restaurant (
  close_time TIME,
  has_break_time TINYINT(1) NOT NULL DEFAULT 0,
  break_start_time TIME,
+ break_end_time TIME,
  image_key VARCHAR(255),
  owner_id BIGINT,
 

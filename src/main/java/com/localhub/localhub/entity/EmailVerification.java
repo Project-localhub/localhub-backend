@@ -1,9 +1,6 @@
 package com.localhub.localhub.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.cglib.core.Local;
 
@@ -15,6 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Builder
 @Getter
+@Table(name = "email_verification")
 public class EmailVerification {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

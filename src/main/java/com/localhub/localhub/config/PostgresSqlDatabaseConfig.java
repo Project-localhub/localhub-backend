@@ -14,7 +14,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
-@Profile("local")
+@Profile("!test")
 @Configuration
 @EnableJpaRepositories(
 
