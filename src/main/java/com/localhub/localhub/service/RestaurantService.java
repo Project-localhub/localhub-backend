@@ -21,6 +21,7 @@ import com.localhub.localhub.repository.jpaReposi.UserLikeRestaurantRepositoryJP
 import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class RestaurantService {
 
     private final UserLikeRestaurantRepositoryJPA userLikeRestaurantRepositoryJPA;
@@ -117,6 +119,7 @@ public class RestaurantService {
                     requestRestaurantDto.getLatitude()
             );
         } catch (Exception e) {
+            log.error("POSTGRES LOCATION SAVE FAIL",e);
             throw new RuntimeException("가게 위치 저장 실패", e);
         }
 
