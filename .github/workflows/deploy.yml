@@ -76,6 +76,10 @@ jobs:
           # timeout, command_timeout 은 기본값(10분)으로도 충분하면 생략 가능
 
           script: |
+            aws ecr get-login-password --region ap-northeast-2 \
+           | docker login --username AWS --password-stdin 396913706736.dkr.ecr.ap-northeast-2.amazonaws.com
+            
+            
             docker stop localhub || true
             docker rm -f localhub || true 
             docker pull ${{ steps.login-ecr.outputs.registry }}/localhub:latest
