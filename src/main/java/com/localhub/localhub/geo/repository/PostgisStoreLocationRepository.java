@@ -25,7 +25,7 @@ public class PostgisStoreLocationRepository {
         String sql = """
                 INSERT INTO store_location (store_id, location)
                 VALUES (?, ST_MakePoint(?, ?)::geography)
-                RETURNING id
+                RETURNING store_id
                 """;
         Long id = postgisJdbcTemplate.queryForObject(
                 sql,
