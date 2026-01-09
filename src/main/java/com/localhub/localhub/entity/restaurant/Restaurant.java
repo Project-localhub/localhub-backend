@@ -39,6 +39,9 @@ public class Restaurant extends BaseEntity {
 
     private String phone;
 
+    @Column(name = "divide")
+    private String divide;
+
     private String address;
 
     @Column(precision = 10, scale = 7)
