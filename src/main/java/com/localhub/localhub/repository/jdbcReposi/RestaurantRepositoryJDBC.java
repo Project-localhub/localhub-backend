@@ -5,6 +5,7 @@ import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.entity.restaurant.Category;
 import com.localhub.localhub.entity.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -19,7 +20,7 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class RestaurantRepositoryJDBC {
-
+    @Qualifier("mysqlJdbcTemplate")
     private final NamedParameterJdbcTemplate template;
 
 

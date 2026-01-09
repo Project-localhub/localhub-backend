@@ -17,13 +17,13 @@ public class EmailVerification {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
+    @Column(name = "code")
     private String code;
-
+    @Column(name = "expired_at")
     private LocalDateTime expiredAt;
-
+    @Column(name = "email")
     private String email;
-
+    @Column(name = "verified")
     private boolean verified;
 
     public void update(String code, LocalDateTime expiredAt) {
