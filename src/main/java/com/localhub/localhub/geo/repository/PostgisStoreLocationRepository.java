@@ -3,6 +3,7 @@ package com.localhub.localhub.geo.repository;
 import com.localhub.localhub.dto.response.StoreDistanceDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -17,16 +18,21 @@ public class PostgisStoreLocationRepository {
     /**
      * 가게 위치 저장 (가게 생성 시 호출)
      */
-    public void saveLocation(Long storeId, BigDecimal lng, BigDecimal lat) {
-        postgisJdbcTemplate.update(
-                """
+    public Long saveLocation(Long storeId, BigDecimal lng, BigDecimal lat) {
+
+        String sql = """
                 INSERT INTO store_location (store_id, location)
                 VALUES (?, ST_MakePoint(?, ?)::geography)
-                """,
+                RETURNING id
+                """;
+        Long id = postgisJdbcTemplate.queryForObject(
+                sql,
+                Long.class,
                 storeId,
                 lng,
                 lat
         );
+        return id;
     }
 
     /**

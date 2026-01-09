@@ -110,8 +110,17 @@ public class RestaurantService {
         //가게 위치정보 테이블 저장
 
         //  PostGIS (JdbcTemplate)
-      postgisStoreLocationRepository.saveLocation(restaurantId,
-              requestRestaurantDto.getLongitude(),requestRestaurantDto.getLatitude());
+        try {
+            postgisStoreLocationRepository.saveLocation(
+                    restaurantId,
+                    requestRestaurantDto.getLongitude(),
+                    requestRestaurantDto.getLatitude()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("가게 위치 저장 실패", e);
+        }
+
+
 
 
     }
@@ -165,6 +174,9 @@ public class RestaurantService {
 
         for (RestaurantImages image : imagesEntityList) {
             restaurantImageRepositoryJpa.save(image);
+
+
+
         }
     }
 

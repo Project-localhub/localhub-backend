@@ -16,12 +16,6 @@ import java.util.HashMap;
 
 @Profile("!test")
 @Configuration
-@EnableJpaRepositories(
-
-        basePackages = "com.localhub.localhub.geo",
-        entityManagerFactoryRef = "postgresEntityManager",
-        transactionManagerRef = "postgresTransactionManager"
-)
 public class PostgresSqlDatabaseConfig {
 
 
@@ -41,34 +35,5 @@ public class PostgresSqlDatabaseConfig {
                 .username(username)
                 .password(password)
                 .build();
-    }
-    @Bean
-    public LocalContainerEntityManagerFactoryBean postgresEntityManager() {
-
-        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-
-        em.setDataSource(postgisDataSource());
-        em.setPackagesToScan(new String[]{"com.localhub.localhub.geo"});
-        em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-
-        HashMap<String, Object> properties = new HashMap<>();
-        properties.put("hibernate.hbm2ddl.auto", "update");
-        properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-
-
-        em.setJpaPropertyMap(properties);
-
-        return em;
-
-    }
-
-
-    @Bean
-    public PlatformTransactionManager postgresTransactionManager() {
-
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(postgresEntityManager().getObject());
-
-        return transactionManager;
     }
 }
