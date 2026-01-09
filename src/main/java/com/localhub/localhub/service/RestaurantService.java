@@ -177,9 +177,6 @@ public class RestaurantService {
 
         for (RestaurantImages image : imagesEntityList) {
             restaurantImageRepositoryJpa.save(image);
-
-
-
         }
     }
 
