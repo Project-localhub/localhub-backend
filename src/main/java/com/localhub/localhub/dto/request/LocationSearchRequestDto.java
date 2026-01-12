@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class LocationSearchRequestDto {
 
+    private String divide;
     private BigDecimal lng;      // 경도
     private BigDecimal lat;      // 위도
 }

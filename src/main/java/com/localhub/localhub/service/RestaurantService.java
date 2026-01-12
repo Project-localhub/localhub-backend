@@ -310,15 +310,6 @@ public class RestaurantService {
     //전체 가게목록조회
     public Page<ResponseRestaurantListDto> getAllRestaurantList(LocationSearchRequestDto dto,
                                                                 Pageable pageable, String username) {
-        //주변 반경 가게 로직
-        List<StoreDistanceDto> nearbyStores =
-                postgisStoreLocationRepository.findNearbyStoreIds(
-                        dto.getLng(), dto.getLat(), dto.getRadiusMeter(), pageable.getPageSize()
-                );
-
-        List<Long> storeIds = nearbyStores.stream()
-                .map(StoreDistanceDto::getStoreId)
-                .toList();
 
 
         //유저 아이디초기화 null이 아닐시에
@@ -330,7 +321,7 @@ public class RestaurantService {
                     .getId();
         }
 
-        Page<ResponseRestaurantListDto> page = restaurantRepositoryJpa.findAllWithScores(pageable);
+        Page<ResponseRestaurantListDto> page = restaurantRepositoryJpa.findAllWithScores(pageable,dto.getDivide());
         //뽑아온 레스토랑의 아이디를 뽑아서 list로 만들기 이미지랑 키워드 뽑을때 where in으로 뽑기위함
         List<Long> restaurantIds = page.getContent().stream()
                 .map(ResponseRestaurantListDto::getRestaurantId)
