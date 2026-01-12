@@ -39,6 +39,9 @@ public class RequestRestaurantDto {
     @Schema(description = "경도", example = "127.1234567")
     private BigDecimal longitude;
 
+    @Schema(example = "강서구")
+    private String divide;
+
     // ================== 시간 필드  ==================
 
     @Schema(
