@@ -369,7 +369,7 @@ public class RestaurantService {
 
         //거리기반 내용 조회
         List<StoreDistanceDto> storeDistancesByIds = postgisStoreLocationRepository.findStoreDistancesByIds
-                (restaurantIds, dto.getLng(), dto.getLng(), pageable.getPageSize());
+                (restaurantIds, dto.getLng(), dto.getLat(), pageable.getPageSize());
 
         Map<Long, Double> distanceMap =
                 storeDistancesByIds.stream()
