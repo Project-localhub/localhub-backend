@@ -1,24 +1,18 @@
 package com.localhub.localhub.service;
 
 
-import com.localhub.localhub.dto.request.CreateReview;
-import com.localhub.localhub.dto.request.LocationSearchRequestDto;
-import com.localhub.localhub.dto.request.RequestRestaurantDto;
-import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
+import com.localhub.localhub.dto.request.*;
 import com.localhub.localhub.dto.response.*;
+import com.localhub.localhub.entity.Menu;
 import com.localhub.localhub.entity.restaurant.*;
 import com.localhub.localhub.geo.repository.PostgisStoreLocationRepository;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantScoreRepositoryJDBC;
-import com.localhub.localhub.repository.jpaReposi.RestaurantRepositoryJpa;
+import com.localhub.localhub.repository.jpaReposi.*;
 import com.localhub.localhub.entity.UserEntity;
 import com.localhub.localhub.entity.UserType;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.RestaurantReviewRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
-import com.localhub.localhub.repository.jpaReposi.RestaurantImageRepositoryJpa;
-import com.localhub.localhub.repository.jpaReposi.RestaurantKeywordRepositoryJpa;
-import com.localhub.localhub.repository.jpaReposi.UserLikeRestaurantRepositoryJPA;
-import com.localhub.localhub.repository.jpaReposi.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +23,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +45,7 @@ public class RestaurantService {
     private final ImageUrlResolver imageUrlResolver;
     private final RestaurantScoreRepositoryJDBC restaurantScoreRepositoryJDBC;
     private final PostgisStoreLocationRepository postgisStoreLocationRepository;
+    private final MenuRepository menuRepository;
 
 
     //가게 등록
@@ -307,8 +303,8 @@ public class RestaurantService {
         }
     }
 
-    //전체 가게목록조회
-    public Page<ResponseRestaurantListDto> getAllRestaurantList(LocationSearchRequestDto dto,
+    //전체 가게목록조회(거리위치정보 동적쿼리 작업중)
+    public Page<ResponseRestaurantListDto> getAllRestaurantListWithDistance(LocationSearchRequestDto dto,
                                                                 Pageable pageable, String username) {
 
 
@@ -321,7 +317,7 @@ public class RestaurantService {
                     .getId();
         }
 
-        Page<ResponseRestaurantListDto> page = restaurantRepositoryJpa.findAllWithScores(pageable,dto.getDivide());
+        Page<ResponseRestaurantListDto> page = restaurantRepositoryJpa.findAllWithScoresWithDistance(pageable,dto.getDivide());
         //뽑아온 레스토랑의 아이디를 뽑아서 list로 만들기 이미지랑 키워드 뽑을때 where in으로 뽑기위함
         List<Long> restaurantIds = page.getContent().stream()
                 .map(ResponseRestaurantListDto::getRestaurantId)
@@ -390,6 +386,78 @@ public class RestaurantService {
         );
         return page;
     }
+
+    //가게 전체조회(거리정보x)
+    public Page<ResponseRestaurantListDto> getAllRestaurantList(Pageable pageable, String username) {
+
+
+        //유저 아이디초기화 null이 아닐시에
+        Long userId = null;
+        if (username != null) {
+            userId = userRepository
+                    .findByUsername(username)
+                    .orElseThrow()
+                    .getId();
+        }
+
+        Page<ResponseRestaurantListDto> page = restaurantRepositoryJpa.findAllWithScores(pageable);
+        //뽑아온 레스토랑의 아이디를 뽑아서 list로 만들기 이미지랑 키워드 뽑을때 where in으로 뽑기위함
+        List<Long> restaurantIds = page.getContent().stream()
+                .map(ResponseRestaurantListDto::getRestaurantId)
+                .toList();
+
+
+        Set<Long> likedRestaurantIds;
+
+        //유저 아이디가 null 아니고 레스토랑 아이디가 empty 아닐때
+        //userlikerestuarnat중에 위에 뽑은 restuarnatids의 값과 userid를 가지고 필터링해서
+        //좋아요 목록 아이디 get
+        if (userId != null && !restaurantIds.isEmpty()) {
+            likedRestaurantIds = userLikeRestaurantRepositoryJPA
+                    .findRestaurantIdsByUserIdAndRestaurantIdIn(userId, restaurantIds)
+                    .stream().map(ulr ->
+                            ulr.getRestaurantId()
+                    ).collect(Collectors.toSet());
+        } else {
+            likedRestaurantIds = Set.of();
+        }
+
+        //레스토랑 아이디로 해당 키워드 조회(리스트)
+        List<RestaurantKeyword> keywords =
+                restaurantKeywordRepositoryJpa
+                        .findByRestaurantIdIn(restaurantIds);
+
+        //레스토랑 아이디로 그룹핑해서 해당 레스토랑 아이디에 해당하는 키워드들 리스트로 분류 후 MAP으로 뽑기
+        Map<Long, List<String>> keywordMap = keywords.stream()
+                .collect(Collectors.groupingBy(
+                        RestaurantKeyword::getRestaurantId,
+                        Collectors.mapping(
+                                RestaurantKeyword::getKeyword,
+                                Collectors.toList()
+                        )
+                ));
+        //해당 레스토랑 이미지중 1번째 이미지만 뽑아오기
+        List<RestaurantImages> firstImageByRestaurantIds =
+                restaurantImageRepositoryJpa
+                        .findFirstImageByRestaurantIds(restaurantIds);
+
+        Map<Long, String> firstImageMap = firstImageByRestaurantIds.stream().collect(Collectors.toMap(
+                RestaurantImages::getRestaurantId,
+                RestaurantImages::getImageKey
+        ));
+
+
+        page.stream().forEach(
+                pg ->
+                {
+                    pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
+                    pg.setLiked(likedRestaurantIds.contains(pg.getRestaurantId()));
+                    pg.setImageUrl(imageUrlResolver.toPresignedUrl(firstImageMap.get(pg.getRestaurantId())));
+                }
+        );
+        return page;
+    }
+
 
 
     //리뷰작성
@@ -582,4 +650,33 @@ public class RestaurantService {
             throw new IllegalArgumentException("삭제할 찜할 목록이 없습니다.");
         }
     }
+
+    public void addMenu(String username,List<CreateMenu> dtoList) {
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저"));
+
+        List<Restaurant> restaurantList =
+                restaurantRepositoryJpa.findByOwnerId(userEntity.getId());
+
+        Set<Long> restaurantIds = restaurantList.stream().map(restaurant ->
+                restaurant.getId()
+        ).collect(Collectors.toSet());
+
+        boolean invalid = dtoList.stream().anyMatch(id -> !restaurantIds.contains(id));
+
+        if (invalid) {
+            throw new IllegalArgumentException("점주만 작업가능");
+        }
+        List<Menu> list = dtoList.stream().map(dto ->
+                Menu.builder()
+                        .restaurantId(dto.getRestaurantId())
+                        .price(dto.getPrice())
+                        .name(dto.getName())
+                        .build()
+        ).toList();
+        menuRepository.saveAll(list);
+
+    }
+
 }

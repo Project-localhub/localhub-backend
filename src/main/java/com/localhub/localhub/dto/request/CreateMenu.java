@@ -13,5 +13,8 @@ public class CreateMenu {
     private String name;
 
     @PositiveOrZero
-    private String price;
+    private Integer price;
+
+    @NotBlank
+    private Long restaurantId;
 }

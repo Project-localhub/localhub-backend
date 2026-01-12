@@ -108,15 +108,14 @@ public class RestaurantController {
             @ParameterObject
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable,
-            Authentication authentication,
-            LocationSearchRequestDto dto) {
+            Authentication authentication) {
 
 
         String username = authentication != null
                 ? authentication.getName()
                 : null;
 
-        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantList(dto, pageable, authentication.getName());
+        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantList(pageable, authentication.getName());
         return ResponseEntity.ok(result);
     }
 
@@ -190,6 +189,7 @@ public class RestaurantController {
     public ResponseEntity<String> addMenu(@RequestBody List<CreateMenu> createMenu,
                                           Authentication authentication) {
 
+        restaurantService.addMenu(authentication.getName(), createMenu);
         return ResponseEntity.ok("메뉴등록완료");
 
     }

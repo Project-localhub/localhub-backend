@@ -38,11 +38,39 @@ public interface RestaurantRepositoryJpa extends JpaRepository<Restaurant, Long>
             on rim.restaurantId = r.id
              AND rim.sortOrder = 1
             
-            WHERE r.divide = :divide
             GROUP BY r.id, r.name , r.category , rim.imageKey
             """
     )
-    Page<ResponseRestaurantListDto> findAllWithScores(Pageable pageable,String divide);
+    Page<ResponseRestaurantListDto> findAllWithScores(Pageable pageable);
+
+
+    @Query(value = """
+            SELECT new com.localhub.localhub.dto.response.ResponseRestaurantListDto
+            (
+            r.id,
+            r.name,
+            r.category,
+            COALESCE(AVG(rs.score),0),
+            COUNT(DISTINCT rv.id),
+            COUNT(DISTINCT uls.id),
+            rim.imageKey
+            )
+            FROM Restaurant r
+            LEFT JOIN RestaurantScore rs
+            ON rs.restaurantId = r.id
+            LEFT JOIN RestaurantReview rv
+            ON rv.restaurantId = r.id
+            LEFT JOIN UserLikeRestaurant uls 
+            on uls.restaurantId = r.id
+           
+            LEFT JOIN RestaurantImages rim
+            on rim.restaurantId = r.id
+             AND rim.sortOrder = 1
+            
+            GROUP BY r.id, r.name , r.category , rim.imageKey
+            """
+    )
+    Page<ResponseRestaurantListDto> findAllWithScoresWithDistance(Pageable pageable,String divide);
 
 
     @Query(value = """
