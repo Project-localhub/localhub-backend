@@ -1,9 +1,6 @@
 package com.localhub.localhub.controller;
 
-import com.localhub.localhub.dto.request.CreateReview;
-import com.localhub.localhub.dto.request.LocationSearchRequestDto;
-import com.localhub.localhub.dto.request.RequestRestaurantDto;
-import com.localhub.localhub.dto.request.RequestRestaurantImagesDto;
+import com.localhub.localhub.dto.request.*;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
 import com.localhub.localhub.dto.response.ResponseReviewDto;
@@ -43,7 +40,7 @@ public class RestaurantController {
     @PostMapping("/save-review")
     public ResponseEntity<?> saveReview(Authentication authentication,
                                         @RequestBody CreateReview createReview) {
-        
+
         log.info("리뷰 컨트롤러 호출");
         restaurantService.createReview(authentication.getName(), createReview);
         return ResponseEntity.ok("'가게 리뷰 작성 완료");
@@ -119,7 +116,7 @@ public class RestaurantController {
                 ? authentication.getName()
                 : null;
 
-        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantList(dto ,pageable,authentication.getName());
+        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantList(dto, pageable, authentication.getName());
         return ResponseEntity.ok(result);
     }
 
@@ -186,6 +183,14 @@ public class RestaurantController {
 
         Page<ResponseReviewDto> result = restaurantService.getReviewByRestaurantId(restaurantId, pageable);
         return ResponseEntity.ok(result);
+
+    }
+
+    @PostMapping("/addMenu")
+    public ResponseEntity<String> addMenu(@RequestBody List<CreateMenu> createMenu,
+                                          Authentication authentication) {
+
+        return ResponseEntity.ok("메뉴등록완료");
 
     }
 }

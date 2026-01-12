@@ -27,6 +27,8 @@ public class ResponseRestaurantListDto {
 
     private boolean liked;
 
+    private double distance;
+
 
 
     public void setKeyword(List<String> keywordList) {
@@ -41,6 +43,9 @@ public class ResponseRestaurantListDto {
         this.liked = liked;
     }
 
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
 
 
     public ResponseRestaurantListDto(

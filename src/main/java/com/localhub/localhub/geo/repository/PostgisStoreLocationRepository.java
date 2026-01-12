@@ -4,11 +4,14 @@ import com.localhub.localhub.dto.response.StoreDistanceDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -47,43 +50,6 @@ public class PostgisStoreLocationRepository {
             int limit
     ) {
         String sql = """
-            SELECT
-                store_id,
-                ST_Distance(
-                    location,
-                    ST_MakePoint(?, ?)::geography
-                ) / 1000 AS distance_km
-            FROM store_location
-            WHERE ST_DWithin(
-                location,
-                ST_MakePoint(?, ?)::geography,
-                ?
-            )
-            ORDER BY distance_km
-            LIMIT ?
-            """;
-
-        return postgisJdbcTemplate.query(
-                sql,
-                (rs, rowNum) -> new StoreDistanceDto(
-                        rs.getLong("store_id"),
-                        rs.getDouble("distance_km")
-                ),
-                lng, lat,
-                lng, lat,
-                radiusMeter,
-                limit
-        );
-    }
-
-    public List<StoreDistanceDto> findNearbyStoreIds(
-            BigDecimal lng,
-            BigDecimal lat,
-            int radiusMeter,
-            int limit
-    ) {
-        return postgisJdbcTemplate.query(
-                """
                 SELECT
                     store_id,
                     ST_Distance(
@@ -98,7 +64,10 @@ public class PostgisStoreLocationRepository {
                 )
                 ORDER BY distance_km
                 LIMIT ?
-                """,
+                """;
+
+        return postgisJdbcTemplate.query(
+                sql,
                 (rs, rowNum) -> new StoreDistanceDto(
                         rs.getLong("store_id"),
                         rs.getDouble("distance_km")
@@ -107,6 +76,49 @@ public class PostgisStoreLocationRepository {
                 lng, lat,
                 radiusMeter,
                 limit
+        );
+    }
+
+    public List<StoreDistanceDto> findStoreDistancesByIds(
+            List<Long> storeIds,
+            BigDecimal lng,
+            BigDecimal lat,
+            int limit
+    ) {
+        if (storeIds.isEmpty()) {
+            return List.of();
+        }
+
+        String placeholders = storeIds.stream()
+                .map(id -> "?")
+                .collect(Collectors.joining(", "));
+
+        String sql = """
+                    SELECT
+                        store_id,
+                        ST_Distance(
+                            location::geography,
+                            ST_MakePoint(?, ?)::geography
+                        ) / 1000 AS distance_km
+                    FROM store_location
+                    WHERE store_id IN (%s)
+                    ORDER BY distance_km
+                    LIMIT ?
+                """.formatted(placeholders);
+
+        List<Object> params = new ArrayList<>();
+        params.add(lng);
+        params.add(lat);
+        params.addAll(storeIds);
+        params.add(limit);
+
+        return postgisJdbcTemplate.query(
+                sql,
+                params.toArray(),
+                (rs, rowNum) -> new StoreDistanceDto(
+                        rs.getLong("store_id"),
+                        rs.getDouble("distance_km")
+                )
         );
     }
 }

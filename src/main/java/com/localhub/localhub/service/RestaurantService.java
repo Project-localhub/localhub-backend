@@ -367,16 +367,27 @@ public class RestaurantService {
                 RestaurantImages::getImageKey
         ));
 
+        //거리기반 내용 조회
+        List<StoreDistanceDto> storeDistancesByIds = postgisStoreLocationRepository.findStoreDistancesByIds
+                (restaurantIds, dto.getLng(), dto.getLng(), pageable.getPageSize());
+
+        Map<Long, Double> distanceMap =
+                storeDistancesByIds.stream()
+                        .collect(Collectors.toMap(
+                                StoreDistanceDto::getStoreId,
+                                StoreDistanceDto::getDistanceKm
+                        ));
+
+
         page.stream().forEach(
                 pg ->
                 {
                     pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
                     pg.setLiked(likedRestaurantIds.contains(pg.getRestaurantId()));
                     pg.setImageUrl(imageUrlResolver.toPresignedUrl(firstImageMap.get(pg.getRestaurantId())));
+                    pg.setDistance(distanceMap.get(pg.getRestaurantId()));
                 }
-
         );
-
         return page;
     }
 
