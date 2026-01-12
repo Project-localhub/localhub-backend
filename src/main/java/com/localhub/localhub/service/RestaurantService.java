@@ -663,7 +663,7 @@ public class RestaurantService {
                 restaurant.getId()
         ).collect(Collectors.toSet());
 
-        boolean invalid = dtoList.stream().anyMatch(id -> !restaurantIds.contains(id));
+        boolean invalid = dtoList.stream().anyMatch(dto -> !restaurantIds.contains(dto.getRestaurantId()));
 
         if (invalid) {
             throw new IllegalArgumentException("점주만 작업가능");

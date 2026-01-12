@@ -185,7 +185,7 @@ public class RestaurantController {
         return ResponseEntity.ok(result);
 
     }
-
+    @Operation(summary = "메뉴추가")
     @PostMapping("/addMenu")
     public ResponseEntity<String> addMenu(@RequestBody List<CreateMenu> createMenu,
                                           Authentication authentication) {
@@ -194,7 +194,7 @@ public class RestaurantController {
         return ResponseEntity.ok("메뉴등록완료");
 
     }
-
+    @Operation(summary = "메뉴조회")
     @GetMapping("/getMenu/{restaurantId}")
     public ResponseEntity<List<ResponseMenu>> getMenu(@PathVariable("restaurantId") Long restaurantId) {
 
