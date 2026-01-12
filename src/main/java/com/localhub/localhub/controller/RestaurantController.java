@@ -1,6 +1,7 @@
 package com.localhub.localhub.controller;
 
 import com.localhub.localhub.dto.request.*;
+import com.localhub.localhub.dto.response.ResponseMenu;
 import com.localhub.localhub.dto.response.ResponseRestaurantDto;
 import com.localhub.localhub.dto.response.ResponseRestaurantListDto;
 import com.localhub.localhub.dto.response.ResponseReviewDto;
@@ -191,6 +192,14 @@ public class RestaurantController {
 
         restaurantService.addMenu(authentication.getName(), createMenu);
         return ResponseEntity.ok("메뉴등록완료");
+
+    }
+
+    @GetMapping("/getMenu/{restaurantId}")
+    public ResponseEntity<List<ResponseMenu>> getMenu(@PathVariable("restaurantId") Long restaurantId) {
+
+        List<ResponseMenu> menus = restaurantService.getMenus(restaurantId);
+        return ResponseEntity.ok(menus);
 
     }
 }

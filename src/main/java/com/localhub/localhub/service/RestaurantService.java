@@ -651,8 +651,8 @@ public class RestaurantService {
         }
     }
 
+    @Transactional
     public void addMenu(String username,List<CreateMenu> dtoList) {
-
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저"));
 
@@ -676,6 +676,20 @@ public class RestaurantService {
                         .build()
         ).toList();
         menuRepository.saveAll(list);
+    }
+
+    public List<ResponseMenu> getMenus(Long restaurantId) {
+
+        List<Menu> menuList = menuRepository.findByRestaurnatId(restaurantId);
+
+        return menuList.stream()
+                .map(et ->
+                        ResponseMenu.builder()
+                                .restaurantId(et.getRestaurantId())
+                                .price(et.getPrice())
+                                .name(et.getName())
+                                .build()
+                ).toList();
 
     }
 

@@ -176,6 +176,15 @@ CREATE TABLE user_score_restaurant(
     UNIQUE (user_id,restaurant_id)
 );
 
+create table menu(
 
+	id bigint auto_increment primary key,
+	name varchar(255),
+	price int,
+	restaurant_id BIGINT,
+
+	foreign key (restaurant_id)
+	references restaurant(id)
+);
 
 
