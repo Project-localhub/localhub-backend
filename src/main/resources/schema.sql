@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS restaurant (
  address VARCHAR(255),
  latitude DECIMAL(10,7),
  longitude DECIMAL(10,7),
+ divide VARCHAR(255),
  open_time TIME,
  close_time TIME,
  has_break_time TINYINT(1) NOT NULL DEFAULT 0,

@@ -38,10 +38,11 @@ public interface RestaurantRepositoryJpa extends JpaRepository<Restaurant, Long>
             on rim.restaurantId = r.id
              AND rim.sortOrder = 1
             
+            WHERE r.divide = :divide
             GROUP BY r.id, r.name , r.category , rim.imageKey
             """
     )
-    Page<ResponseRestaurantListDto> findAllWithScores(Pageable pageable);
+    Page<ResponseRestaurantListDto> findAllWithScores(Pageable pageable,String divide);
 
 
     @Query(value = """
