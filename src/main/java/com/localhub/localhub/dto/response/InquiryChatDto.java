@@ -17,6 +17,7 @@ public class InquiryChatDto {
     private Long id;
     private Long ownerId;
     private Long userId;
+    private Long restaurantId;
     private LocalDateTime createdAt;
 
 

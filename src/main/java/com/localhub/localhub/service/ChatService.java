@@ -43,6 +43,7 @@ public class ChatService {
 
         InquiryChat inquiryChat = InquiryChat.builder()
                 .restaurantId(restaurantId)
+                .ownerId(restaurant.getOwnerId())
                 .userId(customer.getId())
                 .build();
         inquiryChatRepository.save(inquiryChat);
@@ -160,6 +161,9 @@ public class ChatService {
         List<InquiryChatDto> dto = list.stream().map(inquiryChat ->
                 InquiryChatDto.builder()
                         .id(inquiryChat.getId())
+                        .ownerId(inquiryChat.getOwnerId())
+                        .userId(inquiryChat.getUserId())
+                        .restaurantId(inquiryChat.getRestaurantId())
                         .createdAt(inquiryChat.getCreatedAt())
                         .build()).toList();
         return dto;

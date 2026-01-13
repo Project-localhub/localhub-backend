@@ -63,7 +63,7 @@ public class ChatController {
         return ResponseEntity.ok("채팅방에서 퇴장하였습니다.");
     }
 
-    @Operation(summary = "채팅방 목록 조회", description = "참가하고있는 채팅방 목록 조회")
+//    @Operation(summary = "채팅방 목록 조회", description = "참가하고있는 채팅방 목록 조회")
     @GetMapping
     public ResponseEntity<List<ChatroomDto>> getChatroomList(Authentication authentication) {
 
