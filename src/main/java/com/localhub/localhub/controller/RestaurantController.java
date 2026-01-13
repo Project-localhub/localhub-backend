@@ -185,6 +185,7 @@ public class RestaurantController {
         return ResponseEntity.ok(result);
 
     }
+
     @Operation(summary = "메뉴추가")
     @PostMapping("/addMenu")
     public ResponseEntity<String> addMenu(@RequestBody List<CreateMenu> createMenu,
@@ -194,6 +195,7 @@ public class RestaurantController {
         return ResponseEntity.ok("메뉴등록완료");
 
     }
+
     @Operation(summary = "메뉴조회")
     @GetMapping("/getMenu/{restaurantId}")
     public ResponseEntity<List<ResponseMenu>> getMenu(@PathVariable("restaurantId") Long restaurantId) {
@@ -201,5 +203,14 @@ public class RestaurantController {
         List<ResponseMenu> menus = restaurantService.getMenus(restaurantId);
         return ResponseEntity.ok(menus);
 
+    }
+
+    @Operation(summary = "메뉴수정(삭제포함)")
+    @PutMapping("/updateMenu/{restaurantId}")
+    public ResponseEntity<String> updateMenu(@RequestBody List<CreateMenu> createMenu,
+                                             Authentication authentication) {
+
+        restaurantService.updateMenu(authentication.getName(), createMenu);
+        return ResponseEntity.ok("메뉴수정완료");
     }
 }

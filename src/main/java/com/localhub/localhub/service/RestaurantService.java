@@ -19,11 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -650,7 +648,7 @@ public class RestaurantService {
             throw new IllegalArgumentException("삭제할 찜할 목록이 없습니다.");
         }
     }
-
+    //메뉴 추가
     @Transactional
     public void addMenu(String username,List<CreateMenu> dtoList) {
         UserEntity userEntity = userRepository.findByUsername(username)
@@ -677,7 +675,7 @@ public class RestaurantService {
         ).toList();
         menuRepository.saveAll(list);
     }
-
+    //메뉴 조회
     public List<ResponseMenu> getMenus(Long restaurantId) {
 
         List<Menu> menuList = menuRepository.findByRestaurnatId(restaurantId);
@@ -691,6 +689,34 @@ public class RestaurantService {
                                 .build()
                 ).toList();
 
+    }
+
+    @Transactional
+    public void updateMenu(String username, List<CreateMenu> dto) {
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저"));
+
+        CreateMenu createMenu = dto.get(1);
+        Long restaurantId = createMenu.getRestaurantId();
+
+        Restaurant restaurant = restaurantRepositoryJpa.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 가게"));
+
+        if (restaurant.getOwnerId() != userEntity.getId()) {
+            throw new IllegalArgumentException("점주만 수정가능");
+        }
+
+        menuRepository.deleteByRestaurantId(restaurantId);
+        List<Menu> list = dto.stream().map(
+                menudto ->                  Menu.builder()
+                                .restaurantId(restaurantId)
+                                .price(menudto.getPrice())
+                                .name(menudto.getName())
+                                .build()
+
+        ).toList();
+        menuRepository.saveAll(list);
     }
 
 }

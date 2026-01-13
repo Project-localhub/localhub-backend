@@ -18,4 +18,12 @@ public interface MenuRepository extends JpaRepository<Menu,Long> {
             WHERE m.restaurantId = :restaurantId
             """)
     List<Menu> findByRestaurnatId(@Param("restaurantId") Long restaurantId);
+
+    @Query("""
+            DELETE
+            FROM Menu m
+            WHERE m.restaurantId = :restaurantId
+            """)
+    void deleteByRestaurantId(@Param("restaurantId") Long restaurantId);
+
 }
