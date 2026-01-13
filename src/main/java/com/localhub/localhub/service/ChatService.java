@@ -28,6 +28,7 @@ public class ChatService {
     //문의채팅 생성
     @Transactional
     public void openInquiryChat(String customerUsername, Long restaurantId) {
+
         UserEntity customer = userRepository.findByUsername(customerUsername)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 

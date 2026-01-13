@@ -20,6 +20,7 @@ public class ChatController {
 
     private final ChatService chatService;
 
+    @Operation(summary = "가게 문의채팅생성")
     @PostMapping("/createInquiry/{restaurantId}")
     public ResponseEntity<String> openInquiryChat(Authentication authentication,
                                                   @PathVariable("restaurantId") Long restaurantId) {
@@ -39,14 +40,14 @@ public class ChatController {
         return ResponseEntity.ok("채팅방이 생성되었습니다.");
     }
 
-    @Operation(summary = "채팅방 참가", description = """
-            로그인된 유저가 채팅방id(chatroomId)를 request로 받고 채팅방참가            
-            """)
+//    @Operation(summary = "채팅방 참가", description = """
+//            로그인된 유저가 채팅방id(chatroomId)를 request로 받고 채팅방참가
+//            """)
     @PostMapping("/{chatroomId}")
     public ResponseEntity<String> joinChatroom(Authentication authentication,
-                                               @PathVariable("chatroomId") Long chatroomID) {
+                                               @PathVariable("chatroomId") Long chatroomId) {
 
-        chatService.joinChatroom(authentication.getName(), chatroomID);
+        chatService.joinChatroom(authentication.getName(), chatroomId);
         return ResponseEntity.ok("채팅방 참가");
     }
 
