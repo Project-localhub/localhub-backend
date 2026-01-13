@@ -20,9 +20,9 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    @PostMapping("/createInquiry")
+    @PostMapping("/createInquiry/{restaurantId}")
     public ResponseEntity<String> openInquiryChat(Authentication authentication,
-                                                  @RequestParam("restaurantId") Long restaurantId) {
+                                                  @PathVariable("restaurantId") Long restaurantId) {
         chatService.openInquiryChat(authentication.getName(), restaurantId);
         return ResponseEntity.ok("문의채팅생성.");
     }

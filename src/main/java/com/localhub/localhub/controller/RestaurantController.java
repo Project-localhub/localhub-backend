@@ -206,7 +206,7 @@ public class RestaurantController {
     }
 
     @Operation(summary = "메뉴수정(삭제포함)")
-    @PutMapping("/updateMenu/{restaurantId}")
+    @PutMapping("/updateMenu")
     public ResponseEntity<String> updateMenu(@RequestBody List<CreateMenu> createMenu,
                                              Authentication authentication) {
 
