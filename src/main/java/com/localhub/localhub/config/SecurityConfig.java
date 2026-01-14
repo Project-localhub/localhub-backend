@@ -92,7 +92,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
-                        .requestMatchers("/stomp/chats").permitAll()
+                        .requestMatchers("/stomp/**","/chats/**").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
