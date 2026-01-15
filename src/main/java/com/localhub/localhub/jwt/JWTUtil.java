@@ -2,12 +2,17 @@ package com.localhub.localhub.jwt;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
+
+import org.springframework.security.core.Authentication;
 
 @Component
 public class JWTUtil {
@@ -80,6 +85,18 @@ public class JWTUtil {
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public Authentication toAuthentication(String token) {
+
+        String username = getUsername(token);
+        String role = getRole(token);
+
+        return new UsernamePasswordAuthenticationToken(
+                username,
+                null,
+                List.of(new SimpleGrantedAuthority(role))
+        );
     }
 
 }

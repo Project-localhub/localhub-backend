@@ -14,6 +14,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
 import java.util.Map;
 
 @Slf4j
@@ -29,14 +30,14 @@ public class StompChatController {
     @SendTo("/sub/chats/{chatroomId}")
     public ChatMessageDto handleMessage(
             @DestinationVariable Long chatroomId,
-            Authentication authentication,
+            Principal principal,
             @Payload Map<String, String> payload
     ) {
-               log.info("{} sent {} in {}",authentication.getName(),payload, chatroomId);
+               log.info("{} sent {} in {}",principal.getName(),payload, chatroomId);
 
         Message message =
-                chatService.saveMessage(authentication.getName(), chatroomId, payload.get("message"));
+                chatService.saveMessage(principal.getName(), chatroomId, payload.get("message"));
 
-        return new ChatMessageDto(authentication.getName(), payload.get("message"));
+        return new ChatMessageDto(principal.getName(), payload.get("message"));
     }
 }
