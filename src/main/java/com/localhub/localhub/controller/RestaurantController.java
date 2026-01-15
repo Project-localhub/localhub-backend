@@ -131,7 +131,7 @@ public class RestaurantController {
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable,
             Authentication authentication,
-            @RequestBody RequestRestaurantFilter dto) {
+            @RequestParam RequestRestaurantFilter dto) {
 
 
         String username = authentication != null
