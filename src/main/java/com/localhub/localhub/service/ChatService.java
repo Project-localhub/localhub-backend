@@ -2,6 +2,7 @@ package com.localhub.localhub.service;
 
 import com.localhub.localhub.dto.response.ChatMessageDto;
 import com.localhub.localhub.dto.response.ChatroomDto;
+import com.localhub.localhub.dto.response.ExistsChatAndResChatIdDto;
 import com.localhub.localhub.dto.response.InquiryChatDto;
 import com.localhub.localhub.entity.*;
 import com.localhub.localhub.entity.restaurant.Restaurant;
@@ -27,7 +28,7 @@ public class ChatService {
     private final RestaurantRepositoryJpa restaurantRepositoryJpa;
     //문의채팅 생성
     @Transactional
-    public void openInquiryChat(String customerUsername, Long restaurantId) {
+    public ExistsChatAndResChatIdDto openInquiryChat(String customerUsername, Long restaurantId) {
 
         UserEntity customer = userRepository.findByUsername(customerUsername)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
@@ -36,17 +37,28 @@ public class ChatService {
                 .orElseThrow(() -> new EntityNotFoundException("레스토랑을 찾을 수 없습니다."));
 
 
+        InquiryChat isExistInquiryChat = inquiryChatRepository.findByUserIdAndRestaurantIdReturnId(customer.getId(), restaurantId);
 
-        if (inquiryChatRepository.findByUserIdAndRestaurantId(customer.getId(), restaurantId)) {
-            throw new IllegalStateException("이미 존재하는 채팅방입니다.");
+        //존재하는 채팅방이면 기존 챗 id랑 이미 존재한다는 true 반환
+        if (isExistInquiryChat != null) {
+            return
+            ExistsChatAndResChatIdDto.builder()
+                    .id(isExistInquiryChat.getId())
+                    .isExist(true)
+                    .build();
         }
-
+        //존재하지 않는 채팅방이면 엔티티 생성후 id랑 존재하지 않는다는 false 반환
         InquiryChat inquiryChat = InquiryChat.builder()
                 .restaurantId(restaurantId)
                 .ownerId(restaurant.getOwnerId())
                 .userId(customer.getId())
                 .build();
-        inquiryChatRepository.save(inquiryChat);
+        InquiryChat save = inquiryChatRepository.save(inquiryChat);
+
+        return ExistsChatAndResChatIdDto.builder()
+                .id(save.getId())
+                .isExist(false)
+                .build();
     }
 
 
@@ -135,7 +147,7 @@ public class ChatService {
 
 
 
-    //채팅방 조회
+    //채팅방 조회 안씀
     public List<ChatroomDto> getChatroomList(String username) {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저."));
@@ -169,7 +181,7 @@ public class ChatService {
         return dto;
 
     }
-
+    //채팅메시지 조회
     public List<ChatMessageDto> getMessageList(Long inquiryChatId) {
 
 

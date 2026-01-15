@@ -23,6 +23,15 @@ public interface InquiryChatRepository extends JpaRepository<InquiryChat, Long> 
     boolean findByUserIdAndRestaurantId(@Param("userId") Long userId, @Param("restaurantId") Long restaurantId);
 
 
+    @Query("""
+    SELECT inq 
+        FROM InquiryChat inq
+        WHERE inq.userId = :userId
+        AND inq.restaurantId = :restaurantId
+""")
+    InquiryChat findByUserIdAndRestaurantIdReturnId(@Param("userId") Long userId, @Param("restaurantId") Long restaurantId);
+
+
     @Query
             ("""
                     SELECT inq

@@ -1,11 +1,13 @@
 package com.localhub.localhub.dto.response;
 
 import com.localhub.localhub.entity.restaurant.Category;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -24,6 +26,8 @@ public class ResponseRestaurantListDto {
 
     private String imageUrl;
     private List<String> keyword;
+    private double latitude;
+    private double longitude;
 
     private boolean liked;
 
@@ -55,7 +59,9 @@ public class ResponseRestaurantListDto {
             double score,
             Long reviewCount,
             Long favoriteCount,
-            String imageUrl
+            String imageUrl,
+            double latitude,
+            double longitude
     ) {
         this.restaurantId = restaurantId;
         this.name = name;
@@ -64,6 +70,8 @@ public class ResponseRestaurantListDto {
         this.reviewCount = reviewCount;
         this.favoriteCount = favoriteCount;
         this.imageUrl = imageUrl;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
 }

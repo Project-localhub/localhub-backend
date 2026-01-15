@@ -53,7 +53,9 @@ public interface RestaurantRepositoryJpa extends JpaRepository<Restaurant, Long>
             COALESCE(AVG(rs.score),0),
             COUNT(DISTINCT rv.id),
             COUNT(DISTINCT uls.id),
-            rim.imageKey
+            rim.imageKey,
+            r.latitude,
+            r.longitude
             )
             FROM Restaurant r
             LEFT JOIN RestaurantScore rs
