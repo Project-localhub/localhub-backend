@@ -43,7 +43,7 @@ public class ChatService {
         if (isExistInquiryChat != null) {
             return
             ExistsChatAndResChatIdDto.builder()
-                    .id(isExistInquiryChat.getId())
+                    .id(restaurant.getId())
                     .isExist(true)
                     .build();
         }
