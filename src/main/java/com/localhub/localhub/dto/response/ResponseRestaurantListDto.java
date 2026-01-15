@@ -25,8 +25,8 @@ public class ResponseRestaurantListDto {
     private Long favoriteCount;
 
     private String imageUrl;
-    private double latitude;
-    private double longitude;
+    private BigDecimal latitude;
+    private BigDecimal longitude;
 
 
     private List<String> keyword;
@@ -61,8 +61,8 @@ public class ResponseRestaurantListDto {
             Long reviewCount,
             Long favoriteCount,
             String imageUrl,
-            double latitude,
-            double longitude
+            BigDecimal latitude,
+            BigDecimal longitude
     ) {
         this.restaurantId = restaurantId;
         this.name = name;
