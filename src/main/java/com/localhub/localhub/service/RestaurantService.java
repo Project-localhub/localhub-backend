@@ -315,7 +315,8 @@ public class RestaurantService {
                     .getId();
         }
 
-        Page<ResponseRestaurantListDto> page = restaurantRepositoryJpa.findAllWithScoresWithDistance(pageable,dto.getDivide());
+        Page<ResponseRestaurantListDto> page = restaurantRepositoryJpa
+                .findAllWithScoresWithDistance(pageable,dto.getDivide());
         //뽑아온 레스토랑의 아이디를 뽑아서 list로 만들기 이미지랑 키워드 뽑을때 where in으로 뽑기위함
         List<Long> restaurantIds = page.getContent().stream()
                 .map(ResponseRestaurantListDto::getRestaurantId)
@@ -362,15 +363,15 @@ public class RestaurantService {
         ));
 
         //거리기반 내용 조회
-        List<StoreDistanceDto> storeDistancesByIds = postgisStoreLocationRepository.findStoreDistancesByIds
-                (restaurantIds, dto.getLng(), dto.getLat(), pageable.getPageSize());
+//        List<StoreDistanceDto> storeDistancesByIds = postgisStoreLocationRepository.findStoreDistancesByIds
+//                (restaurantIds, dto.getLng(), dto.getLat(), pageable.getPageSize());
 
-        Map<Long, Double> distanceMap =
-                storeDistancesByIds.stream()
-                        .collect(Collectors.toMap(
-                                StoreDistanceDto::getStoreId,
-                                StoreDistanceDto::getDistanceKm
-                        ));
+//        Map<Long, Double> distanceMap =
+//                storeDistancesByIds.stream()
+//                        .collect(Collectors.toMap(
+//                                StoreDistanceDto::getStoreId,
+//                                StoreDistanceDto::getDistanceKm
+//                        ));
 
 
         page.stream().forEach(
@@ -379,7 +380,7 @@ public class RestaurantService {
                     pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
                     pg.setLiked(likedRestaurantIds.contains(pg.getRestaurantId()));
                     pg.setImageUrl(imageUrlResolver.toPresignedUrl(firstImageMap.get(pg.getRestaurantId())));
-                    pg.setDistance(distanceMap.get(pg.getRestaurantId()));
+//                    pg.setDistance(distanceMap.get(pg.getRestaurantId()));
                 }
         );
         return page;

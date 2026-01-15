@@ -25,8 +25,8 @@ public class ChatController {
     @PostMapping("/createInquiry/{restaurantId}")
     public ResponseEntity<ExistsChatAndResChatIdDto> openInquiryChat(Authentication authentication,
                                                                      @PathVariable("restaurantId") Long restaurantId) {
-        chatService.openInquiryChat(authentication.getName(), restaurantId);
-        return ResponseEntity.ok("문의채팅생성.");
+        ExistsChatAndResChatIdDto existsChatAndResChatIdDto = chatService.openInquiryChat(authentication.getName(), restaurantId);
+        return ResponseEntity.ok(existsChatAndResChatIdDto);
     }
 
     //    @Operation(summary = "채팅방생성", description = """
