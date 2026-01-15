@@ -25,10 +25,11 @@ public class ResponseRestaurantListDto {
     private Long favoriteCount;
 
     private String imageUrl;
-    private List<String> keyword;
     private double latitude;
     private double longitude;
 
+
+    private List<String> keyword;
     private boolean liked;
 
     private double distance;
