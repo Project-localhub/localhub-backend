@@ -75,4 +75,22 @@ public class ResponseRestaurantListDto {
         this.longitude = longitude;
     }
 
+    public ResponseRestaurantListDto(
+            Long restaurantId,
+            String name,
+            Category category,
+            double score,
+            Long reviewCount,
+            Long favoriteCount,
+            String imageUrl
+    ) {
+        this.restaurantId = restaurantId;
+        this.name = name;
+        this.category = category;
+        this.score = score;
+        this.reviewCount = reviewCount;
+        this.favoriteCount = favoriteCount;
+        this.imageUrl = imageUrl;
+    }
+
 }
