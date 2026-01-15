@@ -44,6 +44,7 @@ public class RestaurantService {
     private final RestaurantScoreRepositoryJDBC restaurantScoreRepositoryJDBC;
     private final PostgisStoreLocationRepository postgisStoreLocationRepository;
     private final MenuRepository menuRepository;
+    private final RestaurantQueryDslRepository restaurantQueryDslRepository;
 
 
     //가게 등록
@@ -106,20 +107,16 @@ public class RestaurantService {
         //가게 위치정보 테이블 저장
 
         //  PostGIS (JdbcTemplate)
-        try {
-            postgisStoreLocationRepository.saveLocation(
-                    restaurantId,
-                    requestRestaurantDto.getLongitude(),
-                    requestRestaurantDto.getLatitude()
-            );
-        } catch (Exception e) {
-            log.error("POSTGRES LOCATION SAVE FAIL",e);
-            throw new RuntimeException("가게 위치 저장 실패", e);
-        }
-
-
-
-
+//        try {
+//            postgisStoreLocationRepository.saveLocation(
+//                    restaurantId,
+//                    requestRestaurantDto.getLongitude(),
+//                    requestRestaurantDto.getLatitude()
+//            );
+//        } catch (Exception e) {
+//            log.error("POSTGRES LOCATION SAVE FAIL",e);
+//            throw new RuntimeException("가게 위치 저장 실패", e);
+//        }
     }
 
 
@@ -301,10 +298,9 @@ public class RestaurantService {
         }
     }
 
-    //전체 가게목록조회(거리위치정보 동적쿼리 작업중)
-    public Page<ResponseRestaurantListDto> getAllRestaurantListWithDistance(LocationSearchRequestDto dto,
+    //전체 가게목록조회(필터기만 동적쿼리 조회)
+    public Page<ResponseRestaurantListDto> getAllRestaurantListWithDistance(RequestRestaurantFilter dto,
                                                                 Pageable pageable, String username) {
-
 
         //유저 아이디초기화 null이 아닐시에
         Long userId = null;
@@ -313,76 +309,56 @@ public class RestaurantService {
                     .findByUsername(username)
                     .orElseThrow()
                     .getId();
+
         }
-
-        Page<ResponseRestaurantListDto> page = restaurantRepositoryJpa
-                .findAllWithScoresWithDistance(pageable,dto.getDivide());
-        //뽑아온 레스토랑의 아이디를 뽑아서 list로 만들기 이미지랑 키워드 뽑을때 where in으로 뽑기위함
-        List<Long> restaurantIds = page.getContent().stream()
-                .map(ResponseRestaurantListDto::getRestaurantId)
-                .toList();
-
-
-        Set<Long> likedRestaurantIds;
-
-        //유저 아이디가 null 아니고 레스토랑 아이디가 empty 아닐때
-        //userlikerestuarnat중에 위에 뽑은 restuarnatids의 값과 userid를 가지고 필터링해서
-        //좋아요 목록 아이디 get
-        if (userId != null && !restaurantIds.isEmpty()) {
-            likedRestaurantIds = userLikeRestaurantRepositoryJPA
-                    .findRestaurantIdsByUserIdAndRestaurantIdIn(userId, restaurantIds)
-                    .stream().map(ulr ->
-                            ulr.getRestaurantId()
-                    ).collect(Collectors.toSet());
-        } else {
-            likedRestaurantIds = Set.of();
-        }
-
-        //레스토랑 아이디로 해당 키워드 조회(리스트)
-        List<RestaurantKeyword> keywords =
-                restaurantKeywordRepositoryJpa
-                        .findByRestaurantIdIn(restaurantIds);
-
-        //레스토랑 아이디로 그룹핑해서 해당 레스토랑 아이디에 해당하는 키워드들 리스트로 분류 후 MAP으로 뽑기
-        Map<Long, List<String>> keywordMap = keywords.stream()
-                .collect(Collectors.groupingBy(
-                        RestaurantKeyword::getRestaurantId,
-                        Collectors.mapping(
-                                RestaurantKeyword::getKeyword,
-                                Collectors.toList()
-                        )
-                ));
-        //해당 레스토랑 이미지중 1번째 이미지만 뽑아오기
-        List<RestaurantImages> firstImageByRestaurantIds =
-                restaurantImageRepositoryJpa
-                        .findFirstImageByRestaurantIds(restaurantIds);
-
-        Map<Long, String> firstImageMap = firstImageByRestaurantIds.stream().collect(Collectors.toMap(
-                RestaurantImages::getRestaurantId,
-                RestaurantImages::getImageKey
-        ));
-
-        //거리기반 내용 조회
-//        List<StoreDistanceDto> storeDistancesByIds = postgisStoreLocationRepository.findStoreDistancesByIds
-//                (restaurantIds, dto.getLng(), dto.getLat(), pageable.getPageSize());
-
-//        Map<Long, Double> distanceMap =
-//                storeDistancesByIds.stream()
-//                        .collect(Collectors.toMap(
-//                                StoreDistanceDto::getStoreId,
-//                                StoreDistanceDto::getDistanceKm
-//                        ));
+            Page<ResponseRestaurantListDto> page =
+                    restaurantQueryDslRepository.findAllWithScores(pageable, dto.getCategory(), dto.getDivide());
+            //레스토랑 아이디 리스트 추출
+            List<Long> restaurantIds = page.getContent().stream()
+                    .map(ResponseRestaurantListDto::getRestaurantId)
+                    .toList();
 
 
-        page.stream().forEach(
-                pg ->
-                {
-                    pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
-                    pg.setLiked(likedRestaurantIds.contains(pg.getRestaurantId()));
-                    pg.setImageUrl(imageUrlResolver.toPresignedUrl(firstImageMap.get(pg.getRestaurantId())));
-//                    pg.setDistance(distanceMap.get(pg.getRestaurantId()));
-                }
-        );
+            Set<Long> userLikeRestaurantIds;
+
+            if (userId != null && !(restaurantIds.isEmpty())) {
+
+                userLikeRestaurantIds = userLikeRestaurantRepositoryJPA
+                        .findRestaurantIdsByUserIdAndRestaurantIdIn(userId, restaurantIds)
+                        .stream().map(UserLikeRestaurant::getRestaurantId)
+                        .collect(Collectors.toSet());
+            } else {
+
+                userLikeRestaurantIds = Set.of();
+            }
+
+            //레스토랑 아이디별 키워드 리스트 컬렉션 매핑
+            Map<Long, List<String>> keywordMap = restaurantKeywordRepositoryJpa
+                    .findByRestaurantIdIn(restaurantIds)
+                    .stream().collect(Collectors.groupingBy(
+                            RestaurantKeyword::getRestaurantId,
+                            Collectors.mapping(
+                                    RestaurantKeyword::getKeyword,
+                                    Collectors.toList()
+                            )
+                    ));
+            //레스토랑 아이디별 이미지키 컬렉션 매핑
+            Map<Long, String> imageKeyMap = restaurantImageRepositoryJpa.findFirstImageByRestaurantIds(restaurantIds)
+                    .stream().collect(Collectors.toMap(
+                            RestaurantImages::getRestaurantId,
+                            RestaurantImages::getImageKey
+                    ));
+
+
+            page.stream().forEach(
+                    pg -> {
+
+                        pg.setKeyword(keywordMap.getOrDefault(pg.getRestaurantId(), List.of()));
+                        pg.setLiked(userLikeRestaurantIds.contains(pg.getRestaurantId()));
+                        pg.setImageUrl(imageUrlResolver.toPresignedUrl(imageKeyMap.get(pg.getRestaurantId())));
+
+
+                    });
         return page;
     }
 

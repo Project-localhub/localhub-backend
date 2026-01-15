@@ -57,7 +57,40 @@ dependencies {
 	//r2
 	implementation 'software.amazon.awssdk:s3:2.25.40'
 	implementation 'software.amazon.awssdk:url-connection-client:2.25.40'
+
+
+    //querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+
+
 }
+
+/*
+ * Q클래스 생성 위치를 고정하기 위한 설정
+ * - 환경(IntelliJ / CLI / CI / Docker)마다 경로 달라지는 문제 방지
+ */
+def querydslDir = "$buildDir/generated/querydsl"
+
+/*
+ * 생성된 Q클래스를 main 소스 코드로 인식하게 함
+ * (안 하면 IDE/CI에서 Q클래스 못 찾는 경우 생김)
+ */
+sourceSets {
+    main.java.srcDirs += querydslDir
+}
+
+/*
+ * 🔥 핵심
+ * Java 컴파일 시 Q클래스를 위 경로에 생성하도록 강제
+ * (test task ❌ / JavaCompile task ⭕)
+ */
+tasks.withType(JavaCompile) {
+    options.generatedSourceOutputDirectory = file(querydslDir)
+}
+
 
 tasks.named('test') {
 	useJUnitPlatform()

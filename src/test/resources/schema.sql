@@ -97,6 +97,7 @@ CREATE TABLE restaurant (
  latitude DECIMAL(10,7),
  longitude DECIMAL(10,7),
  open_time TIME,
+ divide VARCHAR(255),
  close_time TIME,
  has_break_time TINYINT(1) DEFAULT 0,
  break_start_time TIME,

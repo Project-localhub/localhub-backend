@@ -120,6 +120,31 @@ public class RestaurantController {
         return ResponseEntity.ok(result);
     }
 
+
+    @Operation(summary = "가게 전체 목록 필터 기반 조회", description = """
+            가게 전체 목록 조회(페이징처리)
+            디폴트 값 사이즈 10
+            """)
+    @GetMapping("/get-all-restaurantsByFilter")
+    public ResponseEntity<Page<ResponseRestaurantListDto>> getAllRestaurantsByFilter(
+            @ParameterObject
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable,
+            Authentication authentication,
+            @RequestBody RequestRestaurantFilter dto) {
+
+
+        String username = authentication != null
+                ? authentication.getName()
+                : null;
+
+        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantListWithDistance
+                (dto,pageable, authentication.getName());
+        return ResponseEntity.ok(result);
+    }
+
+
+
     @Operation(summary = "찜하기", description = "유저가 마음에 드는 가게 찜하기 기능")
     @PostMapping("/like/{restaurantId}")
     public ResponseEntity<?> likeRestaurant(Authentication authentication,

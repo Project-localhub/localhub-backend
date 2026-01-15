@@ -110,6 +110,9 @@ public class RestaurantTest {
     @MockitoBean
     OAuth2UserRequest oAuth2UserRequest;
 
+    @Autowired
+    MenuRepository menuRepository;
+
 
     UserEntity user;
     UserEntity user2;
@@ -1000,7 +1003,7 @@ public class RestaurantTest {
 
         //when
         Page<ResponseRestaurantListDto> result =
-                restaurantService.getAllRestaurantList(null,pageRequest, user.getUsername());
+                restaurantService.getAllRestaurantList(pageRequest, user.getUsername());
 
         //then
         assertThat(result.getContent().get(0).isLiked()).isTrue();
@@ -1014,7 +1017,7 @@ public class RestaurantTest {
 
         //when
         Page<ResponseRestaurantListDto> result =
-                restaurantService.getAllRestaurantList(null,pageRequest, user.getUsername());
+                restaurantService.getAllRestaurantList(pageRequest, user.getUsername());
 
         //then
         assertThat(result.getContent().get(0).isLiked()).isFalse();
