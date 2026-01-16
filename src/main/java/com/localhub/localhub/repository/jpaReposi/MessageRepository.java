@@ -24,16 +24,20 @@ public interface MessageRepository extends JpaRepository<Message,Long> {
     List<Message> findAllByInquiryChatId(@Param("inquiryChatId") Long inquiryChatId);
 
     @Query("""
-        SELECT m.chatroomId AS chatroomId, COUNT(m) AS unreadCount
-        FROM Message m
-        WHERE m.chatroomId IN :chatroomIds
-          AND m.id > :lastReadMessageId
-          AND m.userId != :userId
-        GROUP BY m.chatroomId
-    """)
+SELECT
+  m.chatroomId AS chatroomId,
+  COUNT(m) AS unreadCount
+FROM Message m
+JOIN UserChatroomMapping ucm
+  ON ucm.chatroomId = m.chatroomId
+WHERE ucm.userId = :userId
+  AND m.id > ucm.lastReadMessageId
+  AND m.userId <> :userId
+  AND m.chatroomId IN :chatroomIds
+GROUP BY m.chatroomId
+""")
     List<UnreadCountProjection> countUnreadByChatrooms(
-            @Param("chatroomIds") List<Long> chatroomIds,
-            @Param("lastReadMessageId") Long lastReadMessageId,
-            @Param("userId") Long userId
+            @Param("userId") Long userId,
+            @Param("chatroomIds") List<Long> chatroomIds
     );
 }

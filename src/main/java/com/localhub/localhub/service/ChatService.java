@@ -180,16 +180,10 @@ public class ChatService {
                 .map(InquiryChatDto::getId)
                 .toList();
 
-        Long lastReadMessageId =
-                userChatroomMappingRepository
-                        .findLastReadMessageIdByUserId(userEntity.getId())
-                        .orElse(0L);
 
         List<UnreadCountProjection> unreadCounts =
                 messageRepository.countUnreadByChatrooms(
-                        chatroomIds,
-                        lastReadMessageId,
-                        userEntity.getId()
+                        userEntity.getId(),chatroomIds
                 );
 
 
