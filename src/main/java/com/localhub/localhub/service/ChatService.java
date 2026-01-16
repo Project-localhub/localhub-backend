@@ -56,6 +56,13 @@ public class ChatService {
                 .build();
         InquiryChat save = inquiryChatRepository.save(inquiryChat);
 
+        UserChatroomMapping userChatroomMapping = UserChatroomMapping.builder()
+                .userId(customer.getId())
+                .chatroomId(inquiryChat.getId())
+                .lastReadMessageId(null)
+                .build();
+        userChatroomMappingRepository.save(userChatroomMapping);
+
         return ExistsChatAndResChatIdDto.builder()
                 .id(save.getId())
                 .isExist(false)
