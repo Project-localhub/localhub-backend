@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -60,7 +61,9 @@ public class InquiryChatRepositoryJDBC {
                         .restaurantId(rs.getLong("restaurant_id"))
                         .ownerName(rs.getString("owner_name"))
                         .lastMessage(rs.getString("last_message"))
-                        .lastMessageTime(rs.getTimestamp("last_message_at").toLocalDateTime())
+                        .lastMessageTime(  Optional.ofNullable(rs.getTimestamp("last_message_at"))
+                                .map(ts -> ts.toLocalDateTime())
+                                .orElse(null))
                         .build()
 
         ).stream().toList();

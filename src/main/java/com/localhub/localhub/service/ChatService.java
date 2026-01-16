@@ -220,7 +220,6 @@ public class ChatService {
 
         List<Message> messages = messageRepository.findAllByInquiryChatId(inquiryChatId);
 
-
         Long lastMessageId =
                 messages.isEmpty() ? null : messages.get(messages.size() - 1).getId();
 
