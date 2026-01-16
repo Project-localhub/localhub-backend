@@ -74,6 +74,7 @@ CREATE TABLE IF  NOT EXISTS user_chatroom_mapping (
  id BIGINT AUTO_INCREMENT PRIMARY KEY,
  chatroom_id BIGINT,
  user_id BIGINT,
+ last_read_message_id BIGINT
 
  FOREIGN KEY (chatroom_id)
  REFERENCES inquiry_chat(id),

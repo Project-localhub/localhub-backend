@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UserChatroomMappingRepository extends JpaRepository<UserChatroomMapping,Long> {
 
@@ -40,6 +42,22 @@ public interface UserChatroomMappingRepository extends JpaRepository<UserChatroo
             WHERE ucm.userId = :userId
             AND ucm.chatroomId =:chatroomId
             """)
-    boolean findInquiryChatroomId(@Param("userId") Long id, @Param("chatroomId") Long id1);
+    boolean isExistInquiryChatroomId(@Param("userId") Long id, @Param("chatroomId") Long id1);
 
+
+    @Query("""
+            SELECT ucm
+            FROM UserChatroomMapping ucm
+            WHERE ucm.userId = :userId
+            AND ucm.chatroomId = :chatroomId
+            """)
+    Optional<UserChatroomMapping> findByUserIdAndInquiryChatId(@Param("userId") Long userId,
+                                                               @Param("chatroomId") Long chatroomId);
+
+    @Query("""
+            SELECT ucm.lastReadMessageId 
+            FROM UserChatroomMapping ucm
+            WHERE ucm.userId = :userId
+            """)
+    Optional<Long> findLastReadMessageIdByUserId(@Param("userId") Long userId);
 }

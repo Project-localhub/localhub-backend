@@ -15,7 +15,16 @@ public class UserChatroomMapping {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "user_id")
-     private Long userId;
+    private Long userId;
     @Column(name = "chatroom_id")
     private Long chatroomId;
-}
+    @Column(name = "last_read_message_id")
+    private Long lastReadMessageId;
+
+
+    public void updateLastReadMessageId(Long lastReadMessageId) {
+
+            this.lastReadMessageId = lastReadMessageId;
+
+        }
+    }

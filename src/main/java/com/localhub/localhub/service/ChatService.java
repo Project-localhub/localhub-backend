@@ -1,11 +1,9 @@
 package com.localhub.localhub.service;
 
-import com.localhub.localhub.dto.response.ChatMessageDto;
-import com.localhub.localhub.dto.response.ChatroomDto;
-import com.localhub.localhub.dto.response.ExistsChatAndResChatIdDto;
-import com.localhub.localhub.dto.response.InquiryChatDto;
+import com.localhub.localhub.dto.response.*;
 import com.localhub.localhub.entity.*;
 import com.localhub.localhub.entity.restaurant.Restaurant;
+import com.localhub.localhub.repository.jdbcReposi.InquiryChatRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,6 +26,7 @@ public class ChatService {
     private final InquiryChatRepository inquiryChatRepository;
     private final MessageRepository messageRepository;
     private final RestaurantRepositoryJpa restaurantRepositoryJpa;
+    private final InquiryChatRepositoryJDBC inquiryChatRepositoryJDBC;
     //문의채팅 생성
     @Transactional
     public ExistsChatAndResChatIdDto openInquiryChat(String customerUsername, Long restaurantId) {
@@ -168,27 +169,68 @@ public class ChatService {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저."));
 
-        List<InquiryChat> list = inquiryChatRepository.findByUserId(userEntity.getId());
+        List<InquiryChatDto> list =
+                inquiryChatRepositoryJDBC.findByUsername(userEntity.getId());
 
-        List<InquiryChatDto> dto = list.stream().map(inquiryChat ->
-                InquiryChatDto.builder()
-                        .id(inquiryChat.getId())
-                        .ownerId(inquiryChat.getOwnerId())
-                        .userId(inquiryChat.getUserId())
-                        .restaurantId(inquiryChat.getRestaurantId())
-                        .createdAt(inquiryChat.getCreatedAt())
-                        .build()).toList();
-        return dto;
+        if (list.isEmpty()) {
+            return list;
+        }
 
+        List<Long> chatroomIds = list.stream()
+                .map(InquiryChatDto::getId)
+                .toList();
+
+        Long lastReadMessageId =
+                userChatroomMappingRepository
+                        .findLastReadMessageIdByUserId(userEntity.getId())
+                        .orElse(0L);
+
+        List<UnreadCountProjection> unreadCounts =
+                messageRepository.countUnreadByChatrooms(
+                        chatroomIds,
+                        lastReadMessageId,
+                        userEntity.getId()
+                );
+
+
+        // 5. Map으로 변환
+        Map<Long, Long> unreadMap = unreadCounts.stream()
+                .collect(Collectors.toMap(
+                        UnreadCountProjection::getChatroomId,
+                        UnreadCountProjection::getUnreadCount
+                ));
+
+        // 6. DTO에 세팅
+        for (InquiryChatDto dto : list) {
+            dto.setUnreadCount(
+                    unreadMap.getOrDefault(dto.getId(), 0L)
+            );
+        }
+
+        return list;
     }
     //채팅메시지 조회
-    public List<ChatMessageDto> getMessageList(Long inquiryChatId) {
+    @Transactional
+    public List<ChatMessageDto> getMessageList(String username,Long inquiryChatId) {
 
 
         inquiryChatRepository.findById(inquiryChatId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지않는 채팅방"));
 
         List<Message> messages = messageRepository.findAllByInquiryChatId(inquiryChatId);
+
+
+        Long lastMessageId =
+                messages.isEmpty() ? null : messages.get(messages.size() - 1).getId();
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다"));
+
+        UserChatroomMapping userChatroomMapping =  userChatroomMappingRepository
+                        .findByUserIdAndInquiryChatId(userEntity.getId(), inquiryChatId)
+                .orElseThrow(() -> new EntityNotFoundException("채팅참가자만 채팅메시지 조회 가능"));
+        userChatroomMapping.updateLastReadMessageId(lastMessageId);
+
         return messages.stream().map(ms ->
                 ChatMessageDto.builder()
                         .sender(ms.getSender())

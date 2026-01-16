@@ -16,10 +16,18 @@ public class InquiryChatDto {
 
     private Long id;
     private Long ownerId;
+    private String ownerName;
     private Long userId;
     private Long restaurantId;
+    private long unreadCount;
     private LocalDateTime createdAt;
 
+    private String lastMessage;
+    private LocalDateTime lastMessageTime;
 
+
+    public void setUnreadCount(Long unreadCount) {
+        this.unreadCount = unreadCount;
+    }
 
 }

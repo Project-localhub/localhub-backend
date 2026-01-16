@@ -85,7 +85,9 @@ public class ChatController {
             해당 채팅방의 채팅목록 조회
             """)
     @GetMapping("/inquiryChat/{inquiryChatId}/messages")
-    public List<ChatMessageDto> getMessageList(@PathVariable("inquiryChatId") Long inquiryChatId) {
-        return chatService.getMessageList(inquiryChatId);
+    public List<ChatMessageDto> getMessageList(@PathVariable("inquiryChatId")
+                                                   Authentication authentication,
+                                                   Long inquiryChatId) {
+        return chatService.getMessageList(authentication.getName(),inquiryChatId);
     }
 }
