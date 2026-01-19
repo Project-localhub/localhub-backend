@@ -151,6 +151,8 @@ CREATE TABLE restaurant_review (
  content TEXT,
  user_id BIGINT,
  restaurant_id BIGINT,
+ created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+ updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
  FOREIGN KEY (user_id)
  REFERENCES users(id),

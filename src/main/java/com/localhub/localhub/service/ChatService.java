@@ -38,7 +38,9 @@ public class ChatService {
                 .orElseThrow(() -> new EntityNotFoundException("레스토랑을 찾을 수 없습니다."));
 
 
-        InquiryChat isExistInquiryChat = inquiryChatRepository.findByUserIdAndRestaurantIdReturnId(customer.getId(), restaurantId);
+        InquiryChat isExistInquiryChat =
+                inquiryChatRepository.findByUserIdAndRestaurantIdReturnId
+                        (customer.getId(), restaurantId);
 
         //존재하는 채팅방이면 기존 챗 id랑 이미 존재한다는 true 반환
         if (isExistInquiryChat != null) {
@@ -177,7 +179,7 @@ public class ChatService {
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저."));
 
         List<InquiryChatDto> list =
-                inquiryChatRepositoryJDBC.findByUsername(userEntity.getId());
+                inquiryChatRepositoryJDBC.findByUserId(userEntity.getId());
 
         if (list.isEmpty()) {
             return list;

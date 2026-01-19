@@ -17,7 +17,7 @@ public class InquiryChatRepositoryJDBC {
     private final NamedParameterJdbcTemplate template;
 
 
-    public List<InquiryChatDto> findByUsername(Long userId) {
+    public List<InquiryChatDto> findByUserId(Long userId) {
 
         String sql = """
                 SELECT 

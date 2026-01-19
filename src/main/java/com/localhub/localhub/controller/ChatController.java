@@ -60,7 +60,7 @@ public class ChatController {
     public ResponseEntity<String> leaveChatroom(Authentication authentication,
                                                 @PathVariable("chatroomId") Long chatroomId) {
 
-        chatService.leaveChatroom(authentication.getName(), chatroomId);
+        chatService.leaveInquiryChat(authentication.getName(), chatroomId);
         return ResponseEntity.ok("채팅방에서 퇴장하였습니다.");
     }
 

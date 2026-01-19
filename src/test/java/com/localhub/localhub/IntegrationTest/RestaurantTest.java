@@ -19,6 +19,7 @@ import com.localhub.localhub.repository.jdbcReposi.RestaurantRepositoryJDBC;
 import com.localhub.localhub.repository.jdbcReposi.UserLikeRestaurantRepositoryJDBC;
 import com.localhub.localhub.service.ImageUrlResolver;
 import com.localhub.localhub.service.RestaurantService;
+import io.swagger.v3.core.util.Json;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -675,8 +676,8 @@ public class RestaurantTest {
     }
 
     @Test
-    @WithMockUser(username = "user",roles = "USER")
-    void 가게_주인이_아니면_키워드변경_불가능_400() throws Exception{
+    @WithMockUser(username = "user", roles = "USER")
+    void 가게_주인이_아니면_키워드변경_불가능_400() throws Exception {
 
 
         //given
@@ -698,7 +699,7 @@ public class RestaurantTest {
     }
 
     @Test
-    @WithMockUser(username =  "user", roles = "USER")
+    @WithMockUser(username = "user", roles = "USER")
     void 가게조회_전체_값조회_정상확인() throws Exception {
 
 
@@ -758,7 +759,6 @@ public class RestaurantTest {
         restaurantScoreRepositoryJpa.save(score2);
 
 
-
         restaurantReviewRepositoryJpa.save(review1);
         restaurantReviewRepositoryJpa.save(review2);
 
@@ -791,9 +791,8 @@ public class RestaurantTest {
     }
 
 
-
     @Test
-    @WithMockUser(username =  "user", roles = "USER")
+    @WithMockUser(username = "user", roles = "USER")
     void 찜한가게조회_전체_값조회_정상확인() throws Exception {
 
 
@@ -851,7 +850,6 @@ public class RestaurantTest {
 
         restaurantScoreRepositoryJpa.save(score1);
         restaurantScoreRepositoryJpa.save(score2);
-
 
 
         restaurantReviewRepositoryJpa.save(review1);
@@ -941,8 +939,8 @@ public class RestaurantTest {
 
 
     @Test
-    @WithMockUser(username = "user",roles = "USER")
-    void 식당아이디로_해당식당_리뷰_페이징_조회() throws  Exception {
+    @WithMockUser(username = "user", roles = "USER")
+    void 식당아이디로_해당식당_리뷰_페이징_조회() throws Exception {
 
         //given
         RestaurantReview restaurantReview = RestaurantReview.builder()
@@ -972,8 +970,8 @@ public class RestaurantTest {
                 .restaurantId(restaurant.getId())
                 .build();
 
-      restaurantScore =  restaurantScoreRepositoryJpa.save(restaurantScore);
-      restaurantScore2 =  restaurantScoreRepositoryJpa.save(restaurantScore2);
+        restaurantScore = restaurantScoreRepositoryJpa.save(restaurantScore);
+        restaurantScore2 = restaurantScoreRepositoryJpa.save(restaurantScore2);
 
         //when & then
         ResultActions resultActions = mockMvc.perform(get("/api/restaurant/getReviewBy/" + restaurant.getId()))
@@ -982,7 +980,6 @@ public class RestaurantTest {
                 .andExpect(jsonPath("$.content.length()").value(2))
                 .andExpect(jsonPath("$.content[*].content",
                         hasItems("내용", "내용2")));
-
 
 
     }
@@ -1008,6 +1005,7 @@ public class RestaurantTest {
         //then
         assertThat(result.getContent().get(0).isLiked()).isTrue();
     }
+
     @Test
     @WithMockUser(username = "user", roles = "USER")
     void 가게_조회시_찜한_레스토랑_없으면_false_반환() throws Exception {
@@ -1024,5 +1022,29 @@ public class RestaurantTest {
         //리팩토링중
     }
 
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void 리뷰조회시_유저네임_작성날짜_조회() throws Exception {
+
+
+        //given
+
+        RestaurantReview restaurantReview = RestaurantReview.builder()
+                .restaurantId(restaurant.getId())
+                .content("리뷰")
+                .userId(user.getId())
+                .build();
+
+        restaurantReviewRepositoryJpa.save(restaurantReview);
+
+        //when
+
+        mockMvc.perform(get("/api/restaurant/getReviewBy/" + restaurant.getId()))
+                .andExpect(jsonPath("$.content[0].username").value("user"))
+                .andExpect(jsonPath("$.content[0].createdAt").exists());
+
+
+
+    }
 }
 

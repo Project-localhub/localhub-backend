@@ -4,6 +4,7 @@ import com.localhub.localhub.dto.response.ChatroomDto;
 import com.localhub.localhub.dto.response.InquiryChatDto;
 import com.localhub.localhub.entity.*;
 import com.localhub.localhub.entity.restaurant.Restaurant;
+import com.localhub.localhub.repository.jdbcReposi.InquiryChatRepositoryJDBC;
 import com.localhub.localhub.repository.jpaReposi.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 public class ChatServiceTest {
@@ -31,7 +33,8 @@ public class ChatServiceTest {
 
     @Mock
     UserRepository userRepository;
-
+    @Mock
+    MessageRepository messageRepository;
     @Mock
     InquiryChatRepository inquiryChatRepository;
 
@@ -40,6 +43,9 @@ public class ChatServiceTest {
 
     @Mock
     RestaurantRepositoryJpa restaurantRepositoryJpa;
+
+    @Mock
+    InquiryChatRepositoryJDBC inquiryChatRepositoryJDBC;
 
     @InjectMocks
     ChatService chatService;
@@ -358,7 +364,10 @@ public class ChatServiceTest {
 
         Restaurant restaurant = Restaurant.builder()
                 .id(1L)
+                .build();
 
+        InquiryChat build = InquiryChat.builder()
+                .id(1L)
                 .build();
 
 
@@ -369,8 +378,11 @@ public class ChatServiceTest {
         given(restaurantRepositoryJpa.findById(restaurant.getId()))
                 .willReturn(Optional.of(restaurant));
 
-        given(inquiryChatRepository.findByUserIdAndRestaurantId(customer.getId(), restaurant.getId()))
-                .willReturn(false);
+//        given(inquiryChatRepository.findByUserIdAndRestaurantId(customer.getId(), restaurant.getId()))
+//                .willReturn(false);
+
+        given(inquiryChatRepository.save(any(InquiryChat.class)))
+                .willReturn(build);
 
         //when
         chatService.openInquiryChat(customer.getUsername(), restaurant.getId());
@@ -441,33 +453,6 @@ public class ChatServiceTest {
 
 
     @Test
-    void 이미_존재하는_문의채팅이면_예외() {
-        //given
-        UserEntity customer = UserEntity.builder()
-                .id(10L)
-                .username("유저")
-                .build();
-
-        Restaurant restaurant = Restaurant.builder()
-                .id(1L)
-                .build();
-
-
-        given(userRepository.findByUsername(customer.getUsername()))
-                .willReturn(Optional.of(customer));
-
-        given(restaurantRepositoryJpa.findById(restaurant.getId()))
-                .willReturn(Optional.of(restaurant));
-        given(inquiryChatRepository.findByUserIdAndRestaurantId(customer.getId(), restaurant.getId()))
-                .willReturn(true);
-
-        //when & then
-        assertThatThrownBy(() -> chatService.openInquiryChat(customer.getUsername(), restaurant.getId()))
-                .isInstanceOf(IllegalStateException.class);
-
-    }
-
-    @Test
     void 문의채팅_목록_조회_성공() {
         // given
         UserEntity user = UserEntity.builder()
@@ -479,11 +464,19 @@ public class ChatServiceTest {
                 .id(1L)
                 .userId(10L)
                 .build();
+        InquiryChatDto build = InquiryChatDto.builder()
+                .id(1L)
+                .build();
 
         given(userRepository.findByUsername("유저"))
                 .willReturn(Optional.of(user));
-        given(inquiryChatRepository.findByUserId(10L))
-                .willReturn(List.of(chat));
+
+        given(inquiryChatRepositoryJDBC.findByUserId(user.getId()))
+                .willReturn(List.of(build));
+
+        given(messageRepository.countUnreadByChatrooms(user.getId(), List.of(build.getId())))
+                .willReturn(List.of());
+
 
         // when
         List<InquiryChatDto> result =

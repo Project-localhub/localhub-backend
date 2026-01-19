@@ -34,7 +34,7 @@ public class RestaurantReviewRepositoryJDBC {
         params.addValue("content", createReview.getContent());
         params.addValue("restaurant_id", createReview.getRestaurantId());
 
-        template.update(sql, params,keyHolder);
+        template.update(sql, params,keyHolder,new String[]{"id"});
         return keyHolder.getKey().intValue();
     }
 

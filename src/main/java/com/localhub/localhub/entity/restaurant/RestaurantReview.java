@@ -1,6 +1,7 @@
 package com.localhub.localhub.entity.restaurant;
 
 
+import com.localhub.localhub.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import lombok.*;
 @Table(name = "restaurant_review")
 @Entity
 @Builder
-public class RestaurantReview {
+public class RestaurantReview extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
