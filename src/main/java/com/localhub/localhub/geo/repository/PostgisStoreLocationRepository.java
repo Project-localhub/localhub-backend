@@ -3,6 +3,7 @@ package com.localhub.localhub.geo.repository;
 import com.localhub.localhub.dto.response.StoreDistanceDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
+@Profile({"!local","!test"})
 public class PostgisStoreLocationRepository {
 
     @Qualifier("postgisJdbcTemplate")

@@ -16,7 +16,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
-@Profile("!test")
+//@Profile({"!test","!local"})
+@Profile("prod")
 @Configuration
 public class PostgresSqlDatabaseConfig {
 

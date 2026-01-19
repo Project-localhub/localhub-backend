@@ -60,7 +60,10 @@ public class RestaurantReviewRepositoryJDBC {
                 rv.restaurant_id,
                 COALESCE(usr.score,0) AS score,
                 u.id,
-                rv.content
+                rv.content,
+                u.username AS username,
+                rv.created_at
+               
                 
                 FROM restaurant_review rv
                 
@@ -72,7 +75,6 @@ public class RestaurantReviewRepositoryJDBC {
                 AND usr.restaurant_id = rv.restaurant_id
                 
                 WHERE rv.restaurant_id = :restaurantId
-  
                 
                 LIMIT :size OFFSET :offset
                 
@@ -83,13 +85,18 @@ public class RestaurantReviewRepositoryJDBC {
         params.addValue("size", size);
         params.addValue("restaurantId", restaurantId);
 
-     return template.query(sql, params, (rs, roNum) ->
+        return template.query(sql, params, (rs, roNum) ->
 
                 ResponseReviewDto.builder()
                         .restaurantId(restaurantId)
                         .score(rs.getDouble("score"))
                         .userId(rs.getLong("id"))
                         .content(rs.getNString("content"))
+                        .username(rs.getString("username"))
+                        .createdAt(
+                                rs.getTimestamp("created_at") == null
+                                        ? null : rs.getTimestamp("created_at").toLocalDateTime()
+                        )
                         .build()
         );
     }

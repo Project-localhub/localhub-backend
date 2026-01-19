@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,5 +17,6 @@ public class ResponseReviewDto {
         public Long userId;
         public String content;
         public double score;
-
+        private String username;
+        private LocalDateTime createdAt;
 }
