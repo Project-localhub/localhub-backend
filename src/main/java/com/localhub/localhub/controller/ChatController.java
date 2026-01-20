@@ -81,13 +81,16 @@ public class ChatController {
         return ResponseEntity.ok(result);
 
     }
-    @Operation(summary = "채팅 메시지 목록 조회" , description = """
+
+    @Operation(summary = "채팅 메시지 목록 조회", description = """
             해당 채팅방의 채팅목록 조회
             """)
     @GetMapping("/inquiryChat/{inquiryChatId}/messages")
     public List<ChatMessageDto> getMessageList(@PathVariable("inquiryChatId")
-                                                   Authentication authentication,
-                                                   Long inquiryChatId) {
-        return chatService.getMessageList(authentication.getName(),inquiryChatId);
+                                               Long inquiryChatId,
+                                               Authentication authentication
+    ) {
+
+        return chatService.getMessageList(authentication.getName(), inquiryChatId);
     }
 }

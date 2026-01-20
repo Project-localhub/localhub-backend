@@ -1,6 +1,12 @@
 server:
   port: 8082
 
+
+mysql:
+  datasource:
+    url: jdbc:mysql://localhost:3309/localhub
+    username: user
+    password: 1234
 spring:
 #  datasource:
 #   mysql:
@@ -14,6 +20,8 @@ spring:
 #    username: geo
 #    password: 1234
 #    driver-class-name: org.postgresql.Driver
+
+
 
   config:
     import: optional:file:.env[.properties]
