@@ -1,5 +1,7 @@
 package com.localhub.localhub.jwt;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -99,4 +101,43 @@ public class JWTUtil {
         );
     }
 
+    public Boolean isValid(String token, Boolean isAccess) {
+
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            String type = claims.get("type", String.class);
+            if (type == null) {
+                return false;
+            }
+            if (isAccess && !type.equals("access")) return false;
+            if (!isAccess && !type.equals("refresh")) return false;
+
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+
+    }
+
+    public String createJWT(String username, String role, Boolean isAccess) {
+
+        long now = System.currentTimeMillis();
+        long expiry = isAccess ? 3600000 : 86400000;
+        String type = isAccess ? "access" : "refresh";
+
+        return Jwts.builder()
+                .claim("username", username)
+                .claim("role", role)
+                .claim("type", type)
+                .issuedAt(new Date(now))
+                .expiration(new Date(now + expiry))
+                .signWith(secretKey)
+                .compact();
+
+
+    }
 }

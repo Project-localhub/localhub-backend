@@ -19,7 +19,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
-@Profile("!test")
+@Profile("prod")
 @Configuration
 @RequiredArgsConstructor
 @EnableJpaRepositories(
