@@ -196,7 +196,6 @@ public class AuthService {
     }
     //유저정보조회
     public GetUserInfo getUserInfo(String username) {
-        log.info("getuserinfo 서비스 호출");
         UserEntity userEntity = userRepository.findByUsername(username).orElseThrow
                 (() -> new EntityNotFoundException("존재하지않는 유저입니다."));
 
