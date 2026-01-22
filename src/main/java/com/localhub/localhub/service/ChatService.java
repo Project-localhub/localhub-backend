@@ -65,6 +65,14 @@ public class ChatService {
                 .build();
         userChatroomMappingRepository.save(userChatroomMapping);
 
+
+        UserChatroomMapping ownerChatroomMapping = UserChatroomMapping.builder()
+                .userId(restaurant.getOwnerId())
+                .chatroomId(inquiryChat.getId())
+                .lastReadMessageId(null)
+                .build();
+        userChatroomMappingRepository.save(ownerChatroomMapping);
+
         return ExistsChatAndResChatIdDto.builder()
                 .id(save.getId())
                 .isExist(false)
