@@ -26,6 +26,7 @@ public class Restaurant extends BaseEntity {
     @Column(name = "owner_id")
     private Long ownerId;
 
+    @Column(name = "name")
     private String name;
 
     @Column(name = "business_number", length = 12)
@@ -42,6 +43,7 @@ public class Restaurant extends BaseEntity {
     @Column(name = "divide")
     private String divide;
 
+    @Column(name = "address")
     private String address;
 
     @Column(precision = 10, scale = 7)

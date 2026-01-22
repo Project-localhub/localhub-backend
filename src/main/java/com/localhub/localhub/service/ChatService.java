@@ -31,7 +31,7 @@ public class ChatService {
     @Transactional
     public ExistsChatAndResChatIdDto openInquiryChat(String customerUsername, Long restaurantId) {
 
-        UserEntity customer = userRepository.findByUsername(customerUsername)
+        UserEntity users = userRepository.findByUsername(customerUsername)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
         Restaurant restaurant = restaurantRepositoryJpa.findById(restaurantId)
@@ -40,7 +40,7 @@ public class ChatService {
 
         InquiryChat isExistInquiryChat =
                 inquiryChatRepository.findByUserIdAndRestaurantIdReturnId
-                        (customer.getId(), restaurantId);
+                        (users.getId(), restaurantId);
 
         //존재하는 채팅방이면 기존 챗 id랑 이미 존재한다는 true 반환
         if (isExistInquiryChat != null) {
@@ -54,12 +54,12 @@ public class ChatService {
         InquiryChat inquiryChat = InquiryChat.builder()
                 .restaurantId(restaurantId)
                 .ownerId(restaurant.getOwnerId())
-                .userId(customer.getId())
+                .userId(users.getId())
                 .build();
         InquiryChat save = inquiryChatRepository.save(inquiryChat);
 
         UserChatroomMapping userChatroomMapping = UserChatroomMapping.builder()
-                .userId(customer.getId())
+                .userId(users.getId())
                 .chatroomId(inquiryChat.getId())
                 .lastReadMessageId(null)
                 .build();

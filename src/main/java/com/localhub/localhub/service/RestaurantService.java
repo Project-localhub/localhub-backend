@@ -129,11 +129,11 @@ public class RestaurantService {
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
 
-        Restaurant restaurant = restaurantRepositoryJDBC.findById(dto.getId())
+        Restaurant restaurant = restaurantRepositoryJpa.findById(dto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("가게를 찾을 수 없습니다."));
 
 
-        if (userEntity.getId().equals(restaurant.getOwnerId())) {
+        if (userEntity.getId() != (restaurant.getOwnerId())) {
             throw new IllegalArgumentException("가게 주인만 수정이 가능합니다.");
         }
         restaurant.update(dto);
