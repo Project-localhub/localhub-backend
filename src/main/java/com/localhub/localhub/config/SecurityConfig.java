@@ -130,7 +130,16 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.exceptionHandling(ex -> ex
-                .authenticationEntryPoint((req, res, e) -> {
+                .authenticationEntryPoint(
+                        (req, res, e) -> {
+
+                            Object status = req.getAttribute("javax.servlet.error.status_code");
+
+                            if (status != null) {
+                                throw e; // 👉 Spring MVC 쪽으로 넘김
+                            }
+
+
                     res.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
                     res.setContentType("application/json;charset=UTF-8");
                     res.getWriter().write("""
