@@ -4,6 +4,12 @@ server:
 
 
 spring:
+  datasource:
+    url: ${MYSQL_DB_URL}
+    username: ${MYSQL_DB_USERNAME}
+    password: ${MYSQL_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   config:
     import: optional:file:.env[.properties]
 
