@@ -102,6 +102,8 @@ public class SecurityConfig {
                         .requestMatchers("/reissue").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/mail/**").permitAll()
+                        .requestMatchers("/api/restaurant/get-all-restaurantsByFilter",
+                                "/api/restaurant/get-all-restaurants").permitAll()
 
                         .anyRequest().authenticated());
 
