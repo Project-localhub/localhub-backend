@@ -53,3 +53,5 @@ data/
 # Build
 /build/
 /out/
+
+.env/**.env.prod
