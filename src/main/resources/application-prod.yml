@@ -1,17 +1,7 @@
 server:
   port: 8080
 
-mysql:
-  datasource:
-    url: ${MYSQL_DB_URL}
-    username: ${MYSQL_DB_USERNAME}
-    password: ${MYSQL_DB_PASSWORD}
 
-postgres:
-  datasource:
-    url: ${POSTGRE_DB_URL}
-    username: ${POSTGRE_DB_USERNAME}
-    password: ${POSTGRE_DB_PASSWORD}
 
 spring:
   config:
