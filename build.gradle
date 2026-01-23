@@ -79,6 +79,7 @@ def querydslDir = "$buildDir/generated/querydsl"
  * (안 하면 IDE/CI에서 Q클래스 못 찾는 경우 생김)
  */
 sourceSets {
+
     main.java.srcDirs += querydslDir
 }
 

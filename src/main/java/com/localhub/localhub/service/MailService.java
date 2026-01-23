@@ -106,7 +106,7 @@ public class MailService {
         try {
 
             message.setTo(toEmail);
-            message.setText("localhub 임시비밀번호 안내 \n 임시비밀번호는" + password + " 입니다.");
+            message.setText("localhub 임시비밀번호 안내 \n 임시비밀번호는 " + password + " 입니다.");
             message.setSubject("localhub 비밀번호 찾기 안내");
             mailSender.send(message);
 
