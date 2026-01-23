@@ -116,7 +116,7 @@ public class RestaurantController {
                 ? authentication.getName()
                 : null;
 
-        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantList(pageable, authentication.getName());
+        Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantList(pageable, username);
         return ResponseEntity.ok(result);
     }
 
@@ -139,7 +139,7 @@ public class RestaurantController {
                 : null;
 
         Page<ResponseRestaurantListDto> result = restaurantService.getAllRestaurantListWithDistance
-                (dto,pageable, authentication.getName());
+                (dto,pageable, username);
         return ResponseEntity.ok(result);
     }
 
