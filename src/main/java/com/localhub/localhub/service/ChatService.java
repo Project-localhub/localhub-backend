@@ -37,6 +37,9 @@ public class ChatService {
         Restaurant restaurant = restaurantRepositoryJpa.findById(restaurantId)
                 .orElseThrow(() -> new EntityNotFoundException("레스토랑을 찾을 수 없습니다."));
 
+        if (restaurant.getOwnerId().equals(users.getId())) {
+            throw new IllegalArgumentException("자신의 가게에는 채팅을 생성할 수 없습니다.");
+        }
 
         InquiryChat isExistInquiryChat =
                 inquiryChatRepository.findByUserIdAndRestaurantIdReturnId
