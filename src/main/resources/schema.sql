@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS inquiry_chat (
  FOREIGN KEY (user_id)
  REFERENCES users(id),
 
-  CONSTRAINT uk_inquiry_chat_user_owner
-  UNIQUE (user_id,owner_id)
+  CONSTRAINT uk_inquiry_chat_user_restaurant
+  UNIQUE (user_id,restaurant_id)
 );
 
 CREATE TABLE IF NOT EXISTS message (
@@ -80,7 +80,10 @@ CREATE TABLE IF  NOT EXISTS user_chatroom_mapping (
  REFERENCES inquiry_chat(id),
 
  FOREIGN KEY (user_id)
- REFERENCES users(id)
+ REFERENCES users(id),
+
+ CONSTRAINT uq_user_chatroom
+ UNIQUE (user_id, chatroom_id);
 );
 
 
