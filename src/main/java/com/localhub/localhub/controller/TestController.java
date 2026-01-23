@@ -11,7 +11,7 @@ public class TestController {
     @GetMapping("/forTest")
     public ResponseEntity<String> test() {
 
-        return ResponseEntity.ok("테스트용12");
+        return ResponseEntity.ok("테스트용");
     }
 
 
