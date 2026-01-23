@@ -79,7 +79,7 @@ public class RestaurantController {
 
     @Operation(summary = "가게 상세정보 조회",
             description = "가게의 아이디를 param으로 받고 해당 가게 상세정보 조회")
-    @GetMapping("/{restaurantId}")
+    @GetMapping("/{restaurantId}") //details/{restaurantId} 로 변경 작업중
     public ResponseEntity<ResponseRestaurantDto> getRestaurantInfoById
             (@PathVariable("restaurantId") Long restaurantId) {
 

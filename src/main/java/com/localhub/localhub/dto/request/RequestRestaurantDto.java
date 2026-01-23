@@ -2,7 +2,9 @@ package com.localhub.localhub.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -11,6 +13,8 @@ import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class RequestRestaurantDto {
     @Schema(description = "가게 ID (수정 시에만 사용)", example = "수정시에만,생성시에는 값비워둘것")
     private Long id;
