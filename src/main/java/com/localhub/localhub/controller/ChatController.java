@@ -85,10 +85,10 @@ public class ChatController {
             해당 채팅방의 채팅목록 조회
             """)
     @GetMapping("/inquiryChat/{inquiryChatId}/messages")
-    public ResponseEntity<CursorResponse<List<ChatMessageDto>>> getMessageList(@PathVariable("inquiryChatId")
+    public ResponseEntity<CursorResponse<List<ChatMessageDto>>> getMessageList(
+            @PathVariable("inquiryChatId") Long inquiryChatId,
             @PageableDefault(size = 10,page = 0) Pageable pageable,
-                                                             @RequestParam Long inquiryChatId,
-                                                             @RequestParam   Long cursorId,
+                                                             @RequestParam(required = false)Long cursorId,
                                                               Authentication authentication
     ) {
 
