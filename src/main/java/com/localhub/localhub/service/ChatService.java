@@ -8,6 +8,7 @@ import com.localhub.localhub.repository.jpaReposi.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -232,6 +233,7 @@ public class ChatService {
 
         int size = pageable.getPageSize();
         Boolean hasNext;
+        pageable = PageRequest.of(0, size + 1);
 
         //커서 아이디 널이면 max value 세팅
         Long safeCursorId = (cursorId == null) ? Long.MAX_VALUE : cursorId;
@@ -242,7 +244,7 @@ public class ChatService {
 
         //메시지 조회
         List<Message> messages = messageRepository.findAllByInquiryChatId
-                (inquiryChatId,safeCursorId,size + 1);
+                (inquiryChatId,safeCursorId,pageable);
 
         //size + 1로 조회를해서 size보다 결과가 많으면 다음 데이터가 있다는 뜻
         hasNext = messages.size() > size;

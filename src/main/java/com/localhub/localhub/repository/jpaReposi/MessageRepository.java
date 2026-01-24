@@ -2,6 +2,7 @@ package com.localhub.localhub.repository.jpaReposi;
 
 import com.localhub.localhub.dto.response.UnreadCountProjection;
 import com.localhub.localhub.entity.Message;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,15 +18,14 @@ public interface MessageRepository extends JpaRepository<Message,Long> {
                     SELECT ms
                     FROM Message ms
                     WHERE ms.chatroomId = :inquiryChatId
-                    AND ms.id < cursorid
+                    AND ms.id < :cursorId
                     ORDER BY ms.id DESC
-                    LIMIT :size                    
                     """
 
     )
     List<Message> findAllByInquiryChatId(@Param("inquiryChatId") Long inquiryChatId,
                                          @Param("cursorId") Long cursorId,
-                                         @Param("size") int size
+                                         Pageable pageable
                                          );
 
     @Query("""
