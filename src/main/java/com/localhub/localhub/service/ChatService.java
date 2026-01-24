@@ -281,8 +281,11 @@ public class ChatService {
     public Message saveMessage(String name, Long chatroomId, String message) {
 
 
+        UserEntity userEntity = userRepository.findByUsername(name).get();
+
         Message build = Message.builder()
                 .sender(name)
+                .userId(userEntity.getId())
                 .chatroomId(chatroomId)
                 .content(message)
                 .build();
