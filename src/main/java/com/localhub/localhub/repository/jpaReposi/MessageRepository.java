@@ -17,11 +17,16 @@ public interface MessageRepository extends JpaRepository<Message,Long> {
                     SELECT ms
                     FROM Message ms
                     WHERE ms.chatroomId = :inquiryChatId
-                    ORDER BY ms.id ASC
+                    AND ms.id < cursorid
+                    ORDER BY ms.id DESC
+                    LIMIT :size                    
                     """
 
     )
-    List<Message> findAllByInquiryChatId(@Param("inquiryChatId") Long inquiryChatId);
+    List<Message> findAllByInquiryChatId(@Param("inquiryChatId") Long inquiryChatId,
+                                         @Param("cursorId") Long cursorId,
+                                         @Param("size") int size
+                                         );
 
     @Query("""
 SELECT
@@ -40,4 +45,12 @@ GROUP BY m.chatroomId
             @Param("userId") Long userId,
             @Param("chatroomIds") List<Long> chatroomIds
     );
+
+    @Query("""
+        SELECT max(id)
+        FROM Message m
+        WHERE m.chatroomId = :inquiryChatId
+""")
+    Long findLastMessageId(@Param("inquiryChatId") Long inquiryChatId);
+
 }

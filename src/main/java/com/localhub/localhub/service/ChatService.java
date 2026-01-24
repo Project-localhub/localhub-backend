@@ -8,6 +8,7 @@ import com.localhub.localhub.repository.jpaReposi.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -225,16 +226,36 @@ public class ChatService {
     }
     //채팅메시지 조회
     @Transactional
-    public List<ChatMessageDto> getMessageList(String username,Long inquiryChatId) {
+    public CursorResponse<List<ChatMessageDto>> getMessageList(String username, Pageable pageable,
+                                               Long cursorId,
+                                               Long inquiryChatId) {
 
+        int size = pageable.getPageSize();
+        Boolean hasNext;
 
+        //커서 아이디 널이면 max value 세팅
+        Long safeCursorId = (cursorId == null) ? Long.MAX_VALUE : cursorId;
+
+        //채팅방 유무 확인
         inquiryChatRepository.findById(inquiryChatId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지않는 채팅방"));
 
-        List<Message> messages = messageRepository.findAllByInquiryChatId(inquiryChatId);
+        //메시지 조회
+        List<Message> messages = messageRepository.findAllByInquiryChatId
+                (inquiryChatId,safeCursorId,size + 1);
 
-        Long lastMessageId =
-                messages.isEmpty() ? null : messages.get(messages.size() - 1).getId();
+        //size + 1로 조회를해서 size보다 결과가 많으면 다음 데이터가 있다는 뜻
+        hasNext = messages.size() > size;
+        if (hasNext) {
+            messages = messages.subList(0, size);
+        }
+        Long nextId = messages.isEmpty()
+                ? null
+                : messages.get(messages.size() - 1).getId();
+
+        Long lastMessageId = messageRepository.findLastMessageId(inquiryChatId);
+
+
 
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다"));
@@ -244,12 +265,14 @@ public class ChatService {
                 .orElseThrow(() -> new EntityNotFoundException("채팅참가자만 채팅메시지 조회 가능"));
         userChatroomMapping.updateLastReadMessageId(lastMessageId);
 
-        return messages.stream().map(ms ->
+        List<ChatMessageDto> result = messages.stream().map(ms ->
                 ChatMessageDto.builder()
                         .sender(ms.getSender())
                         .message(ms.getContent())
                         .build()
         ).toList();
+
+        return new CursorResponse<>(result, nextId, hasNext);
     }
 
     //메시지 저장

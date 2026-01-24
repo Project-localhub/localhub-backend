@@ -1,13 +1,12 @@
 package com.localhub.localhub.controller;
 
-import com.localhub.localhub.dto.response.ChatMessageDto;
-import com.localhub.localhub.dto.response.ChatroomDto;
-import com.localhub.localhub.dto.response.ExistsChatAndResChatIdDto;
-import com.localhub.localhub.dto.response.InquiryChatDto;
+import com.localhub.localhub.dto.response.*;
 import com.localhub.localhub.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -86,11 +85,14 @@ public class ChatController {
             해당 채팅방의 채팅목록 조회
             """)
     @GetMapping("/inquiryChat/{inquiryChatId}/messages")
-    public List<ChatMessageDto> getMessageList(@PathVariable("inquiryChatId")
-                                               Long inquiryChatId,
-                                               Authentication authentication
+    public ResponseEntity<CursorResponse<List<ChatMessageDto>>> getMessageList(@PathVariable("inquiryChatId")
+            @PageableDefault(size = 10,page = 0) Pageable pageable,
+                                                             @RequestParam Long inquiryChatId,
+                                                             @RequestParam   Long cursorId,
+                                                              Authentication authentication
     ) {
 
-        return chatService.getMessageList(authentication.getName(), inquiryChatId);
+        return ResponseEntity.ok(
+                chatService.getMessageList(authentication.getName(),pageable,cursorId, inquiryChatId));
     }
 }
