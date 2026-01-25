@@ -4,6 +4,7 @@ import com.localhub.localhub.dto.request.EmailRequest;
 import com.localhub.localhub.dto.request.JoinDto;
 import com.localhub.localhub.dto.request.LoginRequest;
 import com.localhub.localhub.dto.response.LoginResponse;
+import com.localhub.localhub.dto.response.ResponseLoginWithToken;
 import com.localhub.localhub.dto.response.TokenResponse;
 import com.localhub.localhub.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,11 +39,15 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest,
                                                HttpServletResponse response) {
-        TokenResponse tokenResponse = authService.login(loginRequest);
-        Cookie refresh = createCookie("refresh", tokenResponse.getRefresh(), 24 * 60 * 60);
+        ResponseLoginWithToken responseLoginWithToken = authService.login(loginRequest);
+        Cookie refresh = createCookie
+                ("refresh", responseLoginWithToken.getTokenResponse().getRefresh(), 24 * 60 * 60);
         response.addCookie(refresh);
 
-        return ResponseEntity.ok(new LoginResponse(tokenResponse.getAccess()));
+        return ResponseEntity.ok(new LoginResponse(responseLoginWithToken.getTokenResponse().getAccess(),
+                        responseLoginWithToken.getMustChangePassword()
+                )
+        );
     }
 
     @Operation(summary = "아이디 찾기로직", description = """

@@ -10,9 +10,9 @@ import lombok.Setter;
 public class ChangePassword {
 
 
-    @Schema(name = "현재비밀번호",example = "123456")
+    @Schema(example = "123456",description = "현재비밀번호")
     private String currentPassword;
-    @Schema(name = "변경할비밀번호",example = "654321")
+    @Schema(example = "654321",description = "수정할비밀번호")
     private String newPassword;
 
 }

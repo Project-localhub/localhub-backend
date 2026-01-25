@@ -2,6 +2,7 @@ package com.localhub.localhub.service;
 
 import com.localhub.localhub.dto.request.*;
 import com.localhub.localhub.dto.response.GetUserInfo;
+import com.localhub.localhub.dto.response.ResponseLoginWithToken;
 import com.localhub.localhub.dto.response.TokenResponse;
 import com.localhub.localhub.dto.response.ReissueTokens;
 import com.localhub.localhub.entity.*;
@@ -136,7 +137,7 @@ public class AuthService {
     }
     //로그인
     @Transactional
-    public TokenResponse login(LoginRequest loginRequest) {
+    public ResponseLoginWithToken login(LoginRequest loginRequest) {
 
         String username = loginRequest.getUsername();
         String password = loginRequest.getPassword();
@@ -164,8 +165,10 @@ public class AuthService {
 
         refreshRepository.save(refreshEntity);
 
+        TokenResponse tokenResponse = new TokenResponse(access, refresh);
 
-        return new TokenResponse(access, refresh);
+
+        return new ResponseLoginWithToken(tokenResponse, userEntity.getMustChangePassword());
 
     }
     //유저타입 변경
@@ -246,6 +249,7 @@ public class AuthService {
     }
 
     //유저 비밀번호찾기
+    @Transactional
     public void findPassword(String email) {
 
         EmailVerification emailVerification = emailVerificationRepository.findByEmail(email)
@@ -263,7 +267,8 @@ public class AuthService {
 
         mailService.sendPassword(email, tempPassword);
         emailVerificationRepository.delete(emailVerification);
-        userEntity.changeMustChangePassword();
+        userEntity.changeMustChangePassword(true);
+        userRepository.save(userEntity);
 
     }
 
@@ -316,6 +321,7 @@ public class AuthService {
 
 
         userEntity.changePassword(encodedPassword);
+        userEntity.changeMustChangePassword(false);
         userRepository.save(userEntity);
 
     }

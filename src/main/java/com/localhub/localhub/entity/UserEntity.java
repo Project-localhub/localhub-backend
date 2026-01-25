@@ -52,7 +52,7 @@ public class UserEntity {
 
     }
 
-    public void changeMustChangePassword() {
-        this.mustChangePassword = false;
+    public void changeMustChangePassword(boolean mustChangePassword) {
+        this.mustChangePassword = mustChangePassword;
     }
 }
