@@ -286,5 +286,36 @@ public class AuthService {
         return sb.toString();
 
     }
+        //비밀 번호 변경
+    public void changePassword(String username ,ChangePassword changePassword) {
 
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저"));
+
+        if (userEntity.getPassword().equals(bCryptPasswordEncoder.encode(changePassword.getCurrentPassword()))) {
+            throw new IllegalArgumentException("사용하고 있는 비밀번호가 치하지않습니다.");
+        }
+
+        if (!bCryptPasswordEncoder.matches(
+                changePassword.getCurrentPassword(),
+                userEntity.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        if (changePassword == null ||
+                changePassword.getChangePassword() == null ||
+                changePassword.getChangePassword().isBlank()) {
+            throw new IllegalArgumentException("변경할 비밀번호를 입력해주세요.");
+        }
+
+        String encodedPassword
+                = bCryptPasswordEncoder.encode(changePassword.getChangePassword());
+
+
+
+        userEntity.changePassword(encodedPassword);
+        userRepository.save(userEntity);
+
+    }
 }

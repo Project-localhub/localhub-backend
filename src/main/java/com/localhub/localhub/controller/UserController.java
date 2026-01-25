@@ -1,5 +1,6 @@
 package com.localhub.localhub.controller;
 
+import com.localhub.localhub.dto.request.ChangePassword;
 import com.localhub.localhub.dto.request.ChangeTypeDto;
 import com.localhub.localhub.dto.response.ApiResponse;
 import com.localhub.localhub.dto.response.GetUserInfo;
@@ -45,10 +46,17 @@ public class UserController {
         return ResponseEntity.ok(userInfo);
     }
 
+    @Operation(summary = "비밀번호 변경")
     @PutMapping("/changePassword")
-    public ResponseEntity<?> changePassword() {
+    public ResponseEntity<?> changePassword(
 
-        return null;
+            @RequestBody ChangePassword changePassword,
+            Authentication authentication
+    ) {
+
+        authService.changePassword(authentication.getName(),changePassword);
+        return ResponseEntity.ok("비밀번호가 변경되었습니다.");
 
     }
+
 }
