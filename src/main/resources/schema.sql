@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255),
     phone VARCHAR(255),
     role ENUM ('ADMIN','USER'),
-    user_type ENUM ('CUSTOMER', 'OWNER')
+    user_type ENUM ('CUSTOMER', 'OWNER'),
+    must_change_password tinyint(1) default 0
 );
 
 

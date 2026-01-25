@@ -27,6 +27,8 @@ public class UserEntity {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "must_change_password",nullable = true)
+    private Boolean mustChangePassword;
 
     @Column(name = "phone")
     private String phone;
@@ -48,5 +50,9 @@ public class UserEntity {
     public void changePassword(String password) {
         this.password = password;
 
+    }
+
+    public void changeMustChangePassword() {
+        this.mustChangePassword = false;
     }
 }

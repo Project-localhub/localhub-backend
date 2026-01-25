@@ -115,5 +115,6 @@ public class MailService {
             throw new RuntimeException("이메일 전송 실패 " + e.getMessage());
         }
 
+
     }
 }

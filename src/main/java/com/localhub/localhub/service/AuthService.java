@@ -263,6 +263,7 @@ public class AuthService {
 
         mailService.sendPassword(email, tempPassword);
         emailVerificationRepository.delete(emailVerification);
+        userEntity.changeMustChangePassword();
 
     }
 
@@ -304,13 +305,13 @@ public class AuthService {
         }
 
         if (changePassword == null ||
-                changePassword.getChangePassword() == null ||
-                changePassword.getChangePassword().isBlank()) {
+                changePassword.getNewPassword() == null ||
+                changePassword.getNewPassword().isBlank()) {
             throw new IllegalArgumentException("변경할 비밀번호를 입력해주세요.");
         }
 
         String encodedPassword
-                = bCryptPasswordEncoder.encode(changePassword.getChangePassword());
+                = bCryptPasswordEncoder.encode(changePassword.getNewPassword());
 
 
 
