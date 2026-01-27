@@ -193,4 +193,29 @@ create table menu(
 	references restaurant(id)
 );
 
+--레스토랑 인덱스
+create index idx_category_divide on restaurant (category,divide);
+create index idx_divide on restaurant (divide);
+
+
+--레스토랑 키워드 인덱스
+create index idx_restaurant_id on restaurant_keyword (restaurant_id);
+
+--레스토랑 이미지 인덱스
+create index idx_restaurant_id on restaurant_images (restaurant_id,sort_order);
+
+--좋아요(찜) 인덱스
+create index_index_restaurant_user on user_like_restaurant (user_id, restaurant_id);
+
+
+--레스토랑 리뷰 인덱스
+create index inx_restaurant_id on restaurant_review (restaurant_id, created_at);
+
+
+--메뉴 인덱스
+
+create index idx_restaurant_id on menu (restaurant_id);
+
+--메시지 인덱스
+create index idx_inquiry_chat on message (chatroom_id,id);
 

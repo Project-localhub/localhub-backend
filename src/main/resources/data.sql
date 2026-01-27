@@ -25,6 +25,9 @@ DELIMITER ;
 
 -- 레스토랑 PROCEDURE
 
+
+DELIMITER $$
+
 CREATE PROCEDURE insert_restaurants_gangnam_random(IN total INT)
 BEGIN
     DECLARE i INT DEFAULT 1;
@@ -51,7 +54,6 @@ BEGIN
             has_break_time,
             break_start_time,
             break_end_time,
-            image_key,
             owner_id
         )
         VALUES (
@@ -63,7 +65,7 @@ BEGIN
             CONCAT('서울시 강남구 랜덤로 ', i),
             rand_lat,
             rand_lng,
-            '강남',
+            '강남구',
             '09:00',
             '22:00',
             IF(i % 2 = 0, 1, 0),

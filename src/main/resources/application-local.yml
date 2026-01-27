@@ -14,7 +14,15 @@ spring:
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-#  postgis:
+
+    mvc:
+      throw-exception-if-no-handler-found: true
+    web:
+      resources:
+        add-mappings: false
+
+
+  #  postgis:
 #    url: jdbc:postgresql://localhost:5433/localhub_geo
 #    username: geo
 #    password: 1234

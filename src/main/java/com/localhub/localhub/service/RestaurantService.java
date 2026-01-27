@@ -321,6 +321,7 @@ public class RestaurantService {
 
             Set<Long> userLikeRestaurantIds;
 
+            //유저 아이디가 존재하면(로그인상태면) 좋아요 테이블 조회
             if (userId != null && !(restaurantIds.isEmpty())) {
 
                 userLikeRestaurantIds = userLikeRestaurantRepositoryJPA
@@ -588,7 +589,7 @@ public class RestaurantService {
 
         return restaurantListDtoPage;
 }
-
+    //식당 아이디 기준으로 리뷰 조회
     public Page<ResponseReviewDto> getReviewByRestaurantId(Long restaurantId, Pageable pageable) {
 
         long offset = pageable.getOffset();
