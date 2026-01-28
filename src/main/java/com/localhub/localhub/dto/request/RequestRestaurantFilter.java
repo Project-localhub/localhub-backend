@@ -12,4 +12,6 @@ public class RequestRestaurantFilter {
 
     private String divide;
 
+    private String name;
+
 }

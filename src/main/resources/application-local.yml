@@ -123,3 +123,7 @@ storage:
   endpoint: ${R2_ENDPOINT}
   region: auto
   presignSecond: 300
+
+logging:
+  level:
+    com.localhub.localhub.logging: TRACE

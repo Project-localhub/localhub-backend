@@ -205,7 +205,7 @@ create index idx_restaurant_id on restaurant_keyword (restaurant_id);
 create index idx_restaurant_id on restaurant_images (restaurant_id,sort_order);
 
 --좋아요(찜) 인덱스
-create index_index_restaurant_user on user_like_restaurant (user_id, restaurant_id);
+create index inx_restaurant_user on user_like_restaurant (user_id, restaurant_id);
 
 
 --레스토랑 리뷰 인덱스

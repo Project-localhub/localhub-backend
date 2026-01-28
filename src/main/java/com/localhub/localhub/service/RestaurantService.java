@@ -312,7 +312,7 @@ public class RestaurantService {
 
         }
             Page<ResponseRestaurantListDto> page =
-                    restaurantQueryDslRepository.findAllWithScores(pageable, dto.getCategory(), dto.getDivide());
+                    restaurantQueryDslRepository.findAllWithScores(pageable, dto.getCategory(), dto.getDivide(),dto.getName());
             //레스토랑 아이디 리스트 추출
             List<Long> restaurantIds = page.getContent().stream()
                     .map(ResponseRestaurantListDto::getRestaurantId)

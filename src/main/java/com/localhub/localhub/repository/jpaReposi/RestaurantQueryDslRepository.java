@@ -32,7 +32,8 @@ public class RestaurantQueryDslRepository {
     public Page<ResponseRestaurantListDto> findAllWithScores(
             Pageable pageable,
             String category,
-            String divide
+            String divide,
+            String name
     ) {
         QRestaurant r = QRestaurant.restaurant;
         QRestaurantScore rs = QRestaurantScore.restaurantScore;
@@ -66,7 +67,9 @@ public class RestaurantQueryDslRepository {
                         )
                         .where(
                                 categoryEq(category, r),
-                                divideEq(divide, r)
+                                divideEq(divide, r),
+                                nameContain(name,r)
+
                         )
                         .groupBy(
                                 r.id,
@@ -97,6 +100,11 @@ public class RestaurantQueryDslRepository {
 
     private BooleanExpression divideEq(String divide, QRestaurant r) {
         return divide == null ? null : r.divide.eq(divide);
+    }
+
+
+    private BooleanExpression nameContain(String name, QRestaurant r) {
+        return name == null ? null : r.name.contains(name);
     }
 
 
