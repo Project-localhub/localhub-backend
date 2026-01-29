@@ -1,10 +1,7 @@
 package com.localhub.localhub.service;
 
 import com.localhub.localhub.dto.request.*;
-import com.localhub.localhub.dto.response.GetUserInfo;
-import com.localhub.localhub.dto.response.ResponseLoginWithToken;
-import com.localhub.localhub.dto.response.TokenResponse;
-import com.localhub.localhub.dto.response.ReissueTokens;
+import com.localhub.localhub.dto.response.*;
 import com.localhub.localhub.entity.*;
 import com.localhub.localhub.jwt.JWTUtil;
 import com.localhub.localhub.repository.jpaReposi.EmailVerificationRepository;
@@ -14,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -323,6 +321,17 @@ public class AuthService {
         userEntity.changePassword(encodedPassword);
         userEntity.changeMustChangePassword(false);
         userRepository.save(userEntity);
+
+    }
+    //소셜로그인 유저정보 반환 username,id email
+    public ResponseOauth2Info getOauth2UserInfo(String username) {
+
+
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 유저"));
+
+
+        return new ResponseOauth2Info(userEntity.getId(), userEntity.getUsername(), userEntity.getEmail());
 
     }
 }

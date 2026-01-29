@@ -5,6 +5,7 @@ import com.localhub.localhub.dto.request.JoinDto;
 import com.localhub.localhub.dto.request.LoginRequest;
 import com.localhub.localhub.dto.response.LoginResponse;
 import com.localhub.localhub.dto.response.ResponseLoginWithToken;
+import com.localhub.localhub.dto.response.ResponseOauth2Info;
 import com.localhub.localhub.dto.response.TokenResponse;
 import com.localhub.localhub.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/auth")
@@ -21,6 +23,17 @@ public class AuthController {
 
     private final AuthService authService;
 
+
+    @Operation(summary = "Oauth2 정보제공용", description = "id, username, email 반환")
+    @GetMapping("/me")
+    public ResponseEntity<ResponseOauth2Info> me(Authentication authentication) {
+
+
+        ResponseOauth2Info result = authService.getOauth2UserInfo(authentication.getName());
+        return ResponseEntity.ok(result);
+
+    }
+
     @Operation(summary = "회원가입", description = """
             username(email),phone,UserType(CUSTOMER, OWNER고정),name(유저이름)
             값을 받고 회원가입 로직 진행
@@ -28,6 +41,7 @@ public class AuthController {
             """)
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody JoinDto joinDto) {
+
         authService.Join(joinDto);
         return ResponseEntity.ok("회원가입이 성공했습니다.");
     }

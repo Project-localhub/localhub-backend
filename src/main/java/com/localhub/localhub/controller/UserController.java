@@ -23,6 +23,9 @@ public class UserController {
 
     private final AuthService authService;
 
+
+
+
     @Operation(summary = "유저 타입 변경 CUSTOMER <-> OWNER"
             , description = "CUSTOMER , OWNER를 지정")
     @PutMapping("/changeUserType")
