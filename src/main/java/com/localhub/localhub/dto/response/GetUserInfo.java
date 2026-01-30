@@ -1,5 +1,6 @@
 package com.localhub.localhub.dto.response;
 
+import com.localhub.localhub.entity.UserType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +15,7 @@ public class GetUserInfo {
     private String username;
     private String name;
     private String email;
-    private String UserType;
+    private UserType UserType;
 
 
 
