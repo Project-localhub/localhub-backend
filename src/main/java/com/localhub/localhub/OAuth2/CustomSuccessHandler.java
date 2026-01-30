@@ -58,7 +58,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addCookie(createCookie("access", access));
         response.addCookie(createCookie("refresh",refresh));
         log.info("[REDIRECT] redirect to frontend");
-        response.sendRedirect("http://localhost:5173/");
+        response.sendRedirect("https://localhub-frontend.vercel.app/oauth2/redirect");
 
     }
 
