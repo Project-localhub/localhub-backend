@@ -55,8 +55,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String access = jwtUtil.createJwt("access", username, role, 60 * 60 * 60L);
 
-        response.addCookie(createCookie("access", access));
-        response.addCookie(createCookie("refresh",refresh));
+        response.addHeader("Set-Cookie",
+                "access=" + access + "; Path=/; HttpOnly; Secure; SameSite=None");
+        response.addHeader("Set-Cookie",
+                "refresh=" + refresh + "; Path=/; HttpOnly; Secure; SameSite=None");
         log.info("[REDIRECT] redirect to frontend");
         response.sendRedirect("https://localhub-frontend.vercel.app/oauth2/redirect");
 //        response.sendRedirect("http://localhost:5173/oauth/redirect ");
@@ -70,6 +72,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         cookie.setPath("/");
         cookie.setHttpOnly(true);
+        cookie.setSecure(true);
 
         return cookie;
     }
