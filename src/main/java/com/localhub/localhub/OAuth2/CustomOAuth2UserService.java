@@ -21,6 +21,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+
+        log.error("=== OAUTH2 LOAD USER START ===");
+
         log.info("[OAuth2] registrationId = {}",
                 userRequest.getClientRegistration().getRegistrationId());
 

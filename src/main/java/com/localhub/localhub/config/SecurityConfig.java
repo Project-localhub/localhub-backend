@@ -80,6 +80,10 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService)
                         )
                         .successHandler(customSuccessHandler)
+                        .failureHandler((req, res, ex) -> {
+                            ex.printStackTrace(); // 여기 로그 꼭
+                            res.sendError(401);
+                        })
                 );
 
 
