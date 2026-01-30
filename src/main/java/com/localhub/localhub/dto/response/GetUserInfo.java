@@ -14,6 +14,7 @@ public class GetUserInfo {
     private String username;
     private String name;
     private String email;
+    private String UserType;
 
 
 

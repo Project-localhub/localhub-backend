@@ -50,7 +50,8 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
         u.id,
         u.username,
         u.name,
-        u.email
+        u.email,
+        u.userType
     )
     FROM UserEntity u
     WHERE u.id = :id
