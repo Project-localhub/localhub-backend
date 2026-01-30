@@ -102,6 +102,7 @@ public class SecurityConfig {
                         .requestMatchers("/reissue").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/mail/**").permitAll()
+                        .requestMatchers("/jwt/**").permitAll()
                         //식당 정보조회내용은 전체허용
                         .requestMatchers("/api/restaurant/get-all-restaurantsByFilter",
                                 "/api/restaurant/get-all-restaurants","/api/restaurant/details/**").permitAll()
