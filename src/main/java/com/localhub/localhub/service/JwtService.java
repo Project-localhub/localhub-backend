@@ -104,7 +104,7 @@ public class JwtService {
         // Refresh 토큰 획득
         String refreshToken = null;
         for (Cookie cookie : cookies) {
-            if ("refreshToken".equals(cookie.getName())) {
+            if ("refresh".equals(cookie.getName())) {
                 refreshToken = cookie.getValue();
                 break;
             }
