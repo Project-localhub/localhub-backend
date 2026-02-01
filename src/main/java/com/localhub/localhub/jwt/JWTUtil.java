@@ -123,7 +123,7 @@ public class JWTUtil {
 
     }
     //refresh access 확인가능 로직
-    public String createJWT(String username, String role, Boolean isAccess) {
+    public String createJWT(String username, String role, Boolean isAccess,String category) {
 
         long now = System.currentTimeMillis();
         long expiry = isAccess ? 3600000 : 86400000;

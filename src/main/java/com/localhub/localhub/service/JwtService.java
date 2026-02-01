@@ -74,8 +74,8 @@ public class JwtService {
         String role = jwtUtil.getRole(refreshToken);
 
         // 토큰 생성
-        String newAccessToken = jwtUtil.createJWT(username, role, true);
-        String newRefreshToken = jwtUtil.createJWT(username, role, false);
+        String newAccessToken = jwtUtil.createJWT(username, role, true,"access");
+        String newRefreshToken = jwtUtil.createJWT(username, role, false,"refresh");
 
         // 기존 Refresh 토큰 DB 삭제 후 신규 추가
         RefreshEntity newRefreshEntity = RefreshEntity.builder()
@@ -125,8 +125,8 @@ public class JwtService {
         String role = jwtUtil.getRole(refreshToken);
 
         // 토큰 생성
-        String newAccessToken = jwtUtil.createJWT(username, role, true);
-        String newRefreshToken = jwtUtil.createJWT(username, role, false);
+        String newAccessToken = jwtUtil.createJWT(username, role, true,"access");
+        String newRefreshToken = jwtUtil.createJWT(username, role, false,"refresh");
 
         // 기존 Refresh 토큰 DB 삭제 후 신규 추가
         RefreshEntity newRefreshEntity = RefreshEntity.builder()
