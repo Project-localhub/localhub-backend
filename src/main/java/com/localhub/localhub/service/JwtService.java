@@ -139,11 +139,11 @@ public class JwtService {
         refreshRepository.save(newRefreshEntity);
 
         // 기존 쿠키 제거
-        Cookie refreshCookie = new Cookie("refreshToken", null);
+        Cookie refreshCookie = new Cookie("refresh", null);
         refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(false);
+        refreshCookie.setSecure(true);
         refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(10);
+        refreshCookie.setMaxAge(0);
         response.addCookie(refreshCookie);
 
         return new JWTResponseDTO(newAccessToken, newRefreshToken);
