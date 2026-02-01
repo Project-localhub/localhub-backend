@@ -76,7 +76,7 @@ public class JWTUtil {
                 .before(new Date());
     }
 
-
+    //일반적인 jwt 로직
     public String createJwt(String category,String username, String role, Long expiredMs) {
 
         return Jwts.builder()
@@ -122,7 +122,7 @@ public class JWTUtil {
         }
 
     }
-
+    //refresh access 확인가능 로직
     public String createJWT(String username, String role, Boolean isAccess) {
 
         long now = System.currentTimeMillis();

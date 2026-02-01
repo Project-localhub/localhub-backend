@@ -141,9 +141,9 @@ public class JwtService {
         // 기존 쿠키 제거
         Cookie refreshCookie = new Cookie("refresh", null);
         refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);
+        refreshCookie.setSecure(false);
         refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(0);
+        refreshCookie.setMaxAge(10);
         response.addCookie(refreshCookie);
 
         return new JWTResponseDTO(newAccessToken, newRefreshToken);
