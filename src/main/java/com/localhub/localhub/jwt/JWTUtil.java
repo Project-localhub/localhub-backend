@@ -133,6 +133,7 @@ public class JWTUtil {
                 .claim("username", username)
                 .claim("role", role)
                 .claim("type", type)
+                .claim("category",category)
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + expiry))
                 .signWith(secretKey)
