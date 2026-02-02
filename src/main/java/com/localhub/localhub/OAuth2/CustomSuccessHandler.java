@@ -44,7 +44,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
+        String refresh = jwtUtil.createJWT(username,role, false,"refresh");
 
         RefreshEntity refreshEntity = RefreshEntity.builder()
                 .refresh(refresh)
@@ -53,7 +53,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .build();
         refreshRepository.save(refreshEntity);
 
-        String access = jwtUtil.createJwt("access", username, role, 60 * 60 * 60L);
+        String access = jwtUtil.createJWT(username, role, true,"access");
 
         response.addHeader("Set-Cookie",
                 "access=" + access + "; Path=/; HttpOnly; Secure; SameSite=None");

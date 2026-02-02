@@ -76,7 +76,7 @@ public class JWTUtil {
                 .before(new Date());
     }
 
-
+    //일반적인 jwt 로직
     public String createJwt(String category,String username, String role, Long expiredMs) {
 
         return Jwts.builder()
@@ -122,8 +122,8 @@ public class JWTUtil {
         }
 
     }
-
-    public String createJWT(String username, String role, Boolean isAccess) {
+    //refresh access 확인가능 로직
+    public String createJWT(String username, String role, Boolean isAccess,String category) {
 
         long now = System.currentTimeMillis();
         long expiry = isAccess ? 3600000 : 86400000;
@@ -133,6 +133,7 @@ public class JWTUtil {
                 .claim("username", username)
                 .claim("role", role)
                 .claim("type", type)
+                .claim("category",category)
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + expiry))
                 .signWith(secretKey)

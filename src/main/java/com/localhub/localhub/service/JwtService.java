@@ -74,8 +74,8 @@ public class JwtService {
         String role = jwtUtil.getRole(refreshToken);
 
         // 토큰 생성
-        String newAccessToken = jwtUtil.createJWT(username, role, true);
-        String newRefreshToken = jwtUtil.createJWT(username, role, false);
+        String newAccessToken = jwtUtil.createJWT(username, role, true,"access");
+        String newRefreshToken = jwtUtil.createJWT(username, role, false,"refresh");
 
         // 기존 Refresh 토큰 DB 삭제 후 신규 추가
         RefreshEntity newRefreshEntity = RefreshEntity.builder()
@@ -104,7 +104,7 @@ public class JwtService {
         // Refresh 토큰 획득
         String refreshToken = null;
         for (Cookie cookie : cookies) {
-            if ("refreshToken".equals(cookie.getName())) {
+            if ("refresh".equals(cookie.getName())) {
                 refreshToken = cookie.getValue();
                 break;
             }
@@ -125,8 +125,8 @@ public class JwtService {
         String role = jwtUtil.getRole(refreshToken);
 
         // 토큰 생성
-        String newAccessToken = jwtUtil.createJWT(username, role, true);
-        String newRefreshToken = jwtUtil.createJWT(username, role, false);
+        String newAccessToken = jwtUtil.createJWT(username, role, true,"access");
+        String newRefreshToken = jwtUtil.createJWT(username, role, false,"refresh");
 
         // 기존 Refresh 토큰 DB 삭제 후 신규 추가
         RefreshEntity newRefreshEntity = RefreshEntity.builder()
@@ -139,7 +139,7 @@ public class JwtService {
         refreshRepository.save(newRefreshEntity);
 
         // 기존 쿠키 제거
-        Cookie refreshCookie = new Cookie("refreshToken", null);
+        Cookie refreshCookie = new Cookie("refresh", null);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(false);
         refreshCookie.setPath("/");
