@@ -61,7 +61,7 @@ public class RestaurantReviewRepositoryJDBC {
                 COALESCE(usr.score,0) AS score,
                 u.id,
                 rv.content,
-                u.username AS username,
+                u.name AS name,
                 rv.created_at
                
                 
@@ -92,7 +92,7 @@ public class RestaurantReviewRepositoryJDBC {
                         .score(rs.getDouble("score"))
                         .userId(rs.getLong("id"))
                         .content(rs.getNString("content"))
-                        .username(rs.getString("username"))
+                        .name(rs.getString("name"))
                         .createdAt(
                                 rs.getTimestamp("created_at") == null
                                         ? null : rs.getTimestamp("created_at").toLocalDateTime()

@@ -18,5 +18,6 @@ public class ResponseReviewDto {
         public String content;
         public double score;
         private String username;
+        private String name;
         private LocalDateTime createdAt;
 }
