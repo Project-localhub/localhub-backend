@@ -20,35 +20,52 @@ public class InquiryChatRepositoryJDBC {
     public List<InquiryChatDto> findByUserId(Long userId) {
 
         String sql = """
-                SELECT 
-                iq.id AS chatroom_id,
-                u.id AS owner_id,
-                u.username AS owner_name,
-                m.content AS last_message,
-                m.created_at AS last_message_at,
-                r.id AS restaurant_id
+                SELECT
+                                                 iq.id AS chatroom_id,
                 
-                FROM inquiry_chat iq
+                                                 r.owner_id AS owner_id,
+                                                 owner_u.name AS owner_name,
                 
-                JOIN user_chatroom_mapping ucm
-                on ucm.chatroom_id = iq.id
+                                                 customer_u.id AS customer_id,
+                                                 customer_u.name AS customer_name,
                 
-                LEFT JOIN restaurant r
-                on r.id = iq.restaurant_id 
+                                                 m.content AS last_message,
+                                                 m.created_at AS last_message_at,
                 
-                LEFT JOIN users u
-                on u.id = r.owner_id
+                                                 r.id AS restaurant_id
                 
-                LEFT JOIN message m
-                on m.id = (
-                 SELECT m2.id
-                 FROM message m2
-                 WHERE m2.chatroom_id = iq.id
-                 ORDER BY m2.created_at DESC
-                 LIMIT 1
-                )
+                                             FROM inquiry_chat iq
                 
-                WHERE ucm.user_id = :user_id
+                                             -- 1. 내가 속한 채팅방
+                                             JOIN user_chatroom_mapping ucm_me
+                                               ON ucm_me.chatroom_id = iq.id
+                                              AND ucm_me.user_id = :user_id
+                
+                                             -- 2. 채팅방의 레스토랑
+                                             JOIN restaurant r
+                                               ON r.id = iq.restaurant_id
+                
+                                             -- 3. 사장 정보
+                                             JOIN users owner_u
+                                               ON owner_u.id = r.owner_id
+                
+                                             -- 4. 사장이 아닌 참가자 = customer
+                                             JOIN user_chatroom_mapping ucm_customer
+                                               ON ucm_customer.chatroom_id = iq.id
+                                              AND ucm_customer.user_id <> r.owner_id
+                
+                                             JOIN users customer_u
+                                               ON customer_u.id = ucm_customer.user_id
+                
+                                             -- 마지막 메시지
+                                             LEFT JOIN message m
+                                               ON m.id = (
+                                                 SELECT m2.id
+                                                 FROM message m2
+                                                 WHERE m2.chatroom_id = iq.id
+                                                 ORDER BY m2.created_at DESC
+                                                 LIMIT 1
+                                               )
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -64,6 +81,8 @@ public class InquiryChatRepositoryJDBC {
                         .lastMessageTime(  Optional.ofNullable(rs.getTimestamp("last_message_at"))
                                 .map(ts -> ts.toLocalDateTime())
                                 .orElse(null))
+                        .customerId(rs.getLong("customer_id"))
+                        .customerName(rs.getString("customer_name"))
                         .build()
 
         ).stream().toList();

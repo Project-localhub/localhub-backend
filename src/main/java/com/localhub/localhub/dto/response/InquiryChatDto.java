@@ -22,6 +22,9 @@ public class InquiryChatDto {
     private long unreadCount;
     private LocalDateTime createdAt;
 
+    private Long customerId;
+    private String customerName;
+
     private String lastMessage;
     private LocalDateTime lastMessageTime;
 
